@@ -6,7 +6,7 @@ class iidGaussian():
         self.N = column
         self.mean = mean
         self.var = var
-        self.A = self.set_matrix(M, N, mean, sigma)
+        self.A = self.set_matrix(M, N, mean, var)
 
     def set_matrix(self, M, N, m, v):
         """
