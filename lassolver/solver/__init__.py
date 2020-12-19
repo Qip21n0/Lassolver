@@ -1,2 +1,2 @@
-import lassolver.solver.centeralized
-import lassolver.solver.distributed
+from .centeralized import *
+from .distributed import *
