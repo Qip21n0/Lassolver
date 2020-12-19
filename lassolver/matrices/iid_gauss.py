@@ -1,7 +1,8 @@
 import numpy as np
 
-class iidGaussian:
+class iidGaussian(Base):
     def __init__(self, M, N, m=0, v=1):
+        super().__init__(M, N)
         self.A = self.set_matrix(M, N, m, v)
 
     def set_matrix(self, row, column, mean, var):
