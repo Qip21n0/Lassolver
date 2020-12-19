@@ -1,4 +1,5 @@
 import numpy as np
+from Lassolver.lasolver.utils import *
 
 class ISTA:
     def __init__(self, A, x, n):
@@ -16,8 +17,8 @@ class ISTA:
         gamma = 1 / (self.tau * self.L)
         for i in range(ite_max):
             r = self.update_r()
-            w = self.update_w(gamma)
-            self.s = self.update_s()
+            w = self.update_w(gamma, r)
+            self.s = self.update_s(w, 1/self.L)
             mse_ = np.linalg.norm(self.s - self.x)**2 / self.N
             self.mse = np.append(self.mse, mse_)
 
@@ -28,8 +29,8 @@ class ISTA:
     def update_r(self):
         return self.y - self.A @ self.s
 
-    def update_w(self, gamma):
-        return self.s + gamma * self.A.T @ self.r
+    def update_w(self, r, gamma):
+        return self.s + gamma * self.A.T @ r
 
-    def update_s(self):
-        return soft_threshold(self.w, 1/self.L)
+    def update_s(self, w, thre):
+        return soft_threshold(w, thre)
