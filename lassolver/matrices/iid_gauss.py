@@ -1,15 +1,11 @@
 import numpy as np
 
-class iidGaussian():
-    def __init__(self, row, column, mean=0, var=1):
-        self.M = row
-        self.N = column
-        self.mean = mean
-        self.var = var
-        self.A = self.set_matrix(M, N, mean, var)
+class iidGaussian:
+    def __init__(self, M, N, m=0, v=1):
+        self.A = self.set_matrix(M, N, m, v)
 
-    def set_matrix(self, M, N, m, v):
+    def set_matrix(self, row, column, mean, var):
         """
         Return i.i.d(independent and identically distributed) Gaussian Matrix
         """
-        return np.random.normal(m, v**0.5, (M, N))
+        return np.random.normal(mean, var**0.5, (row, column))
