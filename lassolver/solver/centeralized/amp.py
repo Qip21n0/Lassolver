@@ -19,7 +19,7 @@ class AMP(ISTA):
             mse_ = np.linalg.norm(self.s - self.x)**2 / self.N
             self.mse = np.append(self.mse, mse_)
 
-    def update_r(self):
+    def update_r(self, Onsager):
         return self.y - self.A @ self.s + Onsager
 
     def update_w(self, r):
