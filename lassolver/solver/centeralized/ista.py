@@ -1,5 +1,5 @@
 import numpy as np
-from Lassolver.lasolver.utils import *
+from lasolver.utils import *
 
 class ISTA:
     def __init__(self, A, x, n):
