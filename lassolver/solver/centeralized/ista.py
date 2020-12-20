@@ -12,7 +12,7 @@ class ISTA:
         self.n = np.random.normal(0, self.sigma**0.5, (self.M, 1))
         self.y = Ax + self.n
         self.s = np.zeros((self.N, 1))
-        self.mse = np.array(np.linalg.norm(self.s - self.x)**2 / self.N)
+        self.mse = np.array([np.linalg.norm(self.s - self.x)**2 / self.N])
         self.A2 = A.T @ A
 
     def estimate(self, tau=1, ite_max=20):
@@ -23,7 +23,7 @@ class ISTA:
             r = self.update_r()
             w = self.update_w(gamma, r)
             self.s = self.update_s(w, 1/self.L)
-            self.add_mse()
+            self.mse = self.add_mse()
 
     def set_lipchitz(self):
         w, _ = np.linalg.eig(self.A2)
@@ -40,4 +40,4 @@ class ISTA:
 
     def add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
-        self.mse = np.append(self.mse, mse)
+        return np.append(self.mse, mse)

@@ -9,33 +9,34 @@ class OAMP(AMP):
         self.I = np.eye(self.M)
 
     def estimate(self, C=1.75, ord='LMMSE', ite_max=20):
+        self.AT = self.A.T
         a = self.M / self.N
         c = (self.N - self.M) / self.M
         v = 1
-        W = self.set_W(v, ord)
+        self.W = self.set_W(v, ord)
         for i in range(ite_max):
             r = self.update_r()
-            w = self.update_w(r, W)
+            w = self.update_w(r)
             v = self.update_v(r)
             t = self.update_t(a, c, v, ord)
             self.s = self.update_s(C, w, t) if i != ite_max-1 else self.output_s(w, t)
-            self.add_mse()
+            self.mse = self.add_mse()
             if ord == 'LMMSE':
-                W = self.set_W(v, ord='LMMSE')
+                self.W = self.set_W(v, ord='LMMSE')
 
     def set_W(self, v, ord):
         if ord == 'MF':
-            hat_W = self.A.T
+            W_ = self.AT
         elif ord == 'PINV':
-            hat_W = np.linalg.pinv(self.A)
+            W_ = np.linalg.pinv(self.A)
         elif ord == 'LMMSE':
-            hat_W = v * self.A.T @ np.linalg.inv(v * self.AAT + self.sigma * self.I)
+            W_ = v * self.AT @ np.linalg.inv(v * self.AAT + self.sigma * self.I)
         else :
             raise NameError("not correct")
-        return self.N / np.trace(hat_W @ self.A) * hat_W
+        return self.N / np.trace(W_ @ self.A) * W_
 
-    def update_w(self, r, W):
-        return self.s + W @ r
+    def update_w(self, r):
+        return self.s + self.W @ r
 
     def update_t(self, a, c, v, ord):
         if ord == 'MF':
@@ -53,4 +54,4 @@ class OAMP(AMP):
         return C * DF(w, t**0.5)
 
     def output_s(self, w, t):
-        super().update_s()
+        return soft_threshold(w, t**0.5)

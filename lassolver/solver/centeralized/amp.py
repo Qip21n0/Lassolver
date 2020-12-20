@@ -17,7 +17,7 @@ class AMP(ISTA):
             t = self.update_t(a, v)
             self.s = self.update_s(w, t)
             Onsager = np.sum(self.s != 0) / self.M * (r + Onsager)
-            self.add_mse()
+            self.mse = self.add_mse()
 
     def update_w(self, r):
         return self.s + self.AT @ r
