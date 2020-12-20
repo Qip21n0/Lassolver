@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import ortho_group
+from lassolver.matrices.base import *
 
 class UnitaryInvar(Base):
     def __init__(self, M, N, connum):
