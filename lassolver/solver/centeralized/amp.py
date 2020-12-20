@@ -21,7 +21,7 @@ class AMP(ISTA):
         return self.y - self.A @ self.s
 
     def update_w(self, r):
-        return self.s + self.A @ r
+        return self.s + self.A.T @ r
 
     def update_v(self):
         return (np.linalg.norm(self.y - self.A @ self.s)**2 - self.M * self.sigma) / np.trace(self.A2)
