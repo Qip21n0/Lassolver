@@ -31,4 +31,4 @@ def DF(r, gamma):
     divergence-free function
     """
     eta = soft_threshold(r, gamma)
-    return eta - np.mean(eta) * r
+    return eta - np.mean(eta != 0) * r

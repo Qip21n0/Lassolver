@@ -43,9 +43,9 @@ class OAMP(AMP):
             return v / a + self.sigma
         elif ord == 'PINV':
             if self.M < self.N:
-                return c * v + self.N / (self.N - self.M) * sigma
+                return c * v + self.N / (self.N - self.M) * self.sigma
             else :
-                return -c * sigma
+                return -c * self.sigma
         else :
             tmp = c * v + self.sigma
             return (tmp + (tmp**2 + 4 * self.sigma * v)**0.5) / 2
