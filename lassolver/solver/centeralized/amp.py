@@ -1,5 +1,5 @@
 import numpy as np
-from lassolver.utils import *
+from lassolver.utils.utils import *
 from lassolver.solver.centeralized.ista import ISTA
 
 class AMP(ISTA):
