@@ -26,6 +26,3 @@ class UnitaryInvar(Base):
         self.sv = self.singular_value()
         self.S = np.hstack(np.diag(self.sv, np.zeros((self.M, self.N - self.M))))
         self.A = self.V @ self.S @ self.U.T
-
-    def members(self):
-        super().members()
