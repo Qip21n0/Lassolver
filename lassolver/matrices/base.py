@@ -4,5 +4,5 @@ class Base:
         self.N = N
 
     def members(self):
-        for key, value in test.__dict__.items():
-            print(key, ':', value))
+        for key in vars(self):
+            print("{}: {}".format(key, vars(self)[key]))
