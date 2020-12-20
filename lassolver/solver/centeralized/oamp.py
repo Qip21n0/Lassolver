@@ -7,7 +7,7 @@ class OAMP(AMP):
         self.AAT = A @ A.T
         self.I = np.eyes(self.M)
 
-    def estimate(self, ord='LMMSE', ite_max=20):
+    def estimate(self, C=1.75, ord='LMMSE', ite_max=20):
         a = self.M / self.N
         c = (self.N - self.M) / self.M
         v = 1
@@ -17,7 +17,7 @@ class OAMP(AMP):
             w = self.update_w(r)
             v = self.update_v(r)
             t = self.update_t(a, c, v, ord)
-            self.s = self.update_s(w, t)
+            self.s = self.update_s(C, w, t) if i != ite_max-1 else self.output_s(w, t)
             self.add_mse()
             if ord == 'LMMSE':
                 W = self.set_W(v, ord='LMMSE')
@@ -56,6 +56,9 @@ class OAMP(AMP):
 
     def update_s(self, C, w, t):
         return C * DF(w, t**0.5)
+
+    def output_s(self, w, t):
+        super().update_s()
 
     def add_mse(self):
         super().add_mse()
