@@ -15,7 +15,7 @@ class ISTA:
         self.mse = np.array([np.linalg.norm(self.s - self.x)**2 / self.N])
         self.A2 = A.T @ A
 
-    def estimate(self, tau=1, ite_max=20):
+    def estimate(self, tau=0.5, ite_max=20):
         self.AT = self.A.T
         self.L = self.set_lipchitz()
         gamma = 1 / (tau * self.L)

@@ -5,7 +5,7 @@ class FISTA(ISTA):
     def __init__(self, A, x, snr):
         super().__init__(A, x, snr)
 
-    def estimate(self, tau=1, ite_max=20):
+    def estimate(self, tau=0.5, ite_max=20):
         self.L = self.set_lipchitz()
         gamma = 1 / (tau * self.L)
         for i in range(ite_max):

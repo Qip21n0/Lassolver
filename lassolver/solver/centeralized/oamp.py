@@ -10,10 +10,9 @@ class OAMP(AMP):
 
     def estimate(self, C=1.75, ord='LMMSE', ite_max=20):
         self.AT = self.A.T
+        self.W = self.set_W(1, ord)
         a = self.M / self.N
         c = (self.N - self.M) / self.M
-        v = 1
-        self.W = self.set_W(v, ord)
         for i in range(ite_max):
             r = self.update_r()
             w = self.update_w(r)
