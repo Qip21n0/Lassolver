@@ -37,6 +37,6 @@ class ISTA:
     def update_s(self, w, thre):
         return soft_threshold(w, thre)
 
-    def	add_mse(self):
+    def add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
         self.mse = np.append(self.mse, mse)

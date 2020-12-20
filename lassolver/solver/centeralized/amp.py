@@ -32,5 +32,5 @@ class AMP(ISTA):
     def update_s(self, w, t):
         return soft_threshold(w, t**0.5)
 
-    def	add_mse(self):
+    def add_mse(self):
         super().add_mse()
