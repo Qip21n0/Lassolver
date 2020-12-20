@@ -2,12 +2,15 @@ import numpy as np
 from lasolver.utils import *
 
 class ISTA:
-    def __init__(self, A, x, n):
+    def __init__(self, A, x, snr):
         self.A = A
         self.M, self.N = A.shape
         self.x = x
-        self.n = n
-        self.y = A @ x + n
+        Ax = A @ x
+        SNRdB = 10**(-0.1*snr)
+        self.sigma = np.var(Ax) * SNRdB
+        self.n = np.random.normal(0, self.n_var**0.5, (self.M, 1))
+        self.y = Ax + self.n
         self.s = np.zeros((self.N, 1))
         self.mse = np.array(np.linalg.norm(self.s - self.x)**2 / self.N)
         self.A2 = A.T @ A
