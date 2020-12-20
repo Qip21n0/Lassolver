@@ -9,17 +9,16 @@ class AMP(ISTA):
         Onsager = np.zeros((self.N, 1))
         a = self.M / self.N
         for i in range(ite_max):
-            r = self.update_r(Onsager)
+            r = self.update_r() + Onsager
             w = self.update_w(r)
             v = self.update_v()
             t = self.update_t(a, v)
             self.s = self.update_s(w, t)
             Onsager = np.sum(self.s != 0) / self.M * r
-            mse_ = np.linalg.norm(self.s - self.x)**2 / self.N
-            self.mse = np.append(self.mse, mse_)
+            self.add_mse()
 
     def update_r(self, Onsager):
-        return self.y - self.A @ self.s + Onsager
+        return self.y - self.A @ self.s
 
     def update_w(self, r):
         return self.s + self.A @ r
@@ -31,4 +30,7 @@ class AMP(ISTA):
         return v / a + self.sigma
 
     def update_s(self, w, t):
-        return soft_threshold(w, t**0.5) 
+        return soft_threshold(w, t**0.5)
+
+    def	add_mse(self):
+	super().add_mse()

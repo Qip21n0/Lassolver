@@ -22,8 +22,7 @@ class ISTA:
             r = self.update_r()
             w = self.update_w(gamma, r)
             self.s = self.update_s(w, 1/self.L)
-            mse_ = np.linalg.norm(self.s - self.x)**2 / self.N
-            self.mse = np.append(self.mse, mse_)
+            self.mse_add()
 
     def set_lipchitz(self):
         w, _ = np.linalg.eig(self.A2)
@@ -37,3 +36,7 @@ class ISTA:
 
     def update_s(self, w, thre):
         return soft_threshold(w, thre)
+
+    def	add_mse(self):
+	mse = np.linalg.norm(self.s - self.x)**2 / self.N
+	self.mse = np.append(self.mse, mse)
