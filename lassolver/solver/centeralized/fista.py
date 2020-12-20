@@ -1,4 +1,5 @@
 import numpy as np
+from lassolver.solver.centeralized.ista import ISTA
 
 class FISTA(ISTA):
     def __init__(self, A, x, snr):
