@@ -1,7 +1,6 @@
 # util file
-from scipy.stats import norm
-
 import numpy as np
+from scipy.stats import norm
 
 
 def bernouli_gaussian(n, rho):
@@ -19,29 +18,6 @@ def bernouli_gaussian(n, rho):
         else:
             x[i] = norm.ppf(rand[i]/rho, loc=0, scale= 1/rho**0.5)
     return x
-
-
-def special_gaussian(Lambda):
-    """
-    ガウス分布の確率密度関数(p.d.f)と累積分布関数(c.d.f)を組み合わせた関数
-    """
-    return (1 + Lambda**2) * norm.cdf(Lambda) - Lambda * norm.pdf(Lambda)
-
-
-def set_threshold(alpha, sigma):
-    """
-    set the threshold
-    """
-    Lambda_opt = 0
-    para_max = 0
-    for Lambda in np.
-    arange(0, 5*sigma**0.5, 1/(100*5*sigma**0.5)) :
-        Gaussian = special_gaussian(Lambda)
-        with np.errstate(divide='ignore'):  # 0除算のRuntimeWarningを無視
-            para = (1 - 2/alpha * Gaussian) / (1 + Lambda**2 - 2 * Gaussian)
-        if para_max < para:
-            Lambda_opt = Lambda
-    return Lambda_opt/alpha**0.5
 
 
 def soft_threshold(r, gamma):
