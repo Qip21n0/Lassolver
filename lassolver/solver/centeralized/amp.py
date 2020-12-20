@@ -18,7 +18,7 @@ class AMP(ISTA):
             self.add_mse()
 
     def update_r(self):
-        return self.y - self.A @ self.s
+        super().update_r()
 
     def update_w(self, r):
         return self.s + self.A.T @ r
