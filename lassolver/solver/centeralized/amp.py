@@ -2,10 +2,8 @@ import numpy as np
 from lassolver.utils import *
 
 class AMP(ISTA):
-    def __init__(self, A, x, n):
-        super().__init__(A, x, n)
-        self.sigma = np.var(n)
-        self.Onsager = np.zeros((self.N, 1))
+    def __init__(self, A, x, snr):
+        super().__init__(A, x, snr)
 
     def estimat(self, ite_max=20):
         Onsager = np.zeros((self.N, 1))
