@@ -1,5 +1,5 @@
 import numpy as np
-from lassolver.matrices.base import *
+from lassolver.matrices.base import Base
 
 class iidGaussian(Base):
     def __init__(self, M, N, m=0, v=1):

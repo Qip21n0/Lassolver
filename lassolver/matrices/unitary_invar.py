@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.stats import ortho_group
-from lassolver.matrices.base import *
+from lassolver.matrices.base import Base
 
 class UnitaryInvar(Base):
     def __init__(self, M, N, connum):
@@ -9,8 +9,8 @@ class UnitaryInvar(Base):
         self.r = kappa**(1/M)
         self.sv = self.singular_value()
         self.S = np.hstack((np.diag(self.sv), np.zeros((M, N-M)))
-        self.V = ortho_group(M)
-        self.U = ortho_group(N)
+        self.V = ortho_group.rvs(M)
+        self.U = ortho_group.rvs(N)
         self.A = self.V @ self.S @ self.U.T
 
     def singular_value(self):
