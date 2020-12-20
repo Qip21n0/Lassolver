@@ -1,11 +1,10 @@
-# util file
 import numpy as np
 from scipy.stats import norm
 
 
 def bernouli_gaussian(n, rho):
     """
-    ガウス・ベルヌーイ分布に従う原信号の生成
+    generation of signal according to Berouli-Gaussian distribution
     """
     rand = np.random.rand(n)
     x = np.zeros((n, 1))
@@ -31,4 +30,5 @@ def DF(r, gamma):
     """
     divergence-free function
     """
-    return soft_threshold(r, gamma) - np.mean(d_soft_threshold(r, gamma), axis=None) * r
+    eta = soft_threshold(r, gamma)
+    return eta - np.mea(eta) * r
