@@ -14,9 +14,10 @@ class UnitaryInvar(Base):
         self.A = self.V @ self.S @ self.U.T
 
     def singular_value(self):
-        sv = np.array(self.N * (1 - 1/self.r) / (1 - 1/self.kappa) if self.kappa != 1 else self.N/self.M)
+        start = self.N * (1 - 1/self.r) / (1 - 1/self.kappa) if self.kappa != 1 else self.N/self.M
+        sv = np.array([start])
         for i in range(self.M-1):
-            sv = np.append(self.sv, self.sv[-1] / self.r)
+            sv = np.append(sv, sv[-1] / self.r)
         return sv
 
     def change_condition(self, connum):
