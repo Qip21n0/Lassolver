@@ -1,8 +1,8 @@
 import numpy as np
 
 class FISTA(ISTA):
-    def __init__(self, A, x, n):
-        super().__init__(A, x, n)
+    def __init__(self, A, x, snr):
+        super().__init__(A, x, snr)
 
     def estimate(self, tau=1, ite_max=20):
         self.L = self.set_lipchitz()
