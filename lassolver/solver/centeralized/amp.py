@@ -6,23 +6,21 @@ class AMP(ISTA):
     def __init__(self, A, x, snr):
         super().__init__(A, x, snr)
 
-    def estimat(self, ite_max=20):
-        Onsager = np.zeros((self.N, 1))
+    def estimate(self, ite_max=20):
+        self.AT = self.A.T
+        Onsager = np.zeros((self.M, 1))
         a = self.M / self.N
         for i in range(ite_max):
-            r = self.update_r() + Onsager
-            w = self.update_w(r)
+            r = self.update_r()
+            w = self.update_w(r + Onsager)
             v = self.update_v(r)
             t = self.update_t(a, v)
             self.s = self.update_s(w, t)
-            Onsager = np.sum(self.s != 0) / self.M * r
+            Onsager = np.sum(self.s != 0) / self.M * (r + Onsager)
             self.add_mse()
 
-    def update_r(self):
-        super().update_r()
-
     def update_w(self, r):
-        return self.s + self.A.T @ r
+        return self.s + self.AT @ r
 
     def update_v(self, r):
         v = (np.linalg.norm(r)**2 - self.M * self.sigma) / np.trace(self.A2)
@@ -35,6 +33,3 @@ class AMP(ISTA):
 
     def update_s(self, w, t):
         return soft_threshold(w, t**0.5)
-
-    def add_mse(self):
-        super().add_mse()
