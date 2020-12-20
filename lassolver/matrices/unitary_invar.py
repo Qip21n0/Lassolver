@@ -6,7 +6,7 @@ class UnitaryInvar(Base):
     def __init__(self, M, N, connum):
         super().__init__(M, N)
         self.kappa = connum
-        self.r = kappa**(1/M)
+        self.r = connum**(1/M)
         self.sv = self.singular_value()
         self.S = np.hstack((np.diag(self.sv), np.zeros((M, N-M))))
         self.V = ortho_group.rvs(M)
