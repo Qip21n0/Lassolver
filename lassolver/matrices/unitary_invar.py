@@ -8,7 +8,7 @@ class UnitaryInvar(Base):
         self.kappa = connum
         self.r = kappa**(1/M)
         self.sv = self.singular_value()
-        self.S = np.hstack((np.diag(self.sv), np.zeros((M, N-M)))
+        self.S = np.hstack((np.diag(self.sv), np.zeros((M, N-M))))
         self.V = ortho_group.rvs(M)
         self.U = ortho_group.rvs(N)
         self.A = self.V @ self.S @ self.U.T
