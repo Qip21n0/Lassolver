@@ -14,7 +14,7 @@ class UnitaryInvar(Base):
         self.A = self.V @ self.S @ self.U.T
 
     def singular_value(self):
-        sv = np.array(self.N * (1 - 1/self.r) / (1 - 1/self.kappa) if self.kappa != 1 else self.N/self.M])
+        sv = np.array(self.N * (1 - 1/self.r) / (1 - 1/self.kappa) if self.kappa != 1 else self.N/self.M)
         for i in range(self.M-1):
             sv = np.append(self.sv, self.sv[-1] / self.r)
         return sv
@@ -23,5 +23,5 @@ class UnitaryInvar(Base):
         self.kappa = connum
         self.r = kappa**(1/self.M)
         self.sv = self.singular_value()
-        self.S = np.hstack(np.diag(self.sv, np.zeros((self.M, self.N - self.M)))
+        self.S = np.hstack(np.diag(self.sv, np.zeros((self.M, self.N - self.M))))
         self.A = self.V @ self.S @ self.U.T
