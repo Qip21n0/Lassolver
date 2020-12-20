@@ -1,6 +1,6 @@
-import lassolver.matrices
-import lassolver.solver
-import lassolver.utils
+from lassolver.matrices import *
+from lassolver.solver import *
+from lassolver.utils import *
 
 def version():
     version = '0.0.0'
