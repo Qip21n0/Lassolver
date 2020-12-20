@@ -3,5 +3,6 @@ class Base:
         self.M = M
         self.N = N
 
-    def hoge(self):
-        something
+    def members(self):
+        for key, value in test.__dict__.items():
+            print(key, ':', value))

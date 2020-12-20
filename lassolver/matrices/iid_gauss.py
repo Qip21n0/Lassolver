@@ -11,3 +11,6 @@ class iidGaussian(Base):
         Return i.i.d(independent and identically distributed) Gaussian Matrix
         """
         return np.random.normal(mean, var**0.5, (row, column))
+
+    def members(self):
+        super().members()
