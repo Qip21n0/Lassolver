@@ -32,3 +32,7 @@ def DF(r, gamma):
     """
     eta = soft_threshold(r, gamma)
     return eta - np.mean(eta != 0) * r
+
+def GCAMP(w, beta, shita=0.8):
+    P, N, _ = w.shape
+    R = np.zeros((P, N, 1))
