@@ -1,5 +1,5 @@
 import numpy as np
-from lassolver.utils.utils import *
+from lassolver.utils.func import *
 
 class amp:
     def __init__(self, A_p, x, snr):

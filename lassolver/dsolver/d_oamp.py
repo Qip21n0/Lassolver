@@ -1,4 +1,5 @@
 import numpy as np
+from lassolver.utils.func import *
 from lassolver.dsolver.d_amp import amp, D_AMP
 
 class oamp(amp):
