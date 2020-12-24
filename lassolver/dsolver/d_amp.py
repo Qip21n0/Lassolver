@@ -2,30 +2,36 @@ import numpy as np
 from lassolver.utils.func import *
 
 class amp:
-    def __init__(self, A_p, x, snr):
-        self.A_p = A_p
-        self.d, self.N = A_p.shape
+    def __init__(self, A, x, snr, M):
+        self.A = A
+        self.M = M
+        self.Mp, self.N = A.shape
         self.x = x
-        Ax_p = A_p @ x
+        Ax = A @ x
         SNRdB = 10**(-0.1*snr)
-        self.sigma_p = np.var(Ax_p) * SNRdB
-        n_p = np.random.normal(0, self.sigma_p**0.5, (self.d, 1))
-        self.y_p = Ax_p + n_p
+        self.sigma = np.var(Ax) * SNRdB
+        n = np.random.normal(0, self.sigma_p**0.5, (self.Mp, 1))
+        self.y = Ax + n
         self.s = np.zeros((self.N, 1))
-        self.AT_p = A_p.T
-        self.trA2_p = np.trace(self.AT_p @ self.A_p)
-        self.Onsager_p = np.zeros((self.d, 1))
+        self.AT = A.T
+        self.trA2 = np.trace(self.AT @ self.A)
+        self.Onsager = np.zeros((self.Mp, 1))
+
+    def receive_s(self, s):
+        self.s = s
 
     def local_compute(self):
         r = self.update_r()
         w = self.update_w(r)
-        self.y_As = np.linalg.norm(r)**2
+        y_As = np.linalg.norm(r)**2
+        self.Onsager = np.sum(self.s != 0) / self.M * (r + self.Onsager)
+        return w, y_As
 
     def update_r(self):
-        return self.y_p - self.A_p @ self.s
+        return self.y - self.A @ self.s
 
     def update_w(self, r):
-        return self.AT_p @ (r + self.Onsager_p)
+        return self.AT @ (r + self.Onsager)
         
         
 class D_AMP:
@@ -33,32 +39,45 @@ class D_AMP:
         self.M, self.N = A.shape
         self.P = P
         self.a = self.M / self.N
-        self.d = int(self.M / self.P)
-        self.A_p = A.reshape(P, self.d, self.N)
+        self.Mp = int(self.M / self.P)
+        self.A_p = A.reshape(P, self.Mp, self.N)
         self.x = x
-        Ax_p = self.set_Ax_p()
-        SNRdB = 10**(-0.1*snr)
-        self.sigma_p = np.array([np.var(Ax_p[p]) for p in range(P)]) * SNRdB
-        self.n_p = np.array([np.random.normal(0, self.sigma_p[p]**0.5, (self.d, 1)) for p in range(P)])
-        self.y_p = Ax_p + self.n_p
+        self.amps = [amp(A_p[p], x, snr, self.M) for p in range(P)]
+        self.sigma = self.set_sigma()
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([np.linalg.norm(self.s - self.x)**2 / self.N])
-        self.AT = self.A.T
-        self.A2 = self.AT @ self.A
+        self.trA2 = self.set_trA2()
+        self.y_As_p = np.zeros(self.P)
 
-    def set_Ax_p(self):
-        Ax = np.zeros((self.P, self.b, 1))
-        for p in range(P):
-            Ax[p] = self.A_p[p] @ self.x
-        return Ax
+    def set_sigma(self):
+        sigma = 0
+        for p in range(self.P):
+            sigma += self.amps[p].sigma
+        return sigma / self.P
 
-    def estimate(self, ite_max=20):
-        Onsager_p = np.zeros((self.P, self.d, 1))
+    def set_tr2(self):
+        trA2 = 0
+        for p in range(self.P):
+            trA2 += self.amps[p].trA2
+        return trA2
+
+    def estimate(self, ite_max=20)
         for i in range(ite_max):
-            r_p = self.update_r()
-            w_p = self.update_w(r + Onsager_p)
-            v = self.update_v(r)
+            for p in range(P):
+                self.amp[p].receive(self.s)
+                w_p[p], self.y_As_p[p] = self.amps[p].local_compute()
+            w_p[0] += self.s
+            v = self.update_v()
             t = self.update_t(v)
-            self.s = self.update_s(w, t)
-            Onsager_p = np.sum(self.s != 0) / self.M * (r_p + Onsager_p)
+            self.s = self.update_s(w_p, t)
             self.mse = self.add_mse()
+
+    def update_v(self):
+        y_As = np.sum(self.y_As_p)
+        return (y_As - self.M * self.sigma) / self.trA2
+
+    def update_t(self, v):
+        return v / self.a + self.sigma
+
+    def update_s(self, w, t):
+        return GCAMP(w, t++0.5)

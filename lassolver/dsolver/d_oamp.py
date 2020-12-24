@@ -3,8 +3,12 @@ from lassolver.utils.func import *
 from lassolver.dsolver.d_amp import amp, D_AMP
 
 class oamp(amp):
-    def __init__(self, A_p, x, snr):
+    def __init__(self, A, x, snr, W):
         super().__init__(A_p, x, snr)
+        self.W = W
+
+    def local_compute(self):
+        
 
 
 class D_OAMP(D_AMP):
