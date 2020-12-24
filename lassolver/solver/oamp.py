@@ -1,6 +1,6 @@
 import numpy as np
 from lassolver.utils.func import *
-from lassolver.solver.centeralized.amp import AMP
+from lassolver.solver.amp import AMP
 
 class OAMP(AMP):
     def __init__(self, A, x, snr):

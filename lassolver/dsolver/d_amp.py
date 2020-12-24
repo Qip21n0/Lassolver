@@ -61,7 +61,7 @@ class D_AMP:
             trA2 += self.amps[p].trA2
         return trA2
 
-    def estimate(self, ite_max=20)
+    def estimate(self, ite_max=20):
         for i in range(ite_max):
             for p in range(P):
                 self.amp[p].receive(self.s)
@@ -80,4 +80,4 @@ class D_AMP:
         return v / self.a + self.sigma
 
     def update_s(self, w, t):
-        return GCAMP(w, t++0.5)
+        return GCAMP(w, t**0.5)

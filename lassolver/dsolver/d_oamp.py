@@ -8,9 +8,9 @@ class oamp(amp):
         self.W = W
 
     def local_compute(self):
-        
+        pass
 
 
 class D_OAMP(D_AMP):
     def __init__(self, A, x, snr, P):
-        
+        pass
