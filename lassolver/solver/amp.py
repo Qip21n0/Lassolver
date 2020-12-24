@@ -27,7 +27,7 @@ class AMP(ISTA):
             v = 1.e-4
         return v
 
-    def update_t(self, a, v):
+    def update_t(self, v):
         return v / self.a + self.sigma
 
     def update_s(self, w, t):
