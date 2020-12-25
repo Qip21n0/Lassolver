@@ -17,11 +17,11 @@ def bernouli_gaussian(n, rho):
     return x
 
 
-def onezero(n, p0=0.5):
+def onezero(n, p1=0.5):
     """
     generation of binary signal
     """
-    return 1 * (bernouli_gaussian(n, 1-p0) != 0)
+    return 1 * (bernouli_gaussian(n, p1) != 0)
 
 
 def bpsk(n):
