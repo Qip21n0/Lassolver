@@ -3,10 +3,10 @@ from scipy.stats import ortho_group
 from lassolver.matrices.base import Base
 
 class UnitaryInvar(Base):
-    def __init__(self, M, N, connum):
+    def __init__(self, M, N, condnum):
         super().__init__(M, N)
-        self.kappa = connum
-        self.r = connum**(1/M)
+        self.kappa = condnum
+        self.r = condnum**(1/M)
         self.sv = self.singular_value()
         self.S = np.hstack((np.diag(self.sv), np.zeros((M, N-M))))
         self.V = ortho_group.rvs(M)
@@ -20,9 +20,9 @@ class UnitaryInvar(Base):
             sv = np.append(sv, sv[-1] / self.r)
         return sv
 
-    def change_condition(self, connum):
-        self.kappa = connum
-        self.r = kappa**(1/self.M)
+    def change_cond(self, condnum):
+        self.kappa = condnum
+        self.r = condnum**(1/self.M)
         self.sv = self.singular_value()
         self.S = np.hstack(np.diag(self.sv, np.zeros((self.M, self.N - self.M))))
         self.A = self.V @ self.S @ self.U.T
