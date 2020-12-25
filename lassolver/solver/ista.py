@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 from lassolver.utils.func import *
 
 class ISTA:
@@ -17,27 +18,44 @@ class ISTA:
         self.A2 = self.AT @ self.A
 
     def estimate(self, tau=0.5, ite_max=20):
-        L = self.set_lipchitz()
+        L = self.__set_lipchitz()
         gamma = 1 / (tau * L)
         for i in range(ite_max):
-            r = self.update_r()
-            w = self.update_w(gamma, r)
-            self.s = self.update_s(w, 1/L)
-            self.mse = self.add_mse()
+            r = self._update_r()
+            w = self._update_w(gamma, r)
+            self.s = self._update_s(w, 1/L)
+            self.mse = self._add_mse()
 
-    def set_lipchitz(self):
+    def __set_lipchitz(self):
         w, _ = np.linalg.eig(self.A2)
         return np.max(w)
 
-    def update_r(self):
+    def _update_r(self):
         return self.y - self.A @ self.s
 
-    def update_w(self, gamma, r):
+    def _update_w(self, gamma, r):
         return self.s + gamma * self.AT @ r
 
-    def update_s(self, w, thre):
+    def _update_s(self, w, thre):
         return soft_threshold(w, thre)
 
-    def add_mse(self):
+    def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
         return np.append(self.mse, mse)
+
+    def result(self):
+        print("final mse: {}".format(self.mse[-1]))
+
+        plt.figure(figsize=(16, 4))
+        plt.subplot(121)
+        plt.plot(self.x.real)
+        plt.plot(self.s.real)
+        plt.grid()
+
+        plt.subplot(122)
+        plt.xlabel('iteration')
+        plt.ylabel('MSE[log10]')
+        ite = np.shape(self.mse)[0]
+        plt.xticks(np.arange(0, ite, 1))
+        plt.plot(self.mse)
+        plt.grid()
