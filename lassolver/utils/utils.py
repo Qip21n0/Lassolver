@@ -13,8 +13,8 @@ def ftime(func):
     return wrapper
 
 def details(inst):
-    print("class: {}".format(inst))
+    print("class: {}\n".format(inst))
     for key, value in inst.__dict__.items():
         print("member: {}".format(key))
         print("type: {}".format(type(value)))
-        print("shape: {}".format(np.shape(value)))
+        print("shape: {}\n".format(np.shape(value)))
