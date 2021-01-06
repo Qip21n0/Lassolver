@@ -17,4 +17,6 @@ def details(inst):
     for key, value in inst.__dict__.items():
         print("member: {}".format(key))
         print("type: {}".format(type(value)))
-        print("shape: {}\n".format(np.shape(value)))
+        print("shape: {}".format(np.shape(value)))
+        print(value)
+        print("")

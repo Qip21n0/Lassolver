@@ -41,7 +41,7 @@ def GCAMP(w, beta, shita=0.8):
     #STEP3
     F_Rp = F * np.logical_not(R)
     for p in range(P-1):
-        print("p: {}".format(p+1))
+        #print("p: {}".format(p+1))
         for n in range(N):
             if F_Rp[p+1, n]:
                 send_to1(n ,w[p+1, n])
@@ -58,8 +58,10 @@ def GCAMP(w, beta, shita=0.8):
 
 
 def send_to1(n, w):
-    print("n: {}, w: {}".format(n, w))
+    #print("n: {}, w: {}".format(n, w))
+    pass
 
 
 def broadcast_others(n):
-    print("n: {}".firmat(n))
+    #print("n: {}".format(n))
+    pass
