@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stasts import ortho_group
-from lassolver.metrices.base impport Base
+from scipy.fftpack import dct
+from lassolver.metrices.base import Base
 
 class PartialOrtho(Base):
     def __init__(self, M, N, ord='Haar'):
@@ -17,8 +18,8 @@ class PartialOrtho(Base):
         if ord == 'Haar':
             return ortho_group.rvs(self.N)
         elif ord == 'DCT':
-            return dct
+            return dct(self.I)
         elif ord == 'Hadamard':
-            return hadamard
+            return np.linalg.hadamard(self.N)
         else :
             raise NameError("not correct")
