@@ -21,16 +21,16 @@ class amp:
         self.s = s
 
     def local_compute(self):
-        r = self.update_r()
-        w = self.update_w(r)
+        r = self._update_r()
+        w = self._update_w(r)
         y_As = np.linalg.norm(r)**2
         self.Onsager = np.sum(self.s != 0) / self.M * (r + self.Onsager)
         return w, y_As
 
-    def update_r(self):
+    def _update_r(self):
         return self.y - self.A @ self.s
 
-    def update_w(self, r):
+    def _update_w(self, r):
         return self.AT @ (r + self.Onsager)
         
         
@@ -42,7 +42,7 @@ class D_AMP:
         self.Mp = int(self.M / self.P)
         self.A_p = A.reshape(P, self.Mp, self.N)
         self.x = x
-        self.amps = [amp(A_p[p], x, snr, self.M) for p in range(P)]
+        self.amps = [amp(self.A_p[p], x, snr, self.M) for p in range(P)]
         self.sigma = self.set_sigma()
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([np.linalg.norm(self.s - self.x)**2 / self.N])
@@ -67,17 +67,17 @@ class D_AMP:
                 self.amp[p].receive(self.s)
                 w_p[p], self.y_As_p[p] = self.amps[p].local_compute()
             w_p[0] += self.s
-            v = self.update_v()
-            t = self.update_t(v)
-            self.s = self.update_s(w_p, t)
+            v = self._update_v()
+            t = self._update_t(v)
+            self.s = self._update_s(w_p, t)
             self.mse = self.add_mse()
 
-    def update_v(self):
+    def _update_v(self):
         y_As = np.sum(self.y_As_p)
         return (y_As - self.M * self.sigma) / self.trA2
 
-    def update_t(self, v):
+    def _update_t(self, v):
         return v / self.a + self.sigma
 
-    def update_s(self, w, t):
+    def _update_s(self, w, t):
         return GCAMP(w, t**0.5)
