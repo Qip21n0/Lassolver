@@ -54,8 +54,8 @@ class ISTA:
 
         plt.subplot(122)
         plt.xlabel('iteration')
-        plt.ylabel('MSE')
+        plt.ylabel('MSE[log10]')
         ite = np.shape(self.mse)[0]
         plt.xticks(np.arange(0, ite, 1))
-        plt.plot(self.mse)
+        plt.plot(np.log10(self.mse))
         plt.grid()
