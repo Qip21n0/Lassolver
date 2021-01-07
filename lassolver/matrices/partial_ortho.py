@@ -11,10 +11,10 @@ class PartialOrtho(Base):
         self.S = np.zero((M, N))
         for i in s:
             self.S[i] = self.I[i]
-        self.U = self.set_U(ord)
+        self.U = self._set_U(ord)
         self.A = (N/M)**0.5 * self.S @ self.U.T
 
-    def set_U(self, ord):
+    def _set_U(self, ord):
         if ord == 'Haar':
             return ortho_group.rvs(self.N)
         elif ord == 'DCT':

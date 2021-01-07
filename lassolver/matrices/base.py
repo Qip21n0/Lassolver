@@ -15,4 +15,4 @@ class Base:
 
     def show_hist(self):
         A = self.A.reshape(self.M * self.N)
-        plt.hist(A, bins=50)
+        plt.hist(A, bins=50, density=True)
