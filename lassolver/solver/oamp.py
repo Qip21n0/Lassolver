@@ -8,7 +8,7 @@ class OAMP(AMP):
         self.AAT = A @ A.T
         self.I = np.eye(self.M)
 
-    def estimate(self, C=1.75, ord='LMMSE', ite_max=20):
+    def estimate(self, C=2.0, ord='LMMSE', ite_max=20):
         self.W = self.__set_W(1, ord)
         B = np.eye(self.N) - self.W @ self.A
         self.trW2 = np.trace(self.W @ self.W.T)

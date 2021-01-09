@@ -49,7 +49,7 @@ class D_OAMP(D_Base):
             trA2 += self.oamps[p].trA2
         return trA2
 
-    def estimate(self, C=1.75, ord='LMMSE', ite_max=20):
+    def estimate(self, C=2.0, ord='LMMSE', ite_max=20):
         self.W = self.__set_W(1, ord)
         self.W_p = self.W.T.reshape(self.P, self.Mp, self.N)
         B = np.eye(self.N) - self.W @ self.A
