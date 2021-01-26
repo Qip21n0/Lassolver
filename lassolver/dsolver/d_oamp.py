@@ -110,8 +110,7 @@ class D_OAMP(D_Base):
             return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
 
     def _update_s(self, C, w, t):
-        w_ = np.sum(w, axis=0)
-        return C * DF(w_, t**0.5)
+        return C * GCOAMP(w, t**0.5)
 
     def _output_s(self, w, t):
         return GCAMP(w, t**0.5)
