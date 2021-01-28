@@ -1,8 +1,7 @@
 import numpy as np
 from lassolver.utils.func import *
 from lassolver.solver.amp import AMP
-from lassolver.utils.utils import *
-import matplotlib.pyplot as plt
+
 
 class OAMP(AMP):
     def __init__(self, A, x, snr, iidG=False):
@@ -17,14 +16,12 @@ class OAMP(AMP):
         B = np.eye(self.N) - self.W @ self.A
         self.trW2 = np.trace(self.W @ self.W.T)
         self.trB2 = np.trace(B @ B.T)
-        plt.figure(figsize=(6,120))
         for i in range(ite_max):
             r = self._update_r()
             w = self._update_w(r)
             v = self._update_v(r)
             t = self._update_t(v, ord)
             self.s = self._update_s(C, w, t) if i != ite_max-1 else self._output_s(w, t)
-            distri(w, t**0.5, ite_max, i)
             self.mse = self._add_mse()
             if ord == 'LMMSE':
                 self.W = self.__set_W(v, ord='LMMSE')
