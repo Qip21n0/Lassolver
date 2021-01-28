@@ -1,4 +1,5 @@
 import numpy as np
+from scipy.stats import truncnorm
 
 
 def soft_threshold(r, gamma):
@@ -90,24 +91,20 @@ def GCOAMP(w, beta, shita=0.8):
                 send_to1(n ,w[p+1, n])
     #STEP4
     u = np.zeros((N, 1))
+    m = np.zeros((N, 1))
     V = np.array(U > beta, dtype=np.bool)
     for n in range(N):
         if V[n]:
-            w_sum = np.sum(w[:, n])
-            u[n] = soft_threshold(w_sum, beta)
+            m[n] = np.sum(w[:, n])
+            u[n] = soft_threshold(m[n], beta)
     #STEP5
     K = np.sum(u != 0)
-    rand = absort(np.random.randn(N))
+    rand = truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
     num = np.random.choice(N-K, N-K, replace=False)
-    w_ = (u != 0)*np.sum(w, axis=0)
     cnt = 0
     for n in range(N):
-        if w_[n] == 0:
-            w_[n] = beta * rand[num[cnt]]
+        if not V[n]:
+            m[n] = beta * rand[num[cnt]]
             cnt += 1
-    s = u - np.mean(u != 0)*w_
+    s = u - np.mean(u != 0)*m
     return s.real
-
-
-def absort(num):
-    return sorted(num, key=abs)
