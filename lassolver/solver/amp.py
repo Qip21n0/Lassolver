@@ -1,6 +1,8 @@
 import numpy as np
 from lassolver.utils.func import *
 from lassolver.solver.ista import ISTA
+from lassolver.utils.utils import *
+import matplotlib.pyplot as plt
 
 class AMP(ISTA):
     def __init__(self, A, x, snr):
@@ -9,12 +11,14 @@ class AMP(ISTA):
 
     def estimate(self, ite_max=20):
         Onsager = np.zeros((self.M, 1))
+        plt.figure(figsize=(6,120))
         for i in range(ite_max):
             r = self._update_r()
             w = self._update_w(r + Onsager)
             v = self._update_v(r)
             t = self._update_t(v)
             self.s = self._update_s(w, t)
+            distri(w, t**0.5, ite_max, i)
             Onsager = np.sum(self.s != 0) / self.M * (r + Onsager)
             self.mse = self._add_mse()
 
