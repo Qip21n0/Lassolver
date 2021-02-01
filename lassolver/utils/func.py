@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.stats import truncnorm
+from scipy.stats import norm
 
 
 def soft_threshold(r, gamma):
@@ -91,20 +92,48 @@ def GCOAMP(w, beta, shita=0.8):
                 send_to1(n ,w[p+1, n])
     #STEP4
     u = np.zeros((N, 1))
-    m = np.zeros((N, 1))
+    b = np.zeros((N, 1))
     V = np.array(U > beta, dtype=np.bool)
     for n in range(N):
         if V[n]:
-            m[n] = np.sum(w[:, n])
-            u[n] = soft_threshold(m[n], beta)
+            b[n] = np.sum(w[:, n])
+            u[n] = soft_threshold(b[n], beta)
     #STEP5
-    K = np.sum(u != 0)
-    rand = truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
-    num = np.random.choice(N-K, N-K, replace=False)
+    K = np.sum(b != 0)
+    #rand = truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
+    rand = arandom(u, beta, K)
+    #num = np.random.choice(N-K, N-K, replace=False)
     cnt = 0
     for n in range(N):
         if not V[n]:
-            m[n] = beta * rand[num[cnt]]
+            #b[n] = beta * rand[num[cnt]]
+            b[n] = rand[cnt]
             cnt += 1
-    s = u - np.mean(u != 0)*m
+    s = u - np.mean(u != 0)*b
     return s.real
+
+
+def arandom(u, t, K):
+    N = u.shape[0]
+    delta = (np.max(u) - np.min(u))/N
+
+    u0 = np.histogram(u, bins=N)
+    Pu = u0[0]/N
+    Pu = np.append(Pu, 0)
+    u1 = u0[1]
+
+    x_ = np.linspace(-1, 1, N+1)
+    phi_x = norm.pdf((x_-u1)/t)
+    max = np.max(np.sum(Pu * phi_x)*delta)
+    rand = np.empty(N-K)
+
+    for i in range(N-K):
+        while True:
+            x, y = np.random.rand(2)
+            a = -t + 2*t*x
+            phi = norm.pdf((a-u1)/t)
+            A = np.sum(Pu * phi)*delta
+            if max*y <= A:
+                rand[i] = a
+                break
+    return rand

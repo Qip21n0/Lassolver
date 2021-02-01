@@ -1,7 +1,6 @@
 import numpy as np
 from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
-from lassolver.utils.utils import *
 
 class oamp(base):
     def __init__(self, A, x, snr, M):
