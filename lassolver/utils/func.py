@@ -115,25 +115,31 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
 
 def Rrandom(u, t, K):
     N = u.shape[0]
-    delta = (np.max(u) - np.min(u))/N
-
+    
     u0 = np.histogram(u, bins=N)
     Pu = u0[0]/N
     Pu = np.append(Pu, 0)
     u1 = u0[1]
 
-    x_ = np.argmax(Pu)
-    phi_x = norm.pdf((u1[x_]-u1)/t)
-    max = np.max(np.sum(Pu * phi_x)*delta)
+    phi = lambda x: norm.pdf((x-u1)/t)/t
+    #vphi = np.vectorize(phi)
+
+    maxu = np.argmax(Pu)
+    phi_x = phi(u1[maxu])
+    max = np.max(np.sum(Pu * phi_x))
     rand = np.empty(N-K)
 
     for i in range(N-K):
         while True:
             x, y = np.random.rand(2)
             a = -t + 2*t*x
-            phi = norm.pdf((a-u1)/t)
-            A = np.sum(Pu * phi)*delta
+            phi_a = phi(a)
+            A = np.sum(Pu * phi_a)
             if max*y <= A:
                 rand[i] = a
                 break
     return rand
+
+
+#def phi(x, u1, t):
+#    return norm.pdf((x-u1)/t)/t
