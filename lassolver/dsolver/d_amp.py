@@ -45,13 +45,14 @@ class D_AMP(D_Base):
 
     def estimate(self, ite_max=20):
         w_p = np.zeros((self.P, self.N, 1))
+        self.communication_cost = np.empty(0)
         for i in range(ite_max):
             for p in range(self.P):
                 w_p[p], self.y_As_p[p] = self.amps[p].local_compute()
             w_p[0] += self.s
             v = self._update_v()
             t = self._update_t(v)
-            self.s = self._update_s(w_p, t)
+            self._update_s(w_p, t)
             for p in range(self.P):
                 self.amps[p].update_Onsager(self.s)
             self.mse = self._add_mse()
@@ -64,4 +65,6 @@ class D_AMP(D_Base):
         return v / self.a + self.sigma
 
     def _update_s(self, w, t):
-        return GCAMP(w, t**0.5)
+        s, communication_cost = GCAMP(w, t**0.5)
+        self.s = s
+        self.communication_cost = np.append(self.communication_cost, communication_cost)

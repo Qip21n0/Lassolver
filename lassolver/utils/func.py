@@ -19,6 +19,7 @@ def DF(r, gamma):
 
 
 def GCAMP(w, beta, shita=0.8):
+    communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
     T = beta * shita / (P - 1)  
@@ -26,16 +27,19 @@ def GCAMP(w, beta, shita=0.8):
     for p in range(P-1):
         R[p+1] = np.array(np.abs(w[p+1]) > T, dtype=np.bool)
         for n in range(N):
-            send_to1(n, w[p+1, n])
+            if R[p+1, n]:
+                communication_cost += 1
+                send_to1(n, w[p+1, n])
     #STEP2
     S = [np.where(R[:, n])[0] for n in range(N)]
     m = np.sum(R, axis=0)
-    U = (P - 1 -m) * T
+    U = (P - 1 - m) * T
     for n in range(N):
         U[n] += np.abs(w[0, n] + np.sum([w[p, n] for p in S[n]]))
     F = np.array(U > beta, dtype=np.bool) * np.array(m < (P-1), dtype=np.bool)
     for n in range(N):
         if F[n]:
+            communication_cost += 1
             broadcast_others(n)
     #STEP3
     F_Rp = F * np.logical_not(R)
@@ -43,6 +47,7 @@ def GCAMP(w, beta, shita=0.8):
         #print("p: {}".format(p+1))
         for n in range(N):
             if F_Rp[p+1, n]:
+                communication_cost += 1
                 send_to1(n ,w[p+1, n])
     #STEP4
     s = np.zeros((N, 1))
@@ -51,7 +56,7 @@ def GCAMP(w, beta, shita=0.8):
         if V[n]:
             w_sum = np.sum(w[:, n])
             s[n] = soft_threshold(w_sum, beta)
-    return s.real
+    return s.real, communication_cost
 
 
 def send_to1(n, w):
@@ -65,6 +70,7 @@ def broadcast_others(n):
 
 
 def GCOAMP(w, beta, shita=0.8, approx=False):
+    communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
     T = beta * shita / (P - 1)
@@ -72,16 +78,19 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
     for p in range(P-1):
         R[p+1] = np.array(np.abs(w[p+1]) > T, dtype=np.bool)
         for n in range(N):
-            send_to1(n, w[p+1, n])
+            if R[p+1, n]:
+                communication_cost += 1
+                send_to1(n, w[p+1, n])
     #STEP2
     S = [np.where(R[:, n])[0] for n in range(N)]
     m = np.sum(R, axis=0)
-    U = (P - 1 -m) * T
+    U = (P - 1 - m) * T
     for n in range(N):
         U[n] += np.abs(w[0, n] + np.sum([w[p, n] for p in S[n]]))
     F = np.array(U > beta, dtype=np.bool) * np.array(m < (P-1), dtype=np.bool)
     for n in range(N):
         if F[n]:
+            communication_cost += 1
             broadcast_others(n)
     #STEP3
     F_Rp = F * np.logical_not(R)
@@ -89,6 +98,7 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
         #print("p: {}".format(p+1))
         for n in range(N):
             if F_Rp[p+1, n]:
+                communication_cost += 1
                 send_to1(n ,w[p+1, n])
     #STEP4
     u = np.zeros((N, 1))
@@ -110,7 +120,7 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
             b[n] = rand[cnt]
             cnt += 1
     s = u - np.mean(u != 0)*b
-    return s.real
+    return s.real, communication_cost
 
 
 def Rrandom(u, t, K):
@@ -139,7 +149,3 @@ def Rrandom(u, t, K):
                 rand[i] = a
                 break
     return rand
-
-
-#def phi(x, u1, t):
-#    return norm.pdf((x-u1)/t)/t

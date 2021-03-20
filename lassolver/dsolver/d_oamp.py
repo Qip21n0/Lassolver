@@ -56,6 +56,7 @@ class D_OAMP(D_Base):
         B = np.eye(self.N) - self.W @ self.A
         self.trW2 = np.trace(self.W @ self.W.T)
         self.trB2 = np.trace(B @ B.T)
+        self.communication_cost = np.empty(0)
         for p in range(self.P):
             self.oamps[p].receive_W(self.W_p[p])
         w_p = np.zeros((self.P, self.N, 1))
@@ -65,7 +66,7 @@ class D_OAMP(D_Base):
             w_p[0] += self.s
             v = self._update_v()
             t = self._update_t(v, ord)
-            self.s = self._update_s(C, w_p, t, approx) if i != ite_max-1 else self._output_s(w_p, t)
+            self._update_s(C, w_p, t, approx) if i != ite_max-1 else self._output_s(w_p, t)
             for p in range(self.P):
                 self.oamps[p].receive_s(self.s)
             self.mse = self._add_mse()
@@ -109,7 +110,11 @@ class D_OAMP(D_Base):
             return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
 
     def _update_s(self, C, w, t, approx):
-        return C * GCOAMP(w, t**0.5, approx=approx)
+        s, communication_cost = GCOAMP(w, t**0.5, approx=approx)
+        self.s = C * s
+        self.communication_cost = np.append(self.communication_cost, communication_cost)
 
     def _output_s(self, w, t):
-        return GCAMP(w, t**0.5)
+        s, communication_cost = GCAMP(w, t**0.5)
+        self.s = s
+        self.communication_cost = np.append(self.communication_cost, communication_cost)
