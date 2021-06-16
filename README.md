@@ -2,7 +2,7 @@
 This is the Python code for implementing the Distributed-OAMP algorithm.
 
 ## Installation
-1. developers can build the package by first cloning the repository. 
+1. Developers can build the package by first cloning this repository. 
 ```bash
 > git clone https://github.com/Qip21n0/Lassolver.git
 ```
