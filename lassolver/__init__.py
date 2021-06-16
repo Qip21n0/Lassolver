@@ -9,4 +9,3 @@ def version():
     return """
     Lassolver ver {}.
     """.format(version)
-

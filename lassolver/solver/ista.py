@@ -17,10 +17,10 @@ class ISTA:
         self.AT = A.T
         self.A2 = self.AT @ self.A
 
-    def estimate(self, tau=0.5, ite_max=20):
+    def estimate(self, T=20, tau=0.5):
         L = self.__set_lipchitz()
         gamma = 1 / (tau * L)
-        for i in range(ite_max):
+        for _ in range(T):
             r = self._update_r()
             w = self._update_w(gamma, r)
             self.s = self._update_s(w, 1/L)
@@ -41,7 +41,7 @@ class ISTA:
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
-        return np.append(self.mse, mse)
+        self.mse = np.append(self.mse, mse)
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))

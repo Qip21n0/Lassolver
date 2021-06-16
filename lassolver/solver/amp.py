@@ -8,16 +8,16 @@ class AMP(ISTA):
         super().__init__(A, x, snr)
         self.a = self.M / self.N
 
-    def estimate(self, ite_max=20):
+    def estimate(self, T=20):
         Onsager = np.zeros((self.M, 1))
-        for i in range(ite_max):
+        for _ in range(T):
             r = self._update_r()
             w = self._update_w(r + Onsager)
             v = self._update_v(r)
-            t = self._update_t(v)
-            self.s = self._update_s(w, t)
+            tau = self._update_tau(v)
+            self.s = self._update_s(w, tau)
             Onsager = np.sum(self.s != 0) / self.M * (r + Onsager)
-            self.mse = self._add_mse()
+            self._add_mse()
 
     def _update_w(self, r):
         return self.s + self.AT @ r
@@ -28,8 +28,8 @@ class AMP(ISTA):
             v = 1.e-4
         return v
 
-    def _update_t(self, v):
+    def _update_tau(self, v):
         return v / self.a + self.sigma
 
-    def _update_s(self, w, t):
-        return soft_threshold(w, t**0.5)
+    def _update_s(self, w, tau):
+        return soft_threshold(w, tau**0.5)

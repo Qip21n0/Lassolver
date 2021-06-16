@@ -10,7 +10,7 @@ def soft_threshold(r, gamma):
     return np.maximum(np.abs(r) - gamma, 0.0) * np.sign(r)
 
 
-def DF(r, gamma):
+def df(r, gamma):
     """
     divergence-free function
     """
@@ -18,11 +18,14 @@ def DF(r, gamma):
     return eta - np.mean(eta != 0) * r
 
 
-def GCAMP(w, beta, shita=0.8):
+def GCAMP(w, lambda_, tau, log=False):
+    shita = 0.8
+    beta = lambda_ * tau
     communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
-    T = beta * shita / (P - 1)  
+    T = beta * shita / (P - 1)
+    
     #STEP1
     for p in range(P-1):
         R[p+1] = np.array(np.abs(w[p+1]) > T, dtype=np.bool)
@@ -30,6 +33,7 @@ def GCAMP(w, beta, shita=0.8):
             if R[p+1, n]:
                 communication_cost += 1
                 send_to1(n, w[p+1, n])
+    
     #STEP2
     S = [np.where(R[:, n])[0] for n in range(N)]
     m = np.sum(R, axis=0)
@@ -41,6 +45,7 @@ def GCAMP(w, beta, shita=0.8):
         if F[n]:
             communication_cost += 1
             broadcast_others(n)
+    
     #STEP3
     F_Rp = F * np.logical_not(R)
     for p in range(P-1):
@@ -49,6 +54,11 @@ def GCAMP(w, beta, shita=0.8):
             if F_Rp[p+1, n]:
                 communication_cost += 1
                 send_to1(n ,w[p+1, n])
+    if log: 
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_Rp)))
+        print("Total Communication Cost: {}".format(communication_cost))
+        print("="*50)
+
     #STEP4
     s = np.zeros((N, 1))
     V = np.array(U > beta, dtype=np.bool)
@@ -69,11 +79,14 @@ def broadcast_others(n):
     pass
 
 
-def GCOAMP(w, beta, shita=0.8, approx=False):
+def GCOAMP(w, lambda_, tau, log=False, approx=False):
+    shita = 0.8
+    beta = lambda_ * tau
     communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
     T = beta * shita / (P - 1)
+    
     #STEP1
     for p in range(P-1):
         R[p+1] = np.array(np.abs(w[p+1]) > T, dtype=np.bool)
@@ -81,6 +94,7 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
             if R[p+1, n]:
                 communication_cost += 1
                 send_to1(n, w[p+1, n])
+    
     #STEP2
     S = [np.where(R[:, n])[0] for n in range(N)]
     m = np.sum(R, axis=0)
@@ -92,6 +106,7 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
         if F[n]:
             communication_cost += 1
             broadcast_others(n)
+    
     #STEP3
     F_Rp = F * np.logical_not(R)
     for p in range(P-1):
@@ -100,6 +115,11 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
             if F_Rp[p+1, n]:
                 communication_cost += 1
                 send_to1(n ,w[p+1, n])
+    if log: 
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_Rp)))
+        print("Total Communication Cost: {}".format(communication_cost))
+        print("="*50)
+    
     #STEP4
     u = np.zeros((N, 1))
     b = np.zeros((N, 1))
@@ -108,12 +128,13 @@ def GCOAMP(w, beta, shita=0.8, approx=False):
         if V[n]:
             b[n] = np.sum(w[:, n])
             u[n] = soft_threshold(b[n], beta)
+    
     #STEP5
     K = np.sum(b != 0)
     if approx:
-        rand = beta * truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
+        rand = tau * truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
     else :
-        rand = Rrandom(u, beta, K)
+        rand = Rrandom(u, tau, K)
     cnt = 0
     for n in range(N):
         if not V[n]:
@@ -132,7 +153,6 @@ def Rrandom(u, t, K):
     u1 = u0[1]
 
     phi = lambda x: norm.pdf((x-u1)/t)/t
-    #vphi = np.vectorize(phi)
 
     maxu = np.argmax(Pu)
     phi_x = phi(u1[maxu])

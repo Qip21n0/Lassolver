@@ -11,23 +11,32 @@ class OAMP(AMP):
         self.c = (self.N - self.M) / self.M
         self.iidG = iidG
 
-    def estimate(self, C=2.0, ord='LMMSE', ite_max=20):
+    def estimate(self, T=20, C=2.0, ord='LMMSE'):
         self.W = self.__set_W(1, ord)
-        B = np.eye(self.N) - self.W @ self.A
-        self.trW2 = np.trace(self.W @ self.W.T)
-        self.trB2 = np.trace(B @ B.T)
-        for i in range(ite_max):
+        if not self.iidG:
+            B = np.eye(self.N) - self.W @ self.A
+            self.trW2 = np.trace(self.W @ self.W.T)
+            self.trB2 = np.trace(B @ B.T)
+        
+        for t in range(T):
             r = self._update_r()
             w = self._update_w(r)
             v = self._update_v(r)
-            t = self._update_t(v, ord)
-            self.s = self._update_s(C, w, t) if i != ite_max-1 else self._output_s(w, t)
-            self.mse = self._add_mse()
+            tau = self._update_t(v, ord)
+            if t == T-1:
+                break
+            self.s = self._update_s(C, w, tau)
+            self._add_mse()
+
             if ord == 'LMMSE':
                 self.W = self.__set_W(v, ord='LMMSE')
-                B = np.eye(self.N) - self.W @ self.A
-                self.trW2 = np.trace(self.W @ self.W.T)
-                self.trB2 = np.trace(B @ B.T)
+                if not self.iidG:
+                    B = np.eye(self.N) - self.W @ self.A
+                    self.trW2 = np.trace(self.W @ self.W.T)
+                    self.trB2 = np.trace(B @ B.T)
+        
+        self._output_s(w, t)
+        self._add_mse()
 
     def __set_W(self, v, ord):
         if ord == 'MF':
@@ -58,8 +67,8 @@ class OAMP(AMP):
         else :
             return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
 
-    def _update_s(self, C, w, t):
-        return C * DF(w, t**0.5)
+    def _update_s(self, C, w, tau):
+        return C * df(w, tau**0.5)
 
-    def _output_s(self, w, t):
-        return soft_threshold(w, t**0.5)
+    def _output_s(self, w, tau):
+        return soft_threshold(w, tau**0.5)

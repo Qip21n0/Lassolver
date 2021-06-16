@@ -1,20 +1,20 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-class base:
-    def __init__(self, A, x, snr, M):
-        self.A = A
+class dbase:
+    def __init__(self, A_p, x, snr, M):
+        self.A_p = A_p.copy()
         self.M = M
-        self.Mp, self.N = A.shape
+        self.M_p, self.N = self.A_p.shape
         self.x = x
-        Ax = A @ x
+        Ax = self.A_p @ self.x
         SNRdB = 10**(-0.1*snr)
-        self.sigma = np.var(Ax) * SNRdB
-        n = np.random.normal(0, self.sigma**0.5, (self.Mp, 1))
+        self.sigma_p = np.var(Ax) * SNRdB
+        n = np.random.normal(0, self.sigma_p**0.5, (self.M_p, 1))
         self.y = Ax + n
         self.s = np.zeros((self.N, 1))
-        self.AT = A.T
-        self.trA2 = np.trace(self.AT @ self.A)
+        self.AT_p = self.A_p.T
+        self.trA2_p = np.trace(self.AT_p @ self.A_p)
 
 
 class D_Base:
@@ -22,16 +22,16 @@ class D_Base:
         self.M, self.N = A.shape
         self.P = P
         self.a = self.M / self.N
-        self.Mp = int(self.M / self.P)
-        self.A_p = A.reshape(P, self.Mp, self.N)
+        self.M_p = int(self.M / self.P)
+        self.A_p = A.reshape(P, self.M_p, self.N)
         self.x = x
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([np.linalg.norm(self.s - self.x)**2 / self.N])
-        self.y_As_p = np.zeros(self.P)
+        self.r2 = np.zeros(self.P)
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
-        return np.append(self.mse, mse)
+        self.mse = np.append(self.mse, mse)
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))
