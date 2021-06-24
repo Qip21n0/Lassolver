@@ -4,7 +4,7 @@ This is the Python code for implementing the Distributed-OAMP algorithm.
 ## Installation
 pip install via Github
 ```bash
-> pip install git+https://github.com/Qip21n0/Lassolver.git
+pip install git+https://github.com/Qip21n0/Lassolver.git
 ```
 
 ## Examples
