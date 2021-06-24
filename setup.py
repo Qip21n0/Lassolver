@@ -6,7 +6,7 @@ setup(
 	author = 'Ken Hisanaga',
 	description='Lassolver is a Python package for Compressed Sensing and Distributed Compressed Sensing',
 	install_requires = ['numpy','scipy','matplotlib',],
-	packages = ['lassolver'],
+	packages = find_packages(),
 	url = 'https://github.com/Qip21n0/Lassolver',
 	license = 'MIT',
 )
