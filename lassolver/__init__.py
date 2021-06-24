@@ -1,4 +1,4 @@
-from lassolver.matrices import *
-from lassolver.solver import *
-from lassolver.dsolver import *
-from lassolver.utils import *
+import lassolver.matrices
+import lassolver.solver
+import lassolver.dsolver
+import lassolver.utils
