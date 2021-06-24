@@ -8,8 +8,8 @@ pip install via Github
 ```
 
 ## Examples
-- [sample1.ipynb](https://drive.google.com/file/d/1c6PmgI-vqMXJ7vojXdrvOw_EBbrZ9oP2/view?usp=sharing)
-- [sample2.ipynb](https://drive.google.com/file/d/1OBuYY4Q03Nl9iElxfPgL_sKalMcRtXpw/view?usp=sharing)
+- [sample1.ipynb](https://github.com/Qip21n0/Lassolver/blob/main/examples/sample1.ipynb)
+- [sample2.ipynb](https://github.com/Qip21n0/Lassolver/blob/main/examples/sample2.ipynb)
 
 ## References(Code)
 - [Approximate Message Passing](https://github.com/takashi-takahashi/approximate_message_passing)
