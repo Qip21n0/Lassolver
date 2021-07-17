@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stasts import ortho_group
+from scipy.stats import ortho_group
 from scipy.fftpack import dct
 from scipy.linalg import hadamard
 from lassolver.metrices.base import Base
