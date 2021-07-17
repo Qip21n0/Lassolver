@@ -1,6 +1,7 @@
 import numpy as np
 from scipy.stasts import ortho_group
 from scipy.fftpack import dct
+from scipy.linalg import hadamard
 from lassolver.metrices.base import Base
 
 class PartialOrtho(Base):
@@ -8,18 +9,16 @@ class PartialOrtho(Base):
         super().__init__(M, N)
         self.I = np.eye(N)
         s = np.random.randint(0, N, M)
-        self.S = np.zero((M, N))
-        for i in s:
-            self.S[i] = self.I[i]
-        self.U = self._set_U(ord)
+        self.S = np.array([self.I[i] for i in s])
+        self.U = self.__set_U(ord)
         self.A = (N/M)**0.5 * self.S @ self.U.T
 
-    def _set_U(self, ord):
+    def __set_U(self, ord):
         if ord == 'Haar':
             return ortho_group.rvs(self.N)
         elif ord == 'DCT':
-            return dct(self.I)
+            return dct(self.I, axis=0, norm='ortho')
         elif ord == 'Hadamard':
-            return np.linalg.hadamard(self.N)
+            return hadamard(self.N)
         else :
-            raise NameError("not correct")
+            raise NameError("Enter one of Haar, DCT, or Hadamard for the argument (ord)")
