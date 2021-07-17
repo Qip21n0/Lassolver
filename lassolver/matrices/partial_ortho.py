@@ -2,7 +2,7 @@ import numpy as np
 from scipy.stats import ortho_group
 from scipy.fftpack import dct
 from scipy.linalg import hadamard
-from lassolver.metrices.base import Base
+from lassolver.matrices.base import Base
 
 class PartialOrtho(Base):
     def __init__(self, M, N, ord='Haar'):
