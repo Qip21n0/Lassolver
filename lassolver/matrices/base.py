@@ -14,5 +14,5 @@ class Base:
         print("variance: {}".format(self.A.var()))
 
     def show_hist(self):
-        A = self.A.reshape(self.M * self.N)
+        A = self.A.flatten()
         plt.hist(A, bins=50, density=True)
