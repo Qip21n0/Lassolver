@@ -42,8 +42,8 @@ class D_OAMP(D_Base):
         sigma = 0
         for p in range(self.P):
             sigma += self.oamps[p].sigma_p
-        return sigma / self.P
-
+        return sigma
+    
     def __set_trA2(self):
         trA2 = 0
         for p in range(self.P):
@@ -52,6 +52,7 @@ class D_OAMP(D_Base):
 
     def estimate(self, T=20, C=2.0, ord='LMMSE', log=False, approx=False):
         lambda_ = np.linspace(3, 1, T)
+        lambda_[:] = 1
         w = np.zeros((self.P, self.N, 1))
         self.communication_cost = np.empty(0)
 

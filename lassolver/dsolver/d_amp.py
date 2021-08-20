@@ -35,7 +35,7 @@ class D_AMP(D_Base):
         sigma = 0
         for p in range(self.P):
             sigma += self.amps[p].sigma_p
-        return sigma / self.P
+        return sigma
 
     def __set_trA2(self):
         trA2 = 0
