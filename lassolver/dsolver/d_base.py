@@ -6,10 +6,11 @@ class dbase:
         self.A_p = A_p.copy()
         self.M = M
         self.M_p, self.N = self.A_p.shape
+        self.P = int(self.M / self.M_p)
         self.x = x
         Ax = self.A_p @ self.x
-        SNRdB = 10**(-0.1*snr)
-        self.sigma_p = np.var(Ax) * SNRdB
+        SNRdB = 10**(0.1*snr)
+        self.sigma_p = np.linalg.norm(Ax)**2 / SNRdB
         n = np.random.normal(0, self.sigma_p**0.5, (self.M_p, 1))
         self.y = Ax + n
         self.s = np.zeros((self.N, 1))
@@ -26,8 +27,11 @@ class D_Base:
         self.A_p = A.reshape(P, self.M_p, self.N)
         self.x = x
         self.s = np.zeros((self.N, 1))
-        self.mse = np.array([np.linalg.norm(self.s - self.x)**2 / self.N])
+        self.mse = np.array([None])
         self.r2 = np.zeros(self.P)
+        self.tau = np.zeros(self.P)
+        self.v = np.zeros(self.P)
+        self.www = []
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
@@ -47,5 +51,6 @@ class D_Base:
         plt.ylabel('MSE[log10]')
         ite = np.shape(self.mse)[0]
         plt.xticks(np.arange(0, ite, 1))
-        plt.plot(np.log10(self.mse))
+        result = np.array([np.log10(mse) if mse is not None else None for mse in self.mse])
+        plt.plot(result)
         plt.grid()
