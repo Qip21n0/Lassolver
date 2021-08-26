@@ -4,6 +4,7 @@ from matplotlib import colors
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def ftime(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
@@ -24,22 +25,23 @@ def details(inst):
         print("")
 
 def plt_CC(N, P, T, cc_dict):
-	x_step = np.arange(0, T+1, 5)
-	y_step = np.arange(0, 1, 0.1)
-	standard = N * (P-1)
+    x_step = np.arange(0, T+1, 5)
+    y_step = np.arange(0, 1, 0.1)
+    standard = N * (P-1)
 
-	plt.xlabel("iteration")
-	plt.ylabel("Communication Cost")
-	plt.xticks(x_step)
-	plt.yticks(y_step)
-	plt.ylim(0, 1)
+    plt.xlabel("iteration")
+    plt.ylabel("Communication Cost")
+    plt.xticks(x_step)
+    plt.yticks(y_step)
+    plt.ylim(0, 1)
 
-	for k, v in cc_dict.items():
-		cc = v.copy()
-		cc /= standard
-		plt.plot(cc, label=k)
-	plt.legend()
-	plt.grid()
+    for k, v in cc_dict.items():
+        cc = v.copy()
+        cc /= standard
+        cc = np.append(None, cc)
+        plt.plot(cc, label=k)
+    plt.legend()
+    plt.grid()
 
 
 def plt_MSE(T, mse_dict):
@@ -55,16 +57,3 @@ def plt_MSE(T, mse_dict):
 		plt.plot(v, label=k)
 	plt.legend()
 	plt.grid()
-
-
-def plt_detail(N, P, T, w, tau):
-    plt.figure(figsize=(7*P, 6*T))
-    I = np.ones(N)
-    shita = 1
-    for t in range(T):
-        beta = np.sum(tau[t])**0.5
-        for p in range(P):
-            plt.subplot(T, P, P*t + p+1)
-            plt.plot(w[t][p])
-            plt.plot(I * tau[t][p]**0.5 * shita, color="r")
-            plt.plot(-I * tau[t][p]**0.5 * shita, color="r")
