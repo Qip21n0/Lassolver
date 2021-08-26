@@ -11,16 +11,14 @@ class damp(dbase):
         self.trA2 = trA2
 
     def update_Onsager(self, s):
-        self.s = s
+        self.s = s.copy()
         self.Onsager_p = np.sum(self.s != 0) / self.M * (self.r_p + self.Onsager_p)
 
     def local_compute(self): 
         self.r_p = self._update_r_p()
         w_p = self._update_w_p()
-        r2_p = np.linalg.norm(self.r_p)**2
-        v_p = (np.linalg.norm(self.r_p)**2 - self.M * self.sigma_p) / self.trA2
-        if v_p < 0: v_p = 1e-5
-        tau_p = self.N / self.M * v_p + self.sigma_p
+        v_p = self._update_v_p()
+        tau_p = self._update_tau_p(v_p)
         return w_p, v_p, tau_p
 
     def _update_r_p(self):
@@ -28,6 +26,15 @@ class damp(dbase):
 
     def _update_w_p(self):
         return self.s / self.P + self.AT_p @ (self.r_p + self.Onsager_p)
+
+    def _update_v_p(self):
+        v_p = (np.linalg.norm(self.r_p)**2 - self.M * self.sigma_p) / self.trA2
+        if v_p < 0:
+            v_p = 1.e-4 / self.P
+        return v_p
+
+    def _update_tau_p(self, v_p):
+        return self.N / self.M * v_p + self.sigma_p
         
         
 class D_AMP(D_Base):
@@ -51,7 +58,6 @@ class D_AMP(D_Base):
 
     def estimate(self, T=20, log=False):
         w = np.zeros((self.P, self.N, 1))
-        self.communication_cost = np.empty(0)
 
         for p in range(self.P):
             self.amps[p].receive_trA2(self.trA2)
@@ -62,7 +68,6 @@ class D_AMP(D_Base):
             #w[0] += self.s
             v = self._update_v()
             tau = self._update_tau()
-            self.www.append([w.copy(), self.tau.copy()])
             if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
             self._update_s(w, log)
 

@@ -7,7 +7,7 @@ class doamp(dbase):
         super().__init__(A_p, x, snr, M)
 
     def receive_s(self, s):
-        self.s = s
+        self.s = s.copy()
 
     def receive_W_p(self, W_p):
         self.W_p = W_p.copy().T
@@ -22,17 +22,24 @@ class doamp(dbase):
     def local_compute(self):
         self.r_p = self._update_r_p()
         w_p = self._update_w_p()
-        r2_p = np.linalg.norm(self.r_p)**2
-        v_p = (r2_p - self.M * self.sigma_p) / self.trA2
-        if v_p < 0: v_p = 1e-5
-        tau_p = 1/self.N * (self.trB2 * v_p + self.trW2 * self.sigma_p)
-        return w_p, v_p, tau_p, r2_p
+        v_p = self._update_v_p()
+        tau_p = self._update_tau_p(v_p)
+        return w_p, v_p, tau_p
 
     def _update_r_p(self):
         return self.y - self.A_p @ self.s
 
     def _update_w_p(self):
         return self.s / self.P + self.W_p @ self.r_p
+
+    def _update_v_p(self):
+        v_p = (np.linalg.norm(self.r_p)**2 - self.M * self.sigma_p) / self.trA2
+        if v_p < 0:
+            v_p = 1.e-4 / self.P
+        return v_p
+
+    def _update_tau_p(self, v_p):
+        return 1 / self.N * (self.trB2 * v_p + self.trW2 * self.sigma_p)
 
 
 class D_OAMP(D_Base):
@@ -61,9 +68,8 @@ class D_OAMP(D_Base):
 
     def estimate(self, T=20, C=2.0, ord='LMMSE', log=False, approx=False):
         w = np.zeros((self.P, self.N, 1))
-        self.communication_cost = np.empty(0)
 
-        v = (sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
+        v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
         self.W = self.__set_W(v, ord)
         self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
         
@@ -78,11 +84,10 @@ class D_OAMP(D_Base):
         
         for t in range(T):
             for p in range(self.P):
-                w[p], self.v[p], self.tau[p], self.r2[p] = self.oamps[p].local_compute()
+                w[p], self.v[p], self.tau[p] = self.oamps[p].local_compute()
             #w[0] += self.s
             v = self._update_v()
-            tau = self._update_tau(v)
-            self.www.append([w.copy(), self.tau.copy()])
+            tau = self._update_tau()
             if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
             if t == T-1: break
             self._update_s(C, w, log)
@@ -116,12 +121,14 @@ class D_OAMP(D_Base):
         return self.N / np.trace(W_ @ self.A) * W_
 
     def _update_v(self):
-        r2 = np.sum(self.r2)
-        v = (r2 - self.M * self.sigma) / self.trA2
-        return v if v > 0 else 1e-4
+        #r2 = np.sum(self.r2)
+        #v = (r2 - self.M * self.sigma) / self.trA2
+        #return v if v > 0 else 1e-4
+        return np.sum(self.v)
 
-    def _update_tau(self, v):
-        return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
+    def _update_tau(self):
+        #return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
+        return np.sum(self.tau)
 
     def _update_s(self, C, w, log):
         s, communication_cost = GCOAMP(w, self.tau, log)

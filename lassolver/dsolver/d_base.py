@@ -28,10 +28,10 @@ class D_Base:
         self.x = x
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([None])
+        self.communication_cost = np.array([])
         self.r2 = np.zeros(self.P)
         self.tau = np.zeros(self.P)
         self.v = np.zeros(self.P)
-        self.www = []
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
