@@ -5,55 +5,48 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def ftime(func):
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        start = time.time()
-        result = func(*args, **kwargs)
-        fin = time.time()
-        print("{}: {}[s]".format(func.__name__, fin - start))
-        return result
-    return wrapper
-
-def details(inst):
-    print("class: {}\n".format(inst.__class__.__name__))
-    for key, value in inst.__dict__.items():
-        print("member: {}".format(key))
-        print("type: {}".format(type(value)))
-        print("shape: {}".format(np.shape(value)))
-        print(value)
-        print("")
-
-def plt_CC(N, P, T, cc_dict):
+def plt_CC(cc, label, T, N, P, color=None):
     x_step = np.arange(0, T+1, 5)
-    y_step = np.arange(0, 1, 0.1)
+    y_step = np.arange(0, 1.1, 0.1)
     standard = N * (P-1)
 
     plt.xlabel("iteration")
     plt.ylabel("Communication Cost")
     plt.xticks(x_step)
     plt.yticks(y_step)
-    plt.ylim(0, 1)
+    plt.ylim(0, 1.1)
 
-    for k, v in cc_dict.items():
-        cc = v.copy()
-        cc /= standard
-        cc = np.append(None, cc)
-        plt.plot(cc, label=k)
+    v = cc.copy() / standard
+    v = np.append(None, v)
+    plt.plot(v, label=label, color=color)
+    plt.legend(loc="lower right")
+    plt.grid()
+
+
+def plt_MSE(mse, label, T, color=None):
+    step = np.arange(0, T+1, 5)
+
+    plt.xlabel("iteration")
+    plt.ylabel("MSE")
+    plt.xticks(step)
+    plt.ylim(1e-3, 1e+1)
+    plt.yscale('log')
+
+    plt.plot(mse, label=label, color=color)
     plt.legend()
     plt.grid()
 
 
-def plt_MSE(T, mse_dict):
-	step = np.arange(0, T+1, 5)
+def plt_MSE_cond(mse, label, sim, color=None):
+    ite = np.arange(0, sim, 1)
+    s = mse.astype(np.double)
+    m = np.isfinite(s)
 
-	plt.xlabel("iteration")
-	plt.ylabel("MSE")
-	plt.xticks(step)
-	plt.ylim(1e-3, 1e+1)
-	plt.yscale('log')
+    plt.xlabel('condition number κ')
+    plt.ylabel('MSE')
+    plt.xscale('log')
+    plt.yscale('log')
 
-	for k, v in mse_dict.items():
-		plt.plot(v, label=k)
-	plt.legend()
-	plt.grid()
+    plt.plot(ite[m], s[m], label=label, color=color)
+    plt.legend()
+    plt.grid()
