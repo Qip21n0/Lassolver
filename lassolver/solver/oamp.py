@@ -10,7 +10,7 @@ class OAMP(AMP):
         self.I = np.eye(self.M)
         self.c = (self.N - self.M) / self.M
 
-    def estimate(self, T=20, C=2.0, ord='LMMSE'):
+    def estimate(self, T=20, C=1.85, ord='LMMSE'):
         v = self._update_v(self.y)
         self.W = self.__set_W(v, ord)
         

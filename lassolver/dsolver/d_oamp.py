@@ -66,7 +66,7 @@ class D_OAMP(D_Base):
             trA2 += self.oamps[p].trA2_p
         return trA2
 
-    def estimate(self, T=20, C=2.0, ord='LMMSE', log=False, approx=False):
+    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False, approx=False):
         w = np.zeros((self.P, self.N, 1))
 
         v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
