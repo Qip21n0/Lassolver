@@ -10,7 +10,7 @@ class doamp(dbase):
         self.s = s.copy()
 
     def receive_W_p(self, W_p):
-        self.W_p = W_p.copy().T
+        self.W_p = W_p.copy()
 
     def receive_trX2(self, trW2, trB2):
         self.trW2 = trW2
@@ -66,7 +66,7 @@ class D_OAMP(D_Base):
             trA2 += self.oamps[p].trA2_p
         return trA2
 
-    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False, approx=False):
+    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False):
         w = np.zeros((self.P, self.N, 1))
 
         v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
@@ -78,7 +78,7 @@ class D_OAMP(D_Base):
         self.trW2 = np.trace(self.W @ self.W.T)
         self.trB2 = np.trace(B @ B.T)
         for p in range(self.P):
-            self.oamps[p].receive_W_p(self.W_p[p])
+            self.oamps[p].receive_W_p(self.W_p[p].T)
             self.oamps[p].receive_trX2(self.trW2, self.trB2)
             self.oamps[p].receive_trA2(self.trA2)
         
@@ -103,7 +103,7 @@ class D_OAMP(D_Base):
                 self.trW2 = np.trace(self.W @ self.W.T)
                 self.trB2 = np.trace(B @ B.T)
                 for p in range(self.P):
-                    self.oamps[p].receive_W_p(self.W_p[p])
+                    self.oamps[p].receive_W_p(self.W_p[p].T)
                     self.oamps[p].receive_trX2(self.trW2, self.trB2)
         
         self._output_s(w, log)
