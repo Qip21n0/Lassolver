@@ -29,8 +29,6 @@ class damp(dbase):
 
     def _update_v_p(self):
         v_p = (np.linalg.norm(self.r_p)**2 - self.M * self.sigma_p) / self.trA2
-        if v_p < 0:
-            v_p = 1.e-4 / self.P
         return v_p
 
     def _update_tau_p(self, v_p):
@@ -78,8 +76,8 @@ class D_AMP(D_Base):
     def _update_v(self):
         #r2 = np.sum(self.r2)
         #v = (r2 - self.M * self.sigma) / self.trA2
-        #return v if v > 0 else 1e-4
-        return np.sum(self.v)
+        v = np.sum(self.v)
+        return v if v > 0 else 1e-4
 
     def _update_tau(self):
         #return v / self.a + self.sigma
