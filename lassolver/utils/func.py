@@ -19,15 +19,15 @@ def df(r, gamma):
 
 
 def GCAMP(w, tau_p, log=False):
-    shita = 0.7
-    tau = np.sum(tau_p)
+    shita = 0.8
+    tau = np.sum(tau_p)**0.5
     communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
     
     #STEP1
     for p in range(1, P):
-        R[p] = np.square(w[p]) > tau_p[p] * shita
+        R[p] = np.abs(w[p]) > tau_p[p]**0.5 * shita
         candidate = np.where(R[p])[0]
         for n in candidate:
             communication_cost += 1
@@ -38,8 +38,8 @@ def GCAMP(w, tau_p, log=False):
     m = np.sum(R, axis=0)
     U = np.empty((N, 1))
     for n in range(N):
-        upper = np.sum([tau_p[p] for p in range(1, P) if p not in S[p]])
-        U[n] = (w[0, n] + np.sum(w[p, n] for p in S[n]))**2 + upper * shita
+        upper = np.sum([tau_p[p]**0.5 for p in range(1, P) if p not in S[p]])
+        U[n] = np.abs(w[0, n] + np.sum(w[p, n] for p in S[n])) + upper * shita
     F = (U > tau) * (m < (P-1))
     candidate = np.where(F)[0]
     for n in candidate:
@@ -64,7 +64,7 @@ def GCAMP(w, tau_p, log=False):
     V = np.where(U > tau)[0].tolist()
     for n in V:
         w_sum = np.sum(w[:, n])
-        s[n] = soft_threshold(w_sum, tau**0.5)
+        s[n] = soft_threshold(w_sum, tau)
     return s.real, communication_cost
 
 
@@ -79,8 +79,8 @@ def broadcast_others(n):
 
 
 def GCOAMP(w, tau_p, log=False):
-    shita = 0.7
-    tau = np.sum(tau_p)
+    shita = 0.8
+    tau = np.sum(tau_p)**0.5
     communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
@@ -88,7 +88,7 @@ def GCOAMP(w, tau_p, log=False):
     
     #STEP1
     for p in range(1, P):
-        R[p] = np.square(w[p]) > tau_p[p] * shita
+        R[p] = np.abs(w[p]) > tau_p[p]**0.5 * shita
         candidate = np.where(R[p])[0]
         for n in candidate:
             communication_cost += 1
@@ -99,9 +99,9 @@ def GCOAMP(w, tau_p, log=False):
     m = np.sum(R, axis=0)
     U = np.empty((N, 1))
     for n in range(N):
-        upper = np.sum([tau_p[p] for p in range(1, P) if p not in S[p]])
+        upper = np.sum([tau_p[p]**0.5 for p in range(1, P) if p not in S[p]])
         z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
-        U[n] = z[n]**2 + upper * shita
+        U[n] = np.abs(z[n]) + upper * shita
     F = (U > tau) * (m < (P-1))
     candidate = np.where(F)[0]
     for n in candidate:
@@ -127,7 +127,7 @@ def GCOAMP(w, tau_p, log=False):
     V = np.where(U > tau)[0].tolist()
     for n in V:
         b[n] = np.sum(w[:, n])
-        u[n] = soft_threshold(b[n], tau**0.5)
+        u[n] = soft_threshold(b[n], tau)
     
     #STEP5
     #if approx: rand = beta * truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
@@ -135,13 +135,13 @@ def GCOAMP(w, tau_p, log=False):
     for n in range(N):
         if n not in V:
             b[n] = z[n]#w[0, n] + np.sum([w[p, n] for p in S[n]]) 
-            b[n] += np.sum([rand(shita * tau_p[p]) for p in range(1, P) if p not in S[n]])
+            b[n] += np.sum([rand(shita * tau_p[p]**0.5) for p in range(1, P) if p not in S[n]])
     s = u - np.mean(u != 0)*b
     return s.real, communication_cost
 
 
 def rand(tau):
-    return tau**0.5 * truncnorm.rvs(-1, 1, loc=0, scale=1, size=1)
+    return tau * truncnorm.rvs(-1, 1, loc=0, scale=1, size=1)
 
 
 def Rrandom(u, t, K):
