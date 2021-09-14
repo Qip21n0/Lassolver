@@ -64,7 +64,7 @@ class D_OAMP(D_Base):
             trA2 += self.oamps[p].trA2_p
         return trA2
 
-    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False, approx=False):
+    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False):
         w = np.zeros((self.P, self.N, 1))
 
         v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
@@ -88,7 +88,7 @@ class D_OAMP(D_Base):
             tau = self._update_tau()
             if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
             if t == T-1: break
-            self._update_s(C, w, log, approx)
+            self._update_s(C, w, log)
 
             for p in range(self.P):
                 self.oamps[p].receive_s(self.s)
@@ -128,8 +128,8 @@ class D_OAMP(D_Base):
         #return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
         return np.sum(self.tau)
 
-    def _update_s(self, C, w, log, approx):
-        s, communication_cost = GCOAMP(w, self.tau, log, approx)
+    def _update_s(self, C, w, log):
+        s, communication_cost = GCOAMP(w, self.tau, log)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
