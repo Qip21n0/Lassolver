@@ -16,11 +16,10 @@ def plt_CC(cc, label, T, N, P, color=None, linestyle=None):
     plt.yticks(y_step)
     plt.ylim(0, 1.1)
 
-    v = cc.copy() / standard
+    v = cc.copy() / standard if standard != 0 else 0
     v = np.append(None, v)
     plt.plot(v, label=label, color=color, linestyle=linestyle)
     plt.legend(loc="lower right")
-    plt.grid()
 
 
 def plt_MSE(mse, label, T, color=None, linestyle=None):
@@ -34,7 +33,6 @@ def plt_MSE(mse, label, T, color=None, linestyle=None):
 
     plt.plot(mse, label=label, color=color, linestyle=linestyle)
     plt.legend()
-    plt.grid()
 
 
 def plt_MSE_cond(mse, label, sim, color=None):
@@ -49,4 +47,3 @@ def plt_MSE_cond(mse, label, sim, color=None):
 
     plt.plot(ite[m], s[m], label=label, color=color)
     plt.legend()
-    plt.grid()
