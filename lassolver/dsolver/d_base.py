@@ -30,8 +30,9 @@ class D_Base:
         self.mse = np.array([None])
         self.communication_cost = np.array([])
         self.r2 = np.zeros(self.P)
-        self.tau = np.zeros(self.P)
-        self.v = np.zeros(self.P)
+        self.tau_p = np.zeros(self.P)
+        self.v_p = np.zeros(self.P)
+        self.v = [None]
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
@@ -49,8 +50,10 @@ class D_Base:
         plt.subplot(122)
         plt.xlabel('iteration')
         plt.ylabel('MSE[log10]')
-        ite = np.shape(self.mse)[0]
-        plt.xticks(np.arange(0, ite, 1))
+        ite = np.arange(0, np.shape(self.mse)[0], 1)
+        plt.xticks(ite)
         result = np.array([np.log10(mse) if mse is not None else None for mse in self.mse])
         plt.plot(result)
+        se = np.array([np.log10(v) if v is not None else None for v in self.v])
+        plt.scatter(ite, se, c='red')
         plt.grid()

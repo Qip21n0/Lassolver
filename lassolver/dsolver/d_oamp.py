@@ -75,6 +75,7 @@ class D_OAMP(D_Base):
         B = I - self.W @ self.A
         self.trW2 = np.trace(self.W @ self.W.T)
         self.trB2 = np.trace(B @ B.T)
+
         for p in range(self.P):
             self.oamps[p].receive_W_p(self.W_p[p].T)
             self.oamps[p].receive_trX2(self.trW2, self.trB2)
@@ -82,18 +83,17 @@ class D_OAMP(D_Base):
         
         for t in range(T):
             for p in range(self.P):
-                w[p], self.v[p], self.tau[p] = self.oamps[p].local_compute()
+                w[p], self.v_p[p], self.tau_p[p] = self.oamps[p].local_compute()
             #w[0] += self.s
             v = self._update_v()
             tau = self._update_tau()
             if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
-            if t == T-1: break
             self._update_s(C, w, log)
 
             for p in range(self.P):
                 self.oamps[p].receive_s(self.s)
             self._add_mse()
-
+            if t == T-1: break
             if ord == 'LMMSE':
                 self.W = self.__set_W(v, ord='LMMSE')
                 self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
@@ -104,8 +104,8 @@ class D_OAMP(D_Base):
                     self.oamps[p].receive_W_p(self.W_p[p].T)
                     self.oamps[p].receive_trX2(self.trW2, self.trB2)
         
-        self._output_s(w, log)
-        self._add_mse()
+        #self._output_s(w, log)
+        #self._add_mse()
 
     def __set_W(self, v, ord):
         if ord == 'MF':
@@ -121,19 +121,21 @@ class D_OAMP(D_Base):
     def _update_v(self):
         #r2 = np.sum(self.r2)
         #v = (r2 - self.M * self.sigma) / self.trA2
-        v = np.sum(self.v)
-        return v if v > 0 else 1e-4
+        v = np.sum(self.v_p)
+        v = v if v > 0 else 1e-4
+        self.v.append(v)
+        return v
 
     def _update_tau(self):
         #return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
-        return np.sum(self.tau)
+        return np.sum(self.tau_p)
 
     def _update_s(self, C, w, log):
-        s, communication_cost = GCOAMP(w, self.tau, log)
+        s, communication_cost = GCOAMP(w, self.tau_p, log)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
     def _output_s(self, w, log):
-        s, communication_cost = GCAMP(w, self.tau, log)
+        s, communication_cost = GCAMP(w, self.tau_p, log)
         self.s = s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
