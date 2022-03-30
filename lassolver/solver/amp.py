@@ -1,14 +1,16 @@
+from matplotlib import colors
 import numpy as np
 from lassolver.utils.func import *
 from lassolver.solver.ista import ISTA
+import matplotlib.pyplot as plt
 
 
 class AMP(ISTA):
     def __init__(self, A, x, snr):
         super().__init__(A, x, snr)
         self.a = self.M / self.N
-        self.v = []
-        self.tau = []
+        self.v = [None]
+        self.tau = [None]
 
     def estimate(self, T=20):
         Onsager = np.zeros((self.M, 1))
@@ -38,3 +40,9 @@ class AMP(ISTA):
 
     def _update_s(self, w, tau):
         return soft_threshold(w, tau**0.5)
+
+    def result(self):
+        super().result()
+        ite = np.arange(0, np.shape(self.mse)[0], 1)
+        se = np.array([np.log10(v) if v is not None else None for v in self.v])
+        plt.scatter(ite, se, c='red')

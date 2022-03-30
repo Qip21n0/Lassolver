@@ -62,7 +62,7 @@ class D_AMP(D_Base):
 
         for t in range(T):
             for p in range(self.P):
-                w[p], self.v[p], self.tau[p] = self.amps[p].local_compute()
+                w[p], self.v_p[p], self.tau_p[p] = self.amps[p].local_compute()
             #w[0] += self.s
             v = self._update_v()
             tau = self._update_tau()
@@ -76,14 +76,16 @@ class D_AMP(D_Base):
     def _update_v(self):
         #r2 = np.sum(self.r2)
         #v = (r2 - self.M * self.sigma) / self.trA2
-        v = np.sum(self.v)
-        return v if v > 0 else 1e-4
+        v = np.sum(self.v_p)
+        v = v if v > 0 else 1e-4
+        self.v.append(v)
+        return v
 
     def _update_tau(self):
         #return v / self.a + self.sigma
-        return np.sum(self.tau)
+        return np.sum(self.tau_p)
 
     def _update_s(self, w, log):
-        s, communication_cost = GCAMP(w, self.tau, log)
+        s, communication_cost = GCAMP(w, self.tau_p, log)
         self.s = s
         self.communication_cost = np.append(self.communication_cost, communication_cost)

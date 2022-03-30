@@ -12,6 +12,7 @@ class OAMP(AMP):
 
     def estimate(self, T=20, C=1.85, ord='LMMSE'):
         v = self._update_v(self.y)
+        self.v.pop()
         self.W = self.__set_W(v, ord)
         
         I = np.eye(self.N)
@@ -24,18 +25,17 @@ class OAMP(AMP):
             w = self._update_w(r)
             v = self._update_v(r)
             tau = self._update_tau(v)
-            if t == T-1: break
             self.s = self._update_s(C, w, tau)
             self._add_mse()
-
+            if t == T-1: break
             if ord == 'LMMSE':
                 self.W = self.__set_W(v, ord='LMMSE')
                 B = np.eye(self.N) - self.W @ self.A
                 self.trW2 = np.trace(self.W @ self.W.T)
                 self.trB2 = np.trace(B @ B.T)
         
-        self.s = self._output_s(w, tau)
-        self._add_mse()
+        #self.s = self._output_s(w, tau)
+        #self._add_mse()
 
     def __set_W(self, v, ord):
         if ord == 'MF':

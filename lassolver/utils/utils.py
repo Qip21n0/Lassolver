@@ -47,3 +47,8 @@ def plt_MSE_cond(mse, label, sim, color=None):
 
     plt.plot(ite[m], s[m], label=label, color=color)
     plt.legend()
+
+
+def plt_SE(se, T, color=None):
+    step = np.arange(0, T+1, 1)
+    plt.scatter(step, se, c=color)
