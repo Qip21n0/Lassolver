@@ -38,7 +38,7 @@ class damp(dbase):
 class D_AMP(D_Base):
     def __init__(self, A, x, snr, P):
         super().__init__(A, x, snr, P)
-        self.amps = [damp(self.A_p[p], x, snr, self.M) for p in range(self.P)]
+        self.amps = [damp(self.A_p[p], x, self.snr, self.M) for p in range(self.P)]
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
 

@@ -48,7 +48,7 @@ class D_OAMP(D_Base):
         self.AAT = self.A @ self.AT
         self.I = np.eye(self.M)
         self.c = (self.N - self.M) / self.M
-        self.oamps = [doamp(self.A_p[p], x, snr, self.M) for p in range(self.P)]
+        self.oamps = [doamp(self.A_p[p], x, self.snr, self.M) for p in range(self.P)]
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
 

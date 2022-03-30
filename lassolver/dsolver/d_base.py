@@ -26,6 +26,7 @@ class D_Base:
         self.M_p = int(self.M / self.P)
         self.A_p = A.reshape(P, self.M_p, self.N)
         self.x = x
+        self.snr = snr / P
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([None])
         self.communication_cost = np.array([])
