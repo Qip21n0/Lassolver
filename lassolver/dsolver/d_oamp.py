@@ -12,8 +12,8 @@ class doamp(dbase):
     def receive_W_p(self, W_p):
         self.W_p = W_p.copy()
 
-    def receive_trX2(self, trW2, trB2):
-        self.trW2 = trW2
+    def receive_trX2(self, trW_p2, trB2):
+        self.trW_p2 = trW_p2
         self.trB2 = trB2
 
     def receive_trA2(self, trA2):
@@ -37,7 +37,7 @@ class doamp(dbase):
         return v_p
 
     def _update_tau_p(self, v_p):
-        return 1 / self.N * (self.trB2 * v_p + self.trW2 * self.sigma_p)
+        return 1 / self.N * (self.trB2 * v_p + self.trW_p2 * self.sigma_p)
 
 
 class D_OAMP(D_Base):
@@ -67,18 +67,18 @@ class D_OAMP(D_Base):
     def estimate(self, T=20, C=1.85, ord='LMMSE', log=False):
         w = np.zeros((self.P, self.N, 1))
 
-        v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
+        v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M_p * self.sigma) / self.trA2
         self.W = self.__set_W(v, ord)
         self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
         
         I = np.eye(self.N)
         B = I - self.W @ self.A
-        self.trW2 = np.trace(self.W @ self.W.T)
+        self.trW2 = [np.trace(W_p.T @ W_p) for W_p in self.W_p]
         self.trB2 = np.trace(B @ B.T)
 
         for p in range(self.P):
             self.oamps[p].receive_W_p(self.W_p[p].T)
-            self.oamps[p].receive_trX2(self.trW2, self.trB2)
+            self.oamps[p].receive_trX2(self.trW2[p], self.trB2)
             self.oamps[p].receive_trA2(self.trA2)
         
         for t in range(T):
@@ -98,7 +98,7 @@ class D_OAMP(D_Base):
                 self.W = self.__set_W(v, ord='LMMSE')
                 self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
                 B = I - self.W @ self.A
-                self.trW2 = np.trace(self.W @ self.W.T)
+                self.trW2 = [np.trace(W_p.T @ W_p) for W_p in self.W_p]
                 self.trB2 = np.trace(B @ B.T)
                 for p in range(self.P):
                     self.oamps[p].receive_W_p(self.W_p[p].T)

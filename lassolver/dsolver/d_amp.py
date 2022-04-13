@@ -32,7 +32,7 @@ class damp(dbase):
         return v_p
 
     def _update_tau_p(self, v_p):
-        return self.N / self.M * v_p + self.sigma_p
+        return self.N / self.M * v_p + self.sigma_p / self.P
         
         
 class D_AMP(D_Base):
@@ -46,7 +46,7 @@ class D_AMP(D_Base):
         sigma = 0
         for p in range(self.P):
             sigma += self.amps[p].sigma_p
-        return sigma
+        return sigma / self.P
 
     def __set_trA2(self):
         trA2 = 0
