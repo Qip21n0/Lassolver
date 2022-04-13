@@ -102,7 +102,7 @@ class D_OAMP(D_Base):
                 self.trB2 = np.trace(B @ B.T)
                 for p in range(self.P):
                     self.oamps[p].receive_W_p(self.W_p[p].T)
-                    self.oamps[p].receive_trX2(self.trW2, self.trB2)
+                    self.oamps[p].receive_trX2(self.trW2[p], self.trB2)
         
         #self._output_s(w, log)
         #self._add_mse()
