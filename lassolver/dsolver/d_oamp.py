@@ -33,7 +33,7 @@ class doamp(dbase):
         return self.s / self.P + self.W_p @ self.r_p
 
     def _update_v_p(self):
-        v_p = (np.linalg.norm(self.r_p)**2 - self.M * self.sigma_p) / self.trA2
+        v_p = (np.linalg.norm(self.r_p)**2 - self.M_p * self.sigma_p) / self.trA2
         return v_p
 
     def _update_tau_p(self, v_p):
