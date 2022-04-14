@@ -9,7 +9,7 @@ class dbase:
         self.P = int(self.M / self.M_p)
         self.x = x
         Ax = self.A_p @ self.x
-        SNRdB = 10**(0.1*snr)
+        SNRdB = 10**(0.1*snr) / self.P
         self.sigma_p = np.linalg.norm(Ax)**2 / SNRdB
         n = np.random.normal(0, self.sigma_p**0.5, (self.M_p, 1))
         self.y = Ax + n
@@ -26,7 +26,7 @@ class D_Base:
         self.M_p = int(self.M / self.P)
         self.A_p = A.reshape(P, self.M_p, self.N)
         self.x = x
-        self.snr = snr / P
+        self.snr = snr
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([None])
         self.communication_cost = np.array([])
