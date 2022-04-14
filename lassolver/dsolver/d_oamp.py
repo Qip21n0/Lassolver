@@ -37,7 +37,6 @@ class doamp(dbase):
         return v_p
 
     def _update_tau_p(self, v_p):
-        print(self.trW_p2)
         return 1 / self.N * (self.trB2 * v_p + self.trW_p2 * self.sigma_p)
 
 
@@ -57,7 +56,7 @@ class D_OAMP(D_Base):
         sigma = 0
         for p in range(self.P):
             sigma += self.oamps[p].sigma_p
-        return sigma
+        return sigma / self.P
     
     def __set_trA2(self):
         trA2 = 0
@@ -100,7 +99,6 @@ class D_OAMP(D_Base):
                 self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
                 B = I - self.W @ self.A
                 self.trW2 = [np.trace(W_p.T @ W_p) for W_p in self.W_p]
-                print(self.trW2)
                 self.trB2 = np.trace(B @ B.T)
                 for p in range(self.P):
                     self.oamps[p].receive_W_p(self.W_p[p].T)
