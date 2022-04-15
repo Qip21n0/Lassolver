@@ -1,6 +1,24 @@
-import numpy as np
 from lassolver.utils.func import *
-from lassolver.dsolver.d_base import *
+from lassolver.utils.node import *
+from lassolver.dsolver.damp import *
+import jax.numpy as jnp
+import numpy as np
+
+
+class Edge_doamp(Edge_damp):
+    def __init__(self, A, x, snr, fro_norm_A2, P):
+        super().__init__(A, x, snr, fro_norm_A2, P)
+
+
+class Core_doamp(Edge_doamp):
+    def __init__(self, A, x, snr, fro_norm_A2, P):
+        super().__init__(A, x, snr, fro_norm_A2, P)
+
+
+class DistributedOAMP(DistributedAMP):
+    def __init__(self, A, x, snr, P):
+        super().__init__(A, x, snr, P)
+
 
 class doamp(dbase):
     def __init__(self, A_p, x, snr, M):

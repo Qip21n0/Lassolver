@@ -5,7 +5,7 @@ import numpy as np
 
 
 
-class Edge(Node):
+class Edge_damp(Node):
     def __init__(self, A, x, snr, fro_norm_A2, P):
         super().__init__(A, x, snr)
         self.r = jnp.zeros(self.M)
@@ -65,7 +65,7 @@ class Edge(Node):
 
 
 
-class Core(Edge):
+class Core_damp(Edge_damp):
     def __init__(self, A, x, snr, fro_norm_A2, P, edges):
         super().__init__(A, x, snr, fro_norm_A2, P)
         self.netowork = edges.copy()
@@ -88,8 +88,8 @@ class DistributedAMP:
         self.x = x.copy()
         self.snrs = self.__set_snrs(snr)
         
-        self.edges = [Edge(self.As[p], self.x, self.snrs[p], fro_norm_A2, self.P) for p in range(1, P)]
-        self.core = Core(self.As[0], self.x, self.snrs[0], fro_norm_A2, self.P, self.edges)
+        self.edges = [Edge_damp(self.As[p], self.x, self.snrs[p], fro_norm_A2, self.P) for p in range(1, P)]
+        self.core = Core_damp(self.As[0], self.x, self.snrs[0], fro_norm_A2, self.P, self.edges)
 
         self.s = jnp.zeros(self.N, dtype=jnp.float32)
         self.s_history = []
@@ -117,11 +117,31 @@ class DistributedAMP:
         return snrs
 
 
-    def estimate(self):
-        pass
+    def estimate(self, T=20, CommCostCut=True, log=False):
+        for t in range(T):
+            # Local Computation
+            self.core.local_computation()
+            for p in range(self.P-1):
+                self.edges[p].local_computation()
+            
+            # Global Computation
+            tau = [self.core.tau]
+            for p in range(self.P-1):
+                tau.append(self.edges[p].tau)
+            v = [self.core.v]
+            for p in range(self.P-1):
+                v.append(self.edges[p].v)
+
+            if CommCostCut:
+                self.GCAMP()
+            
+            else:
+                w = self.core.w
+                w += jnp.sum([self.edges[p].w for p in range(self.P-1)])
+                s = soft_threshold(w, sum(tau)**0.5)
 
 
-    def global_computation(self):
+    def GCAMP(self, w, tau):
         pass
 
 
