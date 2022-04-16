@@ -1,3 +1,2 @@
-from lassolver.dsolver.d_base import *
-from lassolver.dsolver.d_amp import *
-from lassolver.dsolver.d_oamp import *
+from lassolver.dsolver.damp import DistributedAMP
+from lassolver.dsolver.doamp import DistributedOAMP

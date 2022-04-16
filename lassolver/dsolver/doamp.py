@@ -1,6 +1,7 @@
 from lassolver.utils.func import *
 from lassolver.utils.node import *
 from lassolver.dsolver.damp import *
+from scipy.stats import truncnorm
 import jax.numpy as jnp
 import numpy as np
 
@@ -8,150 +9,160 @@ import numpy as np
 class Edge_doamp(Edge_damp):
     def __init__(self, A, x, snr, fro_norm_A2, P):
         super().__init__(A, x, snr, fro_norm_A2, P)
+        self.W = A.copy().T
+        self.fro_norm_B2 = 0
+
+    
+    def local_computation(self):
+        self._update_r_p()
+        self._update_w_p()
+
+        self._update_v_p()
+        self._update_tau_p()
+
+
+    def _update_w_p(self):
+        self.w = self.s / self.P + self.W @ self.r
+
+    
+    def _update_tau_p(self):
+        fro_norm_W2 = np.linalg.norm(self.W, 'fro')**2
+        tau_p = (self.v[-1] * self.fro_norm_B2 + self.sigma_p * fro_norm_W2) / self.N
+        self.tau.append(tau_p)
 
 
 class Core_doamp(Edge_doamp):
-    def __init__(self, A, x, snr, fro_norm_A2, P):
+    def __init__(self, A, x, snr, fro_norm_A2, P, edges):
         super().__init__(A, x, snr, fro_norm_A2, P)
+        self.network = edges
+
+
+    def send(self, Ws, fro_norm_B2):
+        self.W = Ws[0].T.copy()
+        self.fro_norm_B2 = fro_norm_B2
+
+        for p in range(self.P-1):
+            self.network[p].W = Ws[p+1].T.copy()
+            self.network[p].fro_norm_B2 = fro_norm_B2
 
 
 class DistributedOAMP(DistributedAMP):
     def __init__(self, A, x, snr, P):
         super().__init__(A, x, snr, P)
+        fro_norm_A2 = np.linalg.norm(A, ord='fro')**2
+        self.edges = [Edge_doamp(self.As[p], self.x, self.snr, fro_norm_A2, self.P) for p in range(1, P)]
+        self.core = Core_doamp(self.As[0], self.x, self.snr, fro_norm_A2, self.P, self.edges)
 
-
-class doamp(dbase):
-    def __init__(self, A_p, x, snr, M):
-        super().__init__(A_p, x, snr, M)
-
-    def receive_s(self, s):
-        self.s = s.copy()
-
-    def receive_W_p(self, W_p):
-        self.W_p = W_p.copy()
-
-    def receive_trX2(self, trW2, trB2):
-        self.trW2 = trW2
-        self.trB2 = trB2
-
-    def receive_trA2(self, trA2):
-        self.trA2 = trA2
-
-    def local_compute(self):
-        self.r_p = self._update_r_p()
-        w_p = self._update_w_p()
-        v_p = self._update_v_p()
-        tau_p = self._update_tau_p(v_p)
-        return w_p, v_p, tau_p
-
-    def _update_r_p(self):
-        return self.y - self.A_p @ self.s
-
-    def _update_w_p(self):
-        return self.s / self.P + self.W_p @ self.r_p
-
-    def _update_v_p(self):
-        v_p = (np.linalg.norm(self.r_p)**2 - self.M * self.sigma_p) / self.trA2
-        return v_p
-
-    def _update_tau_p(self, v_p):
-        return 1 / self.N * (self.trB2 * v_p + self.trW2 * self.sigma_p)
-
-
-class D_OAMP(D_Base):
-    def __init__(self, A, x, snr, P):
-        super().__init__(A, x, snr, P)
         self.A = A.copy()
         self.AT = self.A.T
-        self.AAT = self.A @ self.AT
-        self.I = np.eye(self.M)
-        self.c = (self.N - self.M) / self.M
-        self.oamps = [doamp(self.A_p[p], x, snr, self.M) for p in range(self.P)]
-        self.sigma = self.__set_sigma()
-        self.trA2 = self.__set_trA2()
+        self.A2 = self.A @ self.AT
+        self.I = jnp.eye(self.M)
 
-    def __set_sigma(self):
-        sigma = 0
-        for p in range(self.P):
-            sigma += self.oamps[p].sigma_p
-        return sigma
     
-    def __set_trA2(self):
-        trA2 = 0
-        for p in range(self.P):
-            trA2 += self.oamps[p].trA2_p
-        return trA2
+    def estimate(self, T=20, CommCostCut=True, theta=0.7, log=False, 
+                        C=1.85, ord='PINV', last=True):
+        self.theta = theta
+        self.log = log
+        I = jnp.eye(self.N)
 
-    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False):
-        w = np.zeros((self.P, self.N, 1))
-
-        v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M * self.sigma) / self.trA2
-        self.W = self.__set_W(v, ord)
-        self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
-        
-        I = np.eye(self.N)
-        B = I - self.W @ self.A
-        self.trW2 = np.trace(self.W @ self.W.T)
-        self.trB2 = np.trace(B @ B.T)
-        for p in range(self.P):
-            self.oamps[p].receive_W_p(self.W_p[p].T)
-            self.oamps[p].receive_trX2(self.trW2, self.trB2)
-            self.oamps[p].receive_trA2(self.trA2)
-        
         for t in range(T):
-            for p in range(self.P):
-                w[p], self.v[p], self.tau[p] = self.oamps[p].local_compute()
-            #w[0] += self.s
-            v = self._update_v()
-            tau = self._update_tau()
-            if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
-            if t == T-1: break
-            self._update_s(C, w, log)
+            if ord == "LMMSE" or t == 0:
+                W = self.__set_W(ord)
+                Ws = W.T.reshape(self.P, self.M_p, self.N)
+                B = I - W @ self.A
+                fro_norm_B2 = np.linalg.norm(B, ord='fro')**2
+                self.core.send(Ws, fro_norm_B2)
+            
+            # Local Computation
+            self.core.local_computation()
+            for p in range(self.P-1):
+                self.edges[p].local_computation()
+            
+            # Global Computation
+            self._update_v()
+            self._update_tau()
+            if log:
+                print(f"{t+1}/{T}: tau = {sum(self.tau[-1])}, v = {sum(self.v[-1])}")
 
-            for p in range(self.P):
-                self.oamps[p].receive_s(self.s)
+            if CommCostCut:
+                if last and t == T-1:
+                    self._global_computation_amp()
+                else:
+                    self._global_computation_oamp(C)
+            else:
+                w = self.core.w
+                w += jnp.sum([self.edges[p].w for p in range(self.P-1)], axis=0)
+                if log:
+                    print("Chose an option that does not reduce communication cost")
+                    print(f"Total Communication Cost: {self.N * (self.P - 1)}")
+                    print("="*50)
+                
+                if last and t == T-1:
+                    self.s = soft_threshold(w, sum(self.tau[-1])**0.5)
+                else:
+                    self.s = C * df(w, sum(self.tau[-1])**0.5)
+
             self._add_mse()
+            self.s_history.append(self.s)
+            self.core.broadcast(self.s)
 
-            if ord == 'LMMSE':
-                self.W = self.__set_W(v, ord='LMMSE')
-                self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
-                B = I - self.W @ self.A
-                self.trW2 = np.trace(self.W @ self.W.T)
-                self.trB2 = np.trace(B @ B.T)
-                for p in range(self.P):
-                    self.oamps[p].receive_W_p(self.W_p[p].T)
-                    self.oamps[p].receive_trX2(self.trW2, self.trB2)
+
+    def __set_W(self, ord):
+        v = sum(self.v[-1])
         
-        self._output_s(w, log)
-        self._add_mse()
-
-    def __set_W(self, v, ord):
         if ord == 'MF':
             W_ = self.AT
+
         elif ord == 'PINV':
-            W_ = np.linalg.pinv(self.A)
+            W_ = jnp.linalg.pinv(self.A)
+
         elif ord == 'LMMSE':
-            W_ = v * self.AT @ np.linalg.inv(v * self.AAT + self.sigma * self.I)
+            W_ = v * self.AT @ jnp.linalg.inv(v * self.A2 + self.sigma * self.I)
+
         else :
             raise NameError("not correct")
+
         return self.N / np.trace(W_ @ self.A) * W_
 
-    def _update_v(self):
-        #r2 = np.sum(self.r2)
-        #v = (r2 - self.M * self.sigma) / self.trA2
-        v = np.sum(self.v)
-        return v if v > 0 else 1e-4
 
-    def _update_tau(self):
-        #return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
-        return np.sum(self.tau)
+    def _global_computation_oamp(self, C):
+        # STEP1
+        R = self._step1()
 
-    def _update_s(self, C, w, log):
-        s, communication_cost = GCOAMP(w, self.tau, log)
-        self.s = C * s
-        self.communication_cost = np.append(self.communication_cost, communication_cost)
+        # STEP2
+        z, S, U, F = self._step2(R)
 
-    def _output_s(self, w, log):
-        s, communication_cost = GCAMP(w, self.tau, log)
-        self.s = s
-        self.communication_cost = np.append(self.communication_cost, communication_cost)
+        # STEP3
+        self._step3(F, R)
+
+        # STEP4-5
+        self.s = C * self._step45( z, S, U)
+
+    
+    def _step45(self, z, S, U):
+        tau = self.tau[-1]
+        tau_sum = sum(tau)
+        u = np.zeros(self.N)
+        b = np.zeros(self.N)
+        count = 0
+
+        V = np.where(U > tau_sum)[0].tolist()
+        for n in V:
+            w = self.core.w[n] + jnp.sum([self.edges[p].w[n] for p in range(self.P-1)], axis=0)
+            u[n] = soft_threshold(w, tau_sum**0.5)
+            count += u[n] == 0
+
+        if self.log:
+            print(f"the number of 0 obtained by soft threshold function: {count}/{np.sum(s != 0)}")
+            print("="*50)
+
+        Vc = [n for n in range(self.N) if n not in V]
+        for n in Vc:
+            b[n] = z[n]
+            b[n] += np.sum([self.rand(self.theta * tau[p]) for p in range(1, self.P) if p not in S[n]])
+            s = u - np.mean(u != 0)*b
+            
+        return s.real
+    
+    def rand(self, num):
+        return num**0.5 * truncnorm.rvs(-1, 1, loc=0, scale=1, size=1)
