@@ -9,13 +9,15 @@ class dbase:
         self.P = int(self.M / self.M_p)
         self.x = x
         Ax = self.A_p @ self.x
-        if noise is int:
+        if type(noise) is int:
             SNRdB = 10**(0.1*noise) / self.P
             self.sigma_p = np.linalg.norm(Ax)**2 / SNRdB
             n = np.random.normal(0, self.sigma_p**0.5, (self.M_p, 1))
         elif type(noise).__module__ == 'numpy':
             self.sigma_p = np.var(noise)
             n = noise.copy()
+        else :
+            raise ValueError
         self.y = Ax + n
         self.s = np.zeros((self.N, 1))
         self.AT_p = self.A_p.T
@@ -30,7 +32,7 @@ class D_Base:
         self.M_p = int(self.M / self.P)
         self.A_p = A.reshape(P, self.M_p, self.N)
         self.x = x
-        if noise is int:
+        if type(noise) is int:
             self.noise = [noise] * self.P
         elif type(noise).__module__ == 'numpy':
             self.noise = noise.reshape(P, self.M_p, 1)
