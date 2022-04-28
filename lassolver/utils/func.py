@@ -54,7 +54,7 @@ def GCAMP(w, tau_p, log=False):
             communication_cost += 1
             send_to1(n ,w[p, n])
     if log: 
-        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)))
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)-np.sum(F)))
         print("Total Communication Cost: {}".format(communication_cost))
         print("="*50)
 
@@ -116,7 +116,7 @@ def GCOAMP(w, tau_p, log=False):
             communication_cost += 1
             send_to1(n ,w[p, n])
     if log: 
-        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)))
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)-np.sum(F)))
         print("Total Communication Cost: {}".format(communication_cost))
         print("="*50)
     
