@@ -3,14 +3,20 @@ import matplotlib.pyplot as plt
 from lassolver.utils.func import *
 
 class ISTA:
-    def __init__(self, A, x, snr):
+    def __init__(self, A, x, noise):
         self.A = A
         self.M, self.N = A.shape
         self.x = x
         Ax = A @ x
-        SNRdB = 10**(0.1*snr)
-        self.sigma = np.linalg.norm(Ax)**2 / SNRdB
-        self.n = np.random.normal(0, self.sigma**0.5, (self.M, 1))
+        if type(noise) is int:
+            SNRdB = 10**(0.1*noise) / self.P
+            self.sigma = np.linalg.norm(Ax)**2 / SNRdB
+            self.n = np.random.normal(0, self.sigma**0.5, (self.M, 1))
+        elif type(noise).__module__ == 'numpy':
+            self.sigma = np.var(noise)
+            self.n = noise.copy()
+        else :
+            raise ValueError
         self.y = Ax + self.n
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([None])
