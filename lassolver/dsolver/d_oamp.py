@@ -41,14 +41,14 @@ class doamp(dbase):
 
 
 class D_OAMP(D_Base):
-    def __init__(self, A, x, snr, P):
-        super().__init__(A, x, snr, P)
+    def __init__(self, A, x, noise, P):
+        super().__init__(A, x, noise, P)
         self.A = A.copy()
         self.AT = self.A.T
         self.AAT = self.A @ self.AT
         self.I = np.eye(self.M)
         self.c = (self.N - self.M) / self.M
-        self.oamps = [doamp(self.A_p[p], x, self.snr, self.M) for p in range(self.P)]
+        self.oamps = [doamp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
 

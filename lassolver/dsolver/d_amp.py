@@ -3,8 +3,8 @@ from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
 class damp(dbase):
-    def __init__(self, A_p, x, snr, M):
-        super().__init__(A_p, x, snr, M)
+    def __init__(self, A_p, x, noise, M):
+        super().__init__(A_p, x, noise, M)
         self.Onsager_p = np.zeros((self.M_p, 1))
 
     def receive_trA2(self, trA2):
@@ -36,9 +36,9 @@ class damp(dbase):
         
         
 class D_AMP(D_Base):
-    def __init__(self, A, x, snr, P):
-        super().__init__(A, x, snr, P)
-        self.amps = [damp(self.A_p[p], x, self.snr, self.M) for p in range(self.P)]
+    def __init__(self, A, x, noise, P):
+        super().__init__(A, x, noise, P)
+        self.amps = [damp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
 

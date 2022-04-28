@@ -2,16 +2,20 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class dbase:
-    def __init__(self, A_p, x, snr, M):
+    def __init__(self, A_p, x, noise, M):
         self.A_p = A_p.copy()
         self.M = M
         self.M_p, self.N = self.A_p.shape
         self.P = int(self.M / self.M_p)
         self.x = x
         Ax = self.A_p @ self.x
-        SNRdB = 10**(0.1*snr) / self.P
-        self.sigma_p = np.linalg.norm(Ax)**2 / SNRdB
-        n = np.random.normal(0, self.sigma_p**0.5, (self.M_p, 1))
+        if noise is int:
+            SNRdB = 10**(0.1*noise) / self.P
+            self.sigma_p = np.linalg.norm(Ax)**2 / SNRdB
+            n = np.random.normal(0, self.sigma_p**0.5, (self.M_p, 1))
+        elif type(noise).__module__ == 'numpy':
+            self.sigma_p = np.var(noise)
+            n = noise.copy()
         self.y = Ax + n
         self.s = np.zeros((self.N, 1))
         self.AT_p = self.A_p.T
@@ -19,14 +23,19 @@ class dbase:
 
 
 class D_Base:
-    def __init__(self, A, x, snr, P):
+    def __init__(self, A, x, noise, P):
         self.M, self.N = A.shape
         self.P = P
         self.a = self.M / self.N
         self.M_p = int(self.M / self.P)
         self.A_p = A.reshape(P, self.M_p, self.N)
         self.x = x
-        self.snr = snr
+        if noise is int:
+            self.noise = [noise] * self.P
+        elif type(noise).__module__ == 'numpy':
+            self.noise = noise.reshape(P, self.M_p, 1)
+        else :
+            raise ValueError
         self.s = np.zeros((self.N, 1))
         self.mse = np.array([None])
         self.communication_cost = np.array([])
