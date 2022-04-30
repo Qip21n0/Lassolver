@@ -1,12 +1,13 @@
 import jax
 import jax.numpy as jnp
+from scipy.stats import norm
 
 
 def vgrad(func):
     """
     grad function for vector
     """
-    return jax.grad(lambda r, gamma: jnp.sum(func(r, gamma)))
+    return jax.vmap(jax.grad(func, argnums=(0)), (0, None))
 
 
 def soft_threshold(r, gamma):
@@ -17,8 +18,11 @@ def soft_threshold(r, gamma):
 
 
 def func_mmse(r, gamma):
-    #(y*self.alpha2[0]/(self.alpha2[0]+tau2))*self.p[0]*self.gauss(y,(self.alpha2[0]+tau2))/((1-self.p[0])*self.gauss(y, tau2) + self.p[0]*self.gauss(y, (self.alpha2[0]+tau2)))
-    pass
+    rho = jnp.mean(soft_threshold(r, gamma) != 0)
+    xi = rho**(-1) + gamma
+    top = norm.pdf(r, loc=0, scale=xi**0.5) / xi
+    bottom = rho * norm.pdf(r, loc=0, scale=xi**0.5) + (1 - rho) * norm.pdf(r, loc=0, scale=gamma**0.5)
+    return top / bottom * r
 
 
 def df(r, gamma, func):
