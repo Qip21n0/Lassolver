@@ -28,7 +28,7 @@ def plt_MSE(mse, label, T, color=None, linestyle=None):
     plt.xlabel("iteration")
     plt.ylabel("MSE")
     plt.xticks(step)
-    plt.ylim(1e-3, 1e+1)
+    plt.ylim(1e-4, 1e+1)
     plt.yscale('log')
 
     plt.plot(mse, label=label, color=color, linestyle=linestyle)
