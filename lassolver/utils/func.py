@@ -17,7 +17,61 @@ def df(r, gamma):
     return eta - np.mean(eta != 0) * r
 
 
-def GCAMP(w, tau_p, log=False):
+def GCAMP(w, beta, log=False):
+    shita = 0.7
+    communication_cost = 0
+    P, N, _ = w.shape
+    T = beta * shita / (P-1)
+    R = np.zeros((P, N, 1))
+    z = np.zeros((N, 1))
+    
+    #STEP1
+    for p in range(1, P):
+        R[p] = np.abs(w[p]) > T
+        candidate = np.where(R[p])[0]
+        for n in candidate:
+            communication_cost += 1
+            send_to1(n, w[p, n])
+    
+    #STEP2
+    S = [np.where(R[:, n])[0] for n in range(N)]
+    m = np.sum(R, axis=0)
+    U = np.empty((N, 1))
+    for n in range(N):
+        upper = (P - 1 - m[n]) * T
+        z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
+        U[n] = np.abs(z[n]) + upper
+    F = (U > beta) * (m < (P-1))
+    candidate = np.where(F)[0]
+    for n in candidate:
+        communication_cost += 1
+        broadcast_others(n)
+    
+    #STEP3
+    F_R = F * np.logical_not(R)
+    for p in range(1, P):
+        #print("p: {}".format(p))
+        candidate = np.where(F_R[p])[0]
+        for n in candidate:
+            communication_cost += 1
+            send_to1(n ,w[p, n])
+    if log: 
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)-np.sum(F)))
+        print("Total Communication Cost: {}".format(communication_cost))
+        print("="*50)
+    
+    #STEP4
+    s = np.zeros((N, 1))
+    b = np.zeros((N, 1))
+    V = np.where(U > beta)[0].tolist()
+    for n in V:
+        b[n] = np.sum(w[:, n])
+        s[n] = soft_threshold(b[n], beta)
+    
+    return s.real, communication_cost
+
+
+def GCAMP_exp(w, tau_p, log=False):
     shita = 0.7
     tau = np.sum(tau_p)
     communication_cost = 0

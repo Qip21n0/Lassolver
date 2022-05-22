@@ -2,7 +2,7 @@ import numpy as np
 from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
-class damp(dbase):
+class damp_exp(dbase):
     def __init__(self, A_p, x, noise, M):
         super().__init__(A_p, x, noise, M)
         self.Onsager_p = np.zeros((self.M_p, 1))
@@ -18,7 +18,7 @@ class damp(dbase):
         self.r_p = self._update_r_p()
         w_p = self._update_w_p()
         v_p = self._update_v_p()
-        tau_p = self._update_tau_p()
+        tau_p = self._update_tau_p(v_p)
         return w_p, v_p, tau_p
 
     def _update_r_p(self):
@@ -31,14 +31,14 @@ class damp(dbase):
         v_p = (np.linalg.norm(self.r_p)**2 - self.M_p * self.sigma_p) / self.trA2
         return v_p
 
-    def _update_tau_p(self):
-        return np.linalg.norm(self.r_p + self.Onsager_p)**2
+    def _update_tau_p(self, v_p):
+        return self.N / self.M * v_p + self.sigma_p / self.P
         
         
-class D_AMP(D_Base):
+class D_AMP_exp(D_Base):
     def __init__(self, A, x, noise, P):
         super().__init__(A, x, noise, P)
-        self.amps = [damp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
+        self.amps = [damp_exp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
 
@@ -56,9 +56,6 @@ class D_AMP(D_Base):
 
     def estimate(self, T=20, log=False):
         w = np.zeros((self.P, self.N, 1))
-        tmp = np.linspace(3, 1, 11)
-        i = T // 11
-        _lambda = [tmp[t//i] for t in range(T)]
 
         for p in range(self.P):
             self.amps[p].receive_trA2(self.trA2)
@@ -69,9 +66,8 @@ class D_AMP(D_Base):
             #w[0] += self.s
             v = self._update_v()
             tau = self._update_tau()
-            beta = _lambda[t] * tau
-            if log: print("{}/{}: tau = {}, v = {}, beta={}".format(t+1, T, tau, v, beta))
-            self._update_s(w, beta, log)
+            if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
+            self._update_s(w, log)
 
             for p in range(self.P):
                 self.amps[p].update_Onsager(self.s)
@@ -87,9 +83,9 @@ class D_AMP(D_Base):
 
     def _update_tau(self):
         #return v / self.a + self.sigma
-        return (np.sum(self.tau_p) / self.M)**0.5
+        return np.sum(self.tau_p)
 
-    def _update_s(self, w, beta, log):
-        s, communication_cost = GCAMP(w, beta, log)
+    def _update_s(self, w, log):
+        s, communication_cost = GCAMP_exp(w, self.tau_p, log)
         self.s = s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
