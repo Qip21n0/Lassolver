@@ -24,7 +24,6 @@ class doamp_exp(dbase):
         w_p = self._update_w_p()
         v_p = self._update_v_p()
         tau_p = self._update_tau_p(v_p)
-        print(np.shape(w_p))
         return w_p, v_p, tau_p
 
     def _update_r_p(self):
@@ -83,6 +82,7 @@ class D_OAMP_exp(D_Base):
             self.oamps[p].receive_trA2(self.trA2)
         
         for t in range(T):
+            print(f"s: {np.shape(self.s)}")
             for p in range(self.P):
                 w[p], self.v_p[p], self.tau_p[p] = self.oamps[p].local_compute()
             #w[0] += self.s
