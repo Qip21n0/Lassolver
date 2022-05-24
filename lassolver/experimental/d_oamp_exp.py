@@ -24,6 +24,7 @@ class doamp_exp(dbase):
         w_p = self._update_w_p()
         v_p = self._update_v_p()
         tau_p = self._update_tau_p(v_p)
+        print(np.shape(w_p))
         return w_p, v_p, tau_p
 
     def _update_r_p(self):
