@@ -82,7 +82,6 @@ class D_OAMP_exp(D_Base):
             self.oamps[p].receive_trA2(self.trA2)
         
         for t in range(T):
-            print(f"s: {np.shape(self.s)}")
             for p in range(self.P):
                 w[p], self.v_p[p], self.tau_p[p] = self.oamps[p].local_compute()
             #w[0] += self.s
@@ -131,12 +130,14 @@ class D_OAMP_exp(D_Base):
         #return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
         return np.sum(self.tau_p)
 
-    def _update_s(self, C, w, tau):
+    def _update_s(self, C, w_p, tau):
+        w = np.sum(w_p, axis=0)
         s = df(w, tau**0.5)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, self.N * (self.P - 1))
 
-    def _output_s(self, w, tau):
+    def _output_s(self, w_p, tau):
+        w = np.sum(w_p, axis=0)
         s = soft_threshold(w, tau**0.5)
         self.s = s
         self.communication_cost = np.append(self.communication_cost, self.N * (self.P - 1))
