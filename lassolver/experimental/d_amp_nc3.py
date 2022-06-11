@@ -56,9 +56,6 @@ class D_AMP_nc3(D_Base):
 
     def estimate(self, T=20, log=False):
         w = np.zeros((self.P, self.N, 1))
-        tmp = np.linspace(3, 1, 11)
-        i = T // 11
-        _lambda = [tmp[t//i] for t in range(T)]
 
         for p in range(self.P):
             self.amps[p].receive_trA2(self.trA2)
@@ -69,9 +66,8 @@ class D_AMP_nc3(D_Base):
             w[0] += self.s
             v = self._update_v()
             tau = self._update_tau()
-            beta = _lambda[t] * tau
-            if log: print("{}/{}: tau = {}, v = {}, beta={}".format(t+1, T, tau, v, beta))
-            self._update_s(w, beta)
+            if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
+            self._update_s(w, tau)
 
             for p in range(self.P):
                 self.amps[p].update_Onsager(self.s)
