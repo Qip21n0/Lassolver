@@ -25,7 +25,7 @@ class damp(dbase):
         return self.y - self.A_p @ self.s
 
     def _update_w_p(self):
-        return self.s / self.P + self.AT_p @ (self.r_p + self.Onsager_p)
+        return self.AT_p @ (self.r_p + self.Onsager_p)
 
     def _update_v_p(self):
         v_p = (np.linalg.norm(self.r_p)**2 - self.M_p * self.sigma_p) / self.trA2
@@ -66,7 +66,7 @@ class D_AMP(D_Base):
         for t in range(T):
             for p in range(self.P):
                 w[p], self.v_p[p], self.tau_p[p] = self.amps[p].local_compute()
-            #w[0] += self.s
+            w[0] += self.s
             v = self._update_v()
             tau = self._update_tau()
             beta = _lambda[t] * tau
