@@ -6,6 +6,7 @@ class ISTA:
     def __init__(self, A, x, noise):
         self.A = A
         self.M, self.N = A.shape
+        self.K = np.sum(x != 0)
         self.x = x
         Ax = A @ x
         if type(noise) is int:
@@ -22,6 +23,9 @@ class ISTA:
         self.mse = np.array([None])
         self.AT = A.T
         self.A2 = self.AT @ self.A
+        self.booleans = (x == 0)
+        self.mse_non_zero = np.array([None])
+        self.mse_zero = np.array([None])
 
     def estimate(self, T=20, tau=0.5):
         L = self.__set_lipchitz()
@@ -48,6 +52,18 @@ class ISTA:
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
         self.mse = np.append(self.mse, mse)
+
+        sum_4_zero = 0
+        sum_4_non_zero = 0
+        for i in self.booleans:
+            if i:
+                sum_4_zero += self.s[i][0]**2
+            elif not i:
+                sum_4_non_zero += (self.s[i][0] - self.x[i][0])**2
+            else:
+                raise ValueError("Not Correct Value")
+        self.mse_zero = np.append(self.mse_zero, sum_4_zero / (self.N - self.K))
+        self.mse_non_zero = np.append(self.mse_non_zero, sum_4_non_zero / self.K)
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))
