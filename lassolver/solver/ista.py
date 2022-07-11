@@ -55,11 +55,11 @@ class ISTA:
 
         sum_4_zero = 0
         sum_4_non_zero = 0
-        for i in self.booleans:
-            if i:
-                sum_4_zero += self.s[i]**2
-            elif not i:
-                sum_4_non_zero += (self.s[i] - self.x[i])**2
+        for k, v in enumerate(self.booleans):
+            if v:
+                sum_4_zero += self.s[k]**2
+            elif not v:
+                sum_4_non_zero += (self.s[k] - self.x[k])**2
             else:
                 raise ValueError("Not Correct Value")
         self.mse_zero = np.append(self.mse_zero, sum_4_zero[0] / (self.N - self.K))
