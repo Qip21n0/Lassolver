@@ -188,7 +188,7 @@ def GCOAMP(w, tau_p, log=False):
     Vc = [n for n in range(N) if n not in V]
     for n in Vc:
         b[n] = z[n]
-        b[n] += np.sum([rand(shita * tau_p[p]) for p in range(1, P) if p not in S[n]])
+        #b[n] += np.sum([rand(shita * tau_p[p]) for p in range(1, P) if p not in S[n]])
         
     s = u - np.mean(u != 0)*b
     return s.real, communication_cost
