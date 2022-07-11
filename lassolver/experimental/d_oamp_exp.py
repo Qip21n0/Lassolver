@@ -2,7 +2,7 @@ import numpy as np
 from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
-class doamp(dbase):
+class doamp_exp(dbase):
     def __init__(self, A_p, x, snr, M):
         super().__init__(A_p, x, snr, M)
 
@@ -40,7 +40,7 @@ class doamp(dbase):
         return 1 / self.N * (self.trB2 * v_p + self.trW_p2 * self.sigma_p)
 
 
-class D_OAMP(D_Base):
+class D_OAMP_exp(D_Base):
     def __init__(self, A, x, noise, P):
         super().__init__(A, x, noise, P)
         self.A = A.copy()
@@ -48,7 +48,7 @@ class D_OAMP(D_Base):
         self.AAT = self.A @ self.AT
         self.I = np.eye(self.M)
         self.c = (self.N - self.M) / self.M
-        self.oamps = [doamp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
+        self.oamps = [doamp_exp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
 
