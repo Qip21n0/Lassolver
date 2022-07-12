@@ -49,7 +49,7 @@ class D_Base:
         self.booleans = (x == 0)
         self.mse_non_zero = np.array([None])
         self.mse_zero = np.array([None])
-        self.mse_4_hist = []
+        self.mse_hist_bins = []
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N

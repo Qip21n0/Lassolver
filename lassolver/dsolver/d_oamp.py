@@ -135,21 +135,21 @@ class D_OAMP(D_Base):
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
-        print(np.sum(b_ws == 1))
-        size = 20
-        hist, bins = np.histogram(b_ws, bins=size)
-        index_4_hist = np.digitize(b_ws, bins) - 1
-        mse_4_hist = np.zeros((2, size+1)) # 0: MSE, 1: bins
-        mse_4_hist[1] = bins.copy()
+        size = 50
+        hist, bins = np.histogram(b_ws, bins=size) # hist: R^50, bins: R^51
+        index_4_hist = np.digitize(b_ws, bins) - 1 # index_4_hist: R^N (0~50), b_ws: R^N
+        mse_hist_bins = np.zeros((3, size+1)) # 0: MSE, 1: hist, 2: bins
+        mse_hist_bins[1] = hist.copy()
+        mse_hist_bins[2] = bins.copy()
         for i in range(self.N):
-            j = index_4_hist[i] - 1
-            mse_4_hist[0][j] += self._square_error_4_component(i)
+            j = index_4_hist[i]
+            mse_hist_bins[0][j] += self._square_error_4_component(i)
 
         for i in range(size):
             if hist[i] != 0:
-                mse_4_hist[0][i] /= hist[i]
+                mse_hist_bins[0][i] /= hist[i]
 
-        self.mse_4_hist.append(mse_4_hist)
+        self.mse_hist_bins.append(mse_hist_bins)
 
 
     def _output_s(self, w, log):
