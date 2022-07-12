@@ -49,6 +49,7 @@ class D_Base:
         self.booleans = (x == 0)
         self.mse_non_zero = np.array([None])
         self.mse_zero = np.array([None])
+        self.mse_4_hist = []
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
@@ -58,13 +59,16 @@ class D_Base:
         sum_4_non_zero = 0
         for k, v in enumerate(self.booleans):
             if v:
-                sum_4_zero += self.s[k]**2
+                sum_4_zero += self._square_error_4_component(k)
             elif not v:
-                sum_4_non_zero += (self.s[k] - self.x[k])**2
+                sum_4_non_zero += self._square_error_4_component(k)
             else:
                 raise ValueError("Not Correct Value")
         self.mse_zero = np.append(self.mse_zero, sum_4_zero[0] / (self.N - self.K))
         self.mse_non_zero = np.append(self.mse_non_zero, sum_4_non_zero[0] / self.K)
+
+    def _square_error_4_component(self, i):
+        return (self.s[i] - self.x[i])**2[0]
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))

@@ -131,9 +131,22 @@ class D_OAMP_exp(D_Base):
         return np.sum(self.tau_p)
 
     def _update_s(self, C, w, log):
-        s, communication_cost = GCOAMP(w, self.tau_p, log)
+        s, communication_cost, b_ws = GCOAMP(w, self.tau_p, log)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
+
+        size = 20
+        hist, bins = np.histogram(b_ws, bins=size)
+        index_4_hist = np.digitize(b_ws, bins) - 1
+        mse_4_hist = np.zeros(size)
+        for i in range(self.N):
+            j = index_4_hist[i]
+            mse_4_hist[j] += self._square_error_4_component(i)
+
+        for i in range(size):
+            mse_4_hist[i] /= hist[i]
+
+        self.mse_4_hist.append(mse_4_hist)
 
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)
