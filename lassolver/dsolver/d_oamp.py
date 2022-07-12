@@ -135,6 +135,7 @@ class D_OAMP(D_Base):
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
+        print(np.shape(b_ws))
         size = 20
         hist, bins = np.histogram(b_ws, bins=size)
         index_4_hist = np.digitize(b_ws, bins) - 1
