@@ -144,7 +144,8 @@ class D_OAMP_exp(D_Base):
             mse_4_hist[j] += self._square_error_4_component(i)
 
         for i in range(size):
-            mse_4_hist[i] /= hist[i]
+            if hist[i] != 0:
+                mse_4_hist[i] /= hist[i]
 
         self.mse_4_hist.append(mse_4_hist)
 
