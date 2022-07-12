@@ -68,7 +68,7 @@ class D_Base:
         self.mse_non_zero = np.append(self.mse_non_zero, sum_4_non_zero[0] / self.K)
 
     def _square_error_4_component(self, i):
-        return (self.s[i] - self.x[i])**2[0]
+        return (self.s[i] - self.x[i])**2
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))
