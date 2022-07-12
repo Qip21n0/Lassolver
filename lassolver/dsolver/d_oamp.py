@@ -138,14 +138,15 @@ class D_OAMP(D_Base):
         size = 20
         hist, bins = np.histogram(b_ws, bins=size)
         index_4_hist = np.digitize(b_ws, bins) - 1
-        mse_4_hist = np.zeros(size)
+        mse_4_hist = np.zeros((2, size+1)) # 0: MSE, 1: bins
+        mse_4_hist[1] = bins.copy()
         for i in range(self.N):
             j = index_4_hist[i] - 1
-            mse_4_hist[j] += self._square_error_4_component(i)
+            mse_4_hist[0][j] += self._square_error_4_component(i)
 
         for i in range(size):
             if hist[i] != 0:
-                mse_4_hist[i] /= hist[i]
+                mse_4_hist[0][i] /= hist[i]
 
         self.mse_4_hist.append(mse_4_hist)
 
