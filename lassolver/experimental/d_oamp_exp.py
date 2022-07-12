@@ -140,7 +140,7 @@ class D_OAMP_exp(D_Base):
         index_4_hist = np.digitize(b_ws, bins) - 1
         mse_4_hist = np.zeros(size)
         for i in range(self.N):
-            j = index_4_hist[i]
+            j = index_4_hist[i] - 1
             mse_4_hist[j] += self._square_error_4_component(i)
 
         for i in range(size):
