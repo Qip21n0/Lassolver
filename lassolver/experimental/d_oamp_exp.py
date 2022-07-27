@@ -153,12 +153,10 @@ class D_OAMP_exp(D_Base):
         mse_hist_bins.append(bins.copy()) # 2: bins
         for i in range(self.N):
             j = index_4_hist[i]
+            j = j if j != size else j-1
             mse_hist_bins[0][j] += self._square_error_4_component(i)
 
-        for i in range(size+1):
-            if i == size:
-                break
-            if hist[i] != 0:
-                mse_hist_bins[0][i] /= hist[i]
+        for i in range(size):
+            mse_hist_bins[0][i] /= hist[i]
 
         self.mse_hist_bins.append(mse_hist_bins)
