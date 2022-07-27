@@ -192,7 +192,7 @@ def GCOAMP(w, tau_p, log=False):
         
     s = u - np.mean(u != 0)*b
     print("|V|: ", np.sum(V))
-    print("|b = w|: ", np.sum(b == w))
+    print("|b = w|: ", np.sum(b == np.sum(w, axis=0)))
     return s.real, communication_cost, b/np.sum(w, axis=0)
 
 
