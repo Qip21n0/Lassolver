@@ -131,28 +131,35 @@ class D_OAMP(D_Base):
         return np.sum(self.tau_p)
 
     def _update_s(self, C, w, log):
-        s, communication_cost, b_ws = GCOAMP(w, self.tau_p, log)
+        s, communication_cost, ratio_b_w = GCOAMP(w, self.tau_p, log)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
-        size = 50
-        hist, bins = np.histogram(b_ws, bins=size) # hist: R^50, bins: R^51
-        index_4_hist = np.digitize(b_ws, bins) - 1 # index_4_hist: R^N (0~50), b_ws: R^N
-        mse_hist_bins = np.zeros((3, size+1)) # 0: MSE, 1: hist, 2: bins
-        mse_hist_bins[1] = hist.copy()
-        mse_hist_bins[2] = bins.copy()
-        for i in range(self.N):
-            j = index_4_hist[i]
-            mse_hist_bins[0][j] += self._square_error_4_component(i)
-
-        for i in range(size):
-            if hist[i] != 0:
-                mse_hist_bins[0][i] /= hist[i]
-
-        self.mse_hist_bins.append(mse_hist_bins)
+        self._inspect_b_and_w(ratio_b_w)
 
 
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)
         self.s = s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
+
+    
+    def _inspect_b_and_w(self, ratio_b_w):
+        size = 50
+        hist, bins = np.histogram(ratio_b_w, bins=size) # hist: R^50, bins: R^51
+        index_4_hist = np.digitize(ratio_b_w, bins) - 1 # index_4_hist: R^N (0~50), b_ws: R^N
+        mse_hist_bins = []
+        mse_hist_bins.append(np.zeros(size+1)) # 0: MSE
+        mse_hist_bins.append(hist.copy()) # 1: hist
+        mse_hist_bins.append(bins.copy()) # 2: bins
+        for i in range(self.N):
+            j = index_4_hist[i]
+            mse_hist_bins[0][j] += self._square_error_4_component(i)
+
+        for i in range(size+1):
+            if i == size:
+                break
+            if hist[i] != 0:
+                mse_hist_bins[0][i] /= hist[i]
+
+        self.mse_hist_bins.append(mse_hist_bins)
