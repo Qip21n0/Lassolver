@@ -131,11 +131,11 @@ class D_OAMP(D_Base):
         return np.sum(self.tau_p)
 
     def _update_s(self, C, w, log):
-        s, communication_cost, ratio_b_w = GCOAMP(w, self.tau_p, log)
+        s, communication_cost, diff_b_w = GCOAMP(w, self.tau_p, log)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
-        self._inspect_b_and_w(ratio_b_w)
+        self._inspect_b_and_w(diff_b_w)
 
 
     def _output_s(self, w, log):
@@ -146,10 +146,10 @@ class D_OAMP(D_Base):
     
     def _inspect_b_and_w(self, ratio_b_w):
         size = 50
-        hist, bins = np.histogram(ratio_b_w, bins=size) # hist: R^50, bins: R^51
-        index_4_hist = np.digitize(ratio_b_w, bins) - 1 # index_4_hist: R^N (0~50), b_ws: R^N
+        hist, bins = np.histogram(diff_b_w, bins=size) # hist: R^50, bins: R^51
+        index_4_hist = np.digitize(diff_b_w, bins) - 1 # index_4_hist: R^N (0~50), diff_b_w: R^N
         mse_hist_bins = []
-        mse_hist_bins.append(np.zeros(size+1)) # 0: MSE
+        mse_hist_bins.append(np.zeros(size)) # 0: MSE
         mse_hist_bins.append(hist.copy()) # 1: hist
         mse_hist_bins.append(bins.copy()) # 2: bins
         for i in range(self.N):
