@@ -144,7 +144,7 @@ class D_OAMP(D_Base):
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
     
-    def _inspect_b_and_w(self, ratio_b_w):
+    def _inspect_b_and_w(self, diff_b_w):
         size = 50
         hist, bins = np.histogram(diff_b_w, bins=size) # hist: R^50, bins: R^51
         index_4_hist = np.digitize(diff_b_w, bins) - 1 # index_4_hist: R^N (0~50), diff_b_w: R^N
