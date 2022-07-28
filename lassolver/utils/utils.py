@@ -55,10 +55,17 @@ def plt_SE(se, T, color=None):
 
 
 def plt_MSE_and_hist(target, T, limit=False):
-    n = T//11 + 1
+    n = T//11
+    flag = False
+    if n * 11 < T:
+        n += 1
+        flag = True
+
     plt.figure(figsize=(14, 6*n))
-    for i in range(n):
+    for i in range(n+1):
         t = 11 * i - 1 if i != 0 else 0
+        if i == n and flag:
+            t = -1
         mse_all, hist_all, bins_all = target.mse_hist_bins[t][0].copy()
         mse_zero, hist_zero, bins_zero = target.mse_hist_bins[t][1].copy()
         mse_non_zero, hist_non_zero, bins_non_zero = target.mse_hist_bins[t][2].copy()
@@ -80,4 +87,31 @@ def plt_MSE_and_hist(target, T, limit=False):
         plt.plot(bins_zero, hist_zero, label="x = 0")
         plt.plot(bins_non_zero, hist_non_zero, label="x != 0")
         plt.legend()
+        plt.grid()
+
+
+def plt_s_diff_non_zero(target, T):
+    n = T//11
+    flag = False
+    if n * 11 < T:
+        n += 1
+        flag = True
+
+    plt.figure(figsize=(14, 6*n))
+    for i in range(n+1):
+        t = 11 * i - 1 if i != 0 else 0
+        if i == n and flag:
+            t = -1
+        s = target.s_history_4_diff_non_zero[t].real.copy()
+        hist, bins = np.histogram(s, bins=50)
+        hist = np.append(hist, 0)
+
+        plt.subplot(n, 2, 2*i+1)
+        plt.title(f's (t = {str(t+1)})')
+        plt.plot(s)
+        plt.grid()
+
+        plt.subplot(n, 2, 2*(i+1))
+        plt.title(f's histogram (t = {str(t+1)})')
+        plt.plot(bins, hist)
         plt.grid()
