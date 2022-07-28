@@ -104,9 +104,9 @@ def plt_s_diff_non_zero(target, T):
             t = -1
         s = target.s_history_4_diff_non_zero[t].real.copy()
         s_without_None = np.array([])
-        for i in s:
-            if i is not None:
-                s_without_None = np.append(s_without_None, i)
+        for s_comp in s:
+            if s_comp is not None:
+                s_without_None = np.append(s_without_None, s_comp)
         hist, bins = np.histogram(s_without_None, bins=50)
         hist = np.append(hist, 0)
 
