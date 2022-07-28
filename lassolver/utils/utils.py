@@ -103,7 +103,11 @@ def plt_s_diff_non_zero(target, T):
         if i == n and flag:
             t = -1
         s = target.s_history_4_diff_non_zero[t].real.copy()
-        hist, bins = np.histogram(s, bins=50)
+        s_without_None = np.array([])
+        for i in s:
+            if i is not None:
+                s_without_None = np.append(s_without_None, i)
+        hist, bins = np.histogram(s_without_None, bins=50)
         hist = np.append(hist, 0)
 
         plt.subplot(n+1, 2, 2*i+1)
