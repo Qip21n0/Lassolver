@@ -96,7 +96,13 @@ class D_Base:
 
     def _add_s_history_4_diff_non_zero(self, diff_b_w):
         diff_non_zero_index = diff_b_w != 0
-        self.s_history_4_diff_non_zero.append(self.s[diff_non_zero_index])
+        s = np.array([])
+        for k, v in enumerate(diff_non_zero_index):
+            if v:
+                s = np.append(s, self.s[k])
+            else:
+                s = np.append(s, None)
+        self.s_history_4_diff_non_zero.append(s)
 
     def _inspect_b_w(self, diff_b_w):
         diff_zero_index = diff_b_w == 0

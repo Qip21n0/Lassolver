@@ -108,6 +108,7 @@ def plt_s_diff_non_zero(target, T):
 
         plt.subplot(n+1, 2, 2*i+1)
         plt.title(f's (t = {str(t+1)})')
+        plt.plot(target.x)
         plt.plot(s)
         plt.grid()
 
