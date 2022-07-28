@@ -23,9 +23,11 @@ class ISTA:
         self.mse = np.array([None])
         self.AT = A.T
         self.A2 = self.AT @ self.A
-        self.booleans = (x == 0)
-        self.mse_non_zero = np.array([None])
+        self.zero_index = x == 0
+        self.non_zero_index = x != 0
         self.mse_zero = np.array([None])
+        self.mse_non_zero = np.array([None])
+        self.mse_hist_bins = []
 
     def estimate(self, T=20, tau=0.5):
         L = self.__set_lipchitz()
@@ -55,15 +57,18 @@ class ISTA:
 
         sum_4_zero = 0
         sum_4_non_zero = 0
-        for k, v in enumerate(self.booleans):
+        for k, v in enumerate(self.zero_index):
             if v:
-                sum_4_zero += self.s[k]**2
+                sum_4_zero += self._square_error_4_component(k)
             elif not v:
-                sum_4_non_zero += (self.s[k] - self.x[k])**2
+                sum_4_non_zero += self._square_error_4_component(k)
             else:
                 raise ValueError("Not Correct Value")
         self.mse_zero = np.append(self.mse_zero, sum_4_zero[0] / (self.N - self.K))
         self.mse_non_zero = np.append(self.mse_non_zero, sum_4_non_zero[0] / self.K)
+
+    def _square_error_4_component(self, i):
+        return (self.s[i] - self.x[i])**2
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))
