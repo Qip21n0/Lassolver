@@ -157,6 +157,9 @@ class D_OAMP_exp(D_Base):
             mse_hist_bins[0][j] += self._square_error_4_component(i)
 
         for i in range(size):
-            mse_hist_bins[0][i] /= hist[i]
+            if hist[i] != 0:
+                mse_hist_bins[0][i] /= hist[i]
+            elif mse_hist_bins[0][i] != 0:
+                print("ERROR: mse = ", mse_hist_bins[0][i], "hist: ", hist[i])
 
         self.mse_hist_bins.append(mse_hist_bins)
