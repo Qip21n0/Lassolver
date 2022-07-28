@@ -52,6 +52,7 @@ class D_Base:
         self.mse_non_zero = np.array([None])
         self.mse_diff_zero = np.array([None])
         self.mse_diff_non_zero = np.array([None])
+        self.s_history_4_diff_non_zero = []
         self.mse_hist_bins = []
 
     def _add_mse(self):
@@ -92,6 +93,10 @@ class D_Base:
         se = np.array([np.log10(v) if v is not None else None for v in self.v])
         plt.scatter(ite, se, c='red')
         plt.grid()
+
+    def _add_s_history_4_diff_non_zero(self, diff_b_w):
+        diff_non_zero_index = diff_b_w != 0
+        self.s_history_4_diff_non_zero.append(self.s[diff_non_zero_index])
 
     def _inspect_b_w(self, diff_b_w):
         diff_zero_index = diff_b_w == 0

@@ -132,10 +132,10 @@ class D_OAMP_exp(D_Base):
 
     def _update_s(self, C, w, log):
         s, communication_cost, diff_b_w = GCOAMP(w, self.tau_p, log)
+        self._add_s_history_4_diff_non_zero(diff_b_w)
+        self._inspect_b_w(diff_b_w)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
-
-        self._inspect_b_w(diff_b_w)
 
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)
