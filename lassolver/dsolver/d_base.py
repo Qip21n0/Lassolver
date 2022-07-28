@@ -46,9 +46,10 @@ class D_Base:
         self.tau_p = np.zeros(self.P)
         self.v_p = np.zeros(self.P)
         self.v = [None]
-        self.booleans = (x == 0)
-        self.mse_non_zero = np.array([None])
+        self.zero_index = x == 0
+        self.non_zero_index = x != 0
         self.mse_zero = np.array([None])
+        self.mse_non_zero = np.array([None])
         self.mse_hist_bins = []
 
     def _add_mse(self):
@@ -57,7 +58,7 @@ class D_Base:
 
         sum_4_zero = 0
         sum_4_non_zero = 0
-        for k, v in enumerate(self.booleans):
+        for k, v in enumerate(self.zero_index):
             if v:
                 sum_4_zero += self._square_error_4_component(k)
             elif not v:
