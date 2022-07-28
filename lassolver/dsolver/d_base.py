@@ -50,6 +50,8 @@ class D_Base:
         self.non_zero_index = x != 0
         self.mse_zero = np.array([None])
         self.mse_non_zero = np.array([None])
+        self.mse_diff_zero = np.array([None])
+        self.mse_diff_non_zero = np.array([None])
         self.mse_hist_bins = []
 
     def _add_mse(self):
@@ -90,3 +92,57 @@ class D_Base:
         se = np.array([np.log10(v) if v is not None else None for v in self.v])
         plt.scatter(ite, se, c='red')
         plt.grid()
+
+    def _inspect_b_w(self, diff_b_w):
+        diff_zero_index = diff_b_w == 0
+        sum_4_diff_zero = 0
+        sum_4_diff_non_zero = 0
+        for k, v in enumerate(diff_zero_index):
+            if v:
+                sum_4_diff_zero += self._square_error_4_component(k)
+            elif not v:
+                sum_4_diff_non_zero += self._square_error_4_component(k)
+            else:
+                raise ValueError("Not Correct Value")
+        num_diff_zero = np.sum(diff_zero_index)
+        self.mse_diff_zero = np.append(self.mse_diff_zero, sum_4_diff_zero[0] / num_diff_zero)
+        self.mse_diff_non_zero = np.append(self.mse_diff_non_zero, sum_4_diff_non_zero[0] / (self.N - num_diff_zero))
+
+        size = 50
+        hist, bins = np.histogram(diff_b_w, bins=size) # hist: R^50, bins: R^51
+        index_4_hist = np.digitize(diff_b_w, bins) - 1 # index_4_hist: R^N (0~50), diff_b_w: R^N
+        mse_hist_bins = np.zeros((3, 3, size+1))
+        """
+        mse_hist_bins
+            1-dim  0: all, 1: zero, 2: non zero
+            2-dim  0: mse, 1: hist, 3: bins
+            3-dim  R^51
+        """
+        mse_hist_bins[0, 1] = np.append(hist.copy(), 0) # 1: hist for all
+        hist_zero, _ = np.histogram(diff_b_w[self.zero_index], bins=bins)
+        mse_hist_bins[1, 1] = np.append(hist_zero.copy(), 0) # 1: hist for zero
+        hist_non_zero, _ = np.histogram(diff_b_w[self.non_zero_index], bins=bins)
+        mse_hist_bins[2, 1] = np.append(hist_non_zero.copy(), 0) # 1: hist for non zero
+
+        mse_hist_bins[:, 2] = bins.copy() # 2: bins
+        for i in range(self.N):
+            mse = self._square_error_4_component(i)
+            j = index_4_hist[i]
+            j = j if j != size else j-1
+
+            mse_hist_bins[0, 0, j] += mse
+            if self.zero_index[i]:
+                mse_hist_bins[1, 0, j] += mse
+            elif self.non_zero_index[i]:
+                mse_hist_bins[2, 0, j] += mse
+            else:
+                raise ValueError("Not Correct Value")
+
+        for i in range(size):
+            for j in range(3):
+                if mse_hist_bins[j, 1, i] != 0: # hist != 0
+                    mse_hist_bins[j, 0, i] /= mse_hist_bins[j, 1, i] # mse /= hist
+                elif mse_hist_bins[j, 0, i] != 0: # mse != 0
+                    print("\033[33mERROR\033[0m: mse = ", mse_hist_bins[j, 0, i], "hist = ", mse_hist_bins[j, 1, i])
+
+        self.mse_hist_bins.append(mse_hist_bins)

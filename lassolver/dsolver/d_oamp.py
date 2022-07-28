@@ -135,7 +135,7 @@ class D_OAMP(D_Base):
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
-        self._inspect_b_and_w(diff_b_w)
+        self._inspect_b_w(diff_b_w)
 
 
     def _output_s(self, w, log):
