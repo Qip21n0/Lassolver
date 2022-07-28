@@ -70,7 +70,7 @@ def plt_MSE_and_hist(target, T, limit=False):
         mse_zero, hist_zero, bins_zero = target.mse_hist_bins[t][1].copy()
         mse_non_zero, hist_non_zero, bins_non_zero = target.mse_hist_bins[t][2].copy()
 
-        plt.subplot(n, 2, 2*i+1)
+        plt.subplot(n+1, 2, 2*i+1)
         plt.title(f'MSE (t = {str(t+1)})')
         plt.plot(bins_all, mse_all, label="all")
         plt.plot(bins_zero, mse_zero, label="x = 0")
@@ -81,7 +81,7 @@ def plt_MSE_and_hist(target, T, limit=False):
         plt.legend()
         plt.grid()
 
-        plt.subplot(n, 2, 2*(i+1))
+        plt.subplot(n+1, 2, 2*(i+1))
         plt.title(f'Quantity (t = {str(t+1)})')
         plt.plot(bins_all, hist_all, label="all")
         plt.plot(bins_zero, hist_zero, label="x = 0")
@@ -106,12 +106,12 @@ def plt_s_diff_non_zero(target, T):
         hist, bins = np.histogram(s, bins=50)
         hist = np.append(hist, 0)
 
-        plt.subplot(n, 2, 2*i+1)
+        plt.subplot(n+1, 2, 2*i+1)
         plt.title(f's (t = {str(t+1)})')
         plt.plot(s)
         plt.grid()
 
-        plt.subplot(n, 2, 2*(i+1))
+        plt.subplot(n+1, 2, 2*(i+1))
         plt.title(f's histogram (t = {str(t+1)})')
         plt.plot(bins, hist)
         plt.grid()
