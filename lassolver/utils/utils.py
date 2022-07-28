@@ -52,3 +52,32 @@ def plt_MSE_cond(mse, label, sim, color=None):
 def plt_SE(se, T, color=None):
     step = np.arange(0, T+1, 1)
     plt.scatter(step, se, c=color)
+
+
+def plt_MSE_and_hist(target, T, limit=False):
+    n = T//11 + 1
+    plt.figure(figsize=(14, 6*n))
+    for i in range(n):
+        t = 11 * i - 1 if i != 0 else 0
+        mse_all, hist_all, bins_all = target.mse_hist_bins[t][0].copy()
+        mse_zero, hist_zero, bins_zero = target.mse_hist_bins[t][1].copy()
+        mse_non_zero, hist_non_zero, bins_non_zero = target.mse_hist_bins[t][2].copy()
+
+        plt.subplot(n, 2, 2*i+1)
+        plt.title(f'MSE (t = {str(t+1)})')
+        plt.plot(bins_all, mse_all, label="all")
+        plt.plot(bins_zero, mse_zero, label="x = 0")
+        plt.plot(bins_non_zero, mse_non_zero, label="x != 0")
+        if limit:
+            upper = np.max(mse_all)
+            plt.ylim(None, upper * 1.1)
+        plt.legend()
+        plt.grid()
+
+        plt.subplot(n, 2, 2*(i+1))
+        plt.title(f'Quantity (t = {str(t+1)})')
+        plt.plot(bins_all, hist_all, label="all")
+        plt.plot(bins_zero, hist_zero, label="x = 0")
+        plt.plot(bins_non_zero, hist_non_zero, label="x != 0")
+        plt.legend()
+        plt.grid()
