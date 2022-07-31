@@ -143,7 +143,7 @@ def plt_heatmap(impact_table, T):
         s = impact_table[t][1].astype('int')
         plt.subplot(row, 2, i+1)
         plt.title(f'Quantity (t = {str(t+1)})')
-        sns.heatmap(s, cmap="RdBu_r", xticklabel=["x = 0", "x ≠ 0", "sum(diff)"], yticklabel=["diff = 0", "diff ≠ 0", "sum(x)"], annot=True, fmt='d', annot_kws={"fontsize": 12})
+        sns.heatmap(s, cmap="RdBu_r", xticklabels=["x = 0", "x ≠ 0", "sum(diff)"], yticklabels=["diff = 0", "diff ≠ 0", "sum(x)"], annot=True, fmt='d', annot_kws={"fontsize": 12})
 
 
 def plt_MSE_impact_table(impact_table):
