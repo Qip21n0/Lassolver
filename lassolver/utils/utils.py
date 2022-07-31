@@ -1,8 +1,10 @@
+from cProfile import label
 import time
 from functools import wraps
 from matplotlib import colors
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 def plt_CC(cc, label, T, N, P, color=None, linestyle=None):
@@ -121,3 +123,56 @@ def plt_s_diff_non_zero(target, T):
         plt.title(f's histogram (t = {str(t+1)})')
         plt.plot(bins, hist)
         plt.grid()
+
+
+def plt_heatmap(impact_table, T):
+    n = T//11
+    flag = False
+    if n * 11 < T:
+        n += 1
+        flag = True
+
+    row = (n-1)//2 + 1
+
+    plt.figure(figsize=(14, 6*row))
+    for i in range(n+1):
+        t = 11 * i - 1 if i != 0 else 0
+        if i == n and flag:
+            t = -1
+        
+        s = impact_table[t][1].astype('int')
+        plt.subplot(row, 2, i+1)
+        plt.title(f'Quantity (t = {str(t+1)})')
+        sns.heatmap(s, cmap="RdBu_r", xticklabel=["x = 0", "x ≠ 0", "sum(diff)"], yticklabel=["diff = 0", "diff ≠ 0", "sum(x)"], annot=True, fmt='d', annot_kws={"fontsize": 12})
+
+
+def plt_MSE_impact_table(impact_table):
+    T = len(impact_table)
+    mse_of = {}
+    impact_table = np.array(impact_table)
+
+    mse_of["x=0 & diff=0"] = impact_table[:, 0, 0, 0]
+    mse_of["x!=0 & diff=0"] = impact_table[:, 0, 0, 1]
+    mse_of["x=0 & diff!=0"] = impact_table[:, 0, 1, 0]
+    mse_of["x=!0 & diff!=0"] = impact_table[:, 0, 1, 1]
+
+    mse_of["diff=0"] = impact_table[:, 0, 0, 2]
+    mse_of["diff!=0"] = impact_table[:, 0, 1, 2]
+    mse_of["x=0"] = impact_table[:, 0, 2, 0]
+    mse_of["x!=0"] = impact_table[:, 0, 2, 1]
+
+    mse_of["all"] = impact_table[:, 0, 2, 2]
+
+    step = np.arange(0, T+1, 5)
+
+    plt.xlabel("iteration")
+    plt.ylabel("MSE")
+    plt.xticks(step)
+    plt.ylim(1e-4, 1e+1)
+    plt.yscale('log')
+
+    for k, v in mse_of.items():
+        plt.plot(v, label=k)
+    
+    plt.legend()
+    plt.grid()
