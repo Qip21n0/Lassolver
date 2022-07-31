@@ -78,6 +78,7 @@ def plt_MSE_and_hist(target, T, limit=False):
         if limit:
             upper = np.max(mse_all)
             plt.ylim(None, upper * 1.1)
+        plt.yscale('log')
         plt.legend()
         plt.grid()
 
