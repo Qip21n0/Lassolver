@@ -132,7 +132,7 @@ def plt_heatmap(impact_table, T):
         n += 1
         flag = True
 
-    row = (n-1)//2 + 1
+    row = n//2 + 1
 
     plt.figure(figsize=(14, 6*row))
     for i in range(n+1):
