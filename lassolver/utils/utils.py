@@ -172,7 +172,22 @@ def plt_MSE_impact_table(impact_table):
     plt.yscale('log')
 
     for k, v in mse_of.items():
-        plt.plot(v, label=k)
+        linestyle = '-'
+        marker = None
+        mkv = None
+        if 'x=0' in k:
+            linestyle = '--'
+        elif 'x!=' in k:
+            linestyle = '-.'
+
+        if 'diff=0' in k:
+            marker = 'o'
+            mkv = [5, 10, 15, 20, 25, 30, 35, 40, 44]
+        elif 'diff!=0' in k:
+            marker = '*'
+            mkv = [5, 10, 15, 20, 25, 30, 35, 40, 44]
+        
+        plt.plot(v, label=k, linestyle=linestyle, marker=marker, markevery=mkv)
     
-    plt.legend()
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.grid()
