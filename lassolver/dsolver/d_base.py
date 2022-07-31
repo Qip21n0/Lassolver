@@ -48,6 +48,8 @@ class D_Base:
         self.v = [None]
         self.zero_index = x == 0
         self.non_zero_index = x != 0
+        self.impact_table = np.array([])
+        
         self.mse_zero = np.array([None])
         self.mse_non_zero = np.array([None])
         self.mse_diff_zero = np.array([None])
@@ -93,6 +95,57 @@ class D_Base:
         se = np.array([np.log10(v) if v is not None else None for v in self.v])
         plt.scatter(ite, se, c='red')
         plt.grid()
+
+    def _make_impact_table(self, b_w):
+        diff_zero_index = b_w == 0
+        diff_non_zero_index = b_w != 0
+
+        index_of = np.empty(4)
+        index_of[0] = self.zero_index & diff_zero_index # x = 0 & diff = 0
+        index_of[1] = self.non_zero_index & diff_zero_index # x != 0 & diff = 0
+        index_of[2] = self.zero_index & diff_non_zero_index # x = 0 & diff != 0
+        index_of[3] = self.non_zero_index & diff_non_zero_index # x != 0 & diff != 0
+
+        mse_quantity_table = np.zeros((2, 3, 3)) # 0: MSE or Quantity, 1: diff is zero or not, 2: x is zero or not
+        for i in range(4):
+            for k, v in enumerate(index_of[i]):
+                if v:
+                    mse_quantity_table[0, i//2, i%2] += self._square_error_4_component(k)
+
+            mse_quantity_table[1, i//2, i%2] = np.sum(index_of[i]) # Quantity
+            mse_quantity_table[0, i//2, i%2] /= mse_quantity_table[1, i//2, i%2] # MSE
+
+        # diff is zero or not
+        for k, v in enumerate(diff_zero_index):
+            if v:
+                mse_quantity_table[0, 0, 2] += self._square_error_4_component(k)
+            elif not v:
+                mse_quantity_table[0, 1, 2] += self._square_error_4_component(k)
+            else:
+                raise ValueError("Not Correct Value")
+        mse_quantity_table[1, 0, 2] = np.sum(diff_zero_index)
+        mse_quantity_table[1, 1, 2] = np.sum(diff_non_zero_index)
+        mse_quantity_table[0, 0, 2] /= mse_quantity_table[1, 0, 2]
+        mse_quantity_table[0, 1, 2] /= mse_quantity_table[1, 1, 2]
+
+        # x is zero or not
+        for k, v in enumerate(self.zero_index):
+            if v:
+                mse_quantity_table[0, 2, 0] += self._square_error_4_component(k)
+            elif not v:
+                mse_quantity_table[0, 2, 1] += self._square_error_4_component(k)
+            else:
+                raise ValueError("Not Correct Value")
+        mse_quantity_table[1, 2, 0] = self.N - self.K
+        mse_quantity_table[1, 2, 1] = self.K
+        mse_quantity_table[0, 0, 2] /= mse_quantity_table[1, 2, 0]
+        mse_quantity_table[0, 1, 2] /= mse_quantity_table[1, 2, 1]
+
+        # MSE and Quantity
+        mse_quantity_table[0, 2, 2] = np.linalg.norm(self.s - self.x)**2 / self.N
+        mse_quantity_table[1, 2, 2] = self.N
+
+        self.impact_table = np.append(self.impact_table, mse_quantity_table)
 
     def _add_s_history_4_diff_non_zero(self, diff_b_w):
         diff_non_zero_index = diff_b_w != 0

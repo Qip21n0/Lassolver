@@ -137,6 +137,8 @@ class D_OAMP_exp(D_Base):
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
+        self._make_impact_table(diff_b_w)
+
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)
         self.s = s
