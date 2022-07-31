@@ -100,7 +100,7 @@ class D_Base:
         diff_zero_index = b_w == 0
         diff_non_zero_index = b_w != 0
 
-        index_of = np.empty(4)
+        index_of = np.empty((4, self.N, 1))
         index_of[0] = self.zero_index & diff_zero_index # x = 0 & diff = 0
         index_of[1] = self.non_zero_index & diff_zero_index # x != 0 & diff = 0
         index_of[2] = self.zero_index & diff_non_zero_index # x = 0 & diff != 0
