@@ -138,8 +138,8 @@ class D_Base:
                 raise ValueError("Not Correct Value")
         mse_quantity_table[1, 2, 0] = self.N - self.K
         mse_quantity_table[1, 2, 1] = self.K
-        mse_quantity_table[0, 0, 2] /= mse_quantity_table[1, 2, 0]
-        mse_quantity_table[0, 1, 2] /= mse_quantity_table[1, 2, 1]
+        mse_quantity_table[0, 2, 0] /= mse_quantity_table[1, 2, 0]
+        mse_quantity_table[0, 2, 1] /= mse_quantity_table[1, 2, 1]
 
         # MSE and Quantity
         mse_quantity_table[0, 2, 2] = np.linalg.norm(self.s - self.x)**2 / self.N
