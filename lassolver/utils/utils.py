@@ -164,6 +164,9 @@ def plt_MSE_impact_table(impact_table):
     mse_of["all"] = impact_table[:, 0, 2, 2]
 
     step = np.arange(0, T+1, 5)
+    dot = [i for i in range(T) if i % 5 == 0]
+    if dot[-1] != T-1:
+        dot.append(T-1)
 
     plt.xlabel("iteration")
     plt.ylabel("MSE")
@@ -182,10 +185,10 @@ def plt_MSE_impact_table(impact_table):
 
         if 'diff=0' in k:
             marker = 'o'
-            mkv = [5, 10, 15, 20, 25, 30, 35, 40, 44]
+            mkv = dot
         elif 'diff!=0' in k:
             marker = '*'
-            mkv = [5, 10, 15, 20, 25, 30, 35, 40, 44]
+            mkv = dot
         
         plt.plot(v, label=k, linestyle=linestyle, marker=marker, markevery=mkv)
     
