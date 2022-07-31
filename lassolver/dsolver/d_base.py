@@ -145,6 +145,8 @@ class D_Base:
         mse_quantity_table[0, 2, 2] = np.linalg.norm(self.s - self.x)**2 / self.N
         mse_quantity_table[1, 2, 2] = self.N
 
+        print(mse_quantity_table)
+
         self.impact_table = np.append(self.impact_table, mse_quantity_table)
 
     def _add_s_history_4_diff_non_zero(self, diff_b_w):
