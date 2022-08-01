@@ -149,16 +149,20 @@ class D_Base:
         self.confusion_matrix.append(mse_quantity_table)
 
     def _evaluate_performance(self):
-        confusion_matrix = self.confusion_matrix[-1, 1].copy()
+        confusion_matrix = self.confusion_matrix[-1][1].copy() # Quantity
 
         # accuracy = (TP + TN) / (TP + TN + FP + FN)
         accuracy = (confusion_matrix[0, 0] + confusion_matrix[1, 1]) / self.N
+
         # precision = TP / (TP + FP)
         precision = confusion_matrix[0, 0] / (confusion_matrix[0, 0] + confusion_matrix[0, 1])
+        
         # recall = TP / (TP + FN)
         recall = confusion_matrix[0, 0] / (confusion_matrix[0, 0] + confusion_matrix[1, 0])
+        
         # F1 = 2TP / (2TP + FP + FN)
         F1 = 2 / (1/recall + 1/precision)
+        
         # MCC = (TP * TN - FP * FN) / (()()())^1/2
         top = confusion_matrix[0, 0] * confusion_matrix[1, 1] - confusion_matrix[0, 1] * confusion_matrix[1, 0]
         bottom = (confusion_matrix[0, 0]+confusion_matrix[0, 1]) * (confusion_matrix[0, 0]+confusion_matrix[1, 0]) * (confusion_matrix[1, 1]+confusion_matrix[0, 1]) * (confusion_matrix[1, 1]+confusion_matrix[1, 0])
