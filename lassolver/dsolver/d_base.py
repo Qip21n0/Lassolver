@@ -59,6 +59,8 @@ class D_Base:
         self.mse_zero = np.array([None])
         self.mse_non_zero = np.array([None])
         self.confusion_matrix_4_oamp = []
+        self.mse_diff_zero = np.array([None])
+        self.mse_diff_non_zero = np.array([None])
         self.s_history_4_diff_non_zero = []
         self.mse_hist_bins = []
 
