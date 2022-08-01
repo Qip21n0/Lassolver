@@ -116,3 +116,15 @@ def plt_MSE_confusion_matrix(confusion_matrix):
 
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.grid()
+
+
+def plt_evaluation_index(evaluation_index):
+    plt.ylim(0, 1)
+    ystep = np.arange(0, 1.0, 0.1)
+    plt.yticks(ystep)
+
+    for k, v in evaluation_index.items():
+        plt.plot(v, label=k)
+    
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.grid()
