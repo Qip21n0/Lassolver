@@ -82,17 +82,15 @@ def plt_MSE_confusion_matrix(confusion_matrix):
     mse_of = {}
     cm = np.array(confusion_matrix)
 
-    mse_of["x=0 & diff=0"] = cm[:, 0, 0, 0] # TP
-    mse_of["x!=0 & diff=0"] = cm[:, 0, 0, 1] # FP
-    mse_of["x=0 & diff!=0"] = cm[:, 0, 1, 0] # FN
-    mse_of["x=!0 & diff!=0"] = cm[:, 0, 1, 1] # TN
+    mse_of["DOAMP diff!=0"] = cm[:, 0, 0, 2] # diff != 0
+    mse_of["DOAMP x=0 & diff!=0"] = cm[:, 0, 0, 0] # TP
+    mse_of["DOAMP x!=0 & diff!=0"] = cm[:, 0, 0, 1] # FP
 
-    mse_of["diff=0"] = cm[:, 0, 0, 2]
-    mse_of["diff!=0"] = cm[:, 0, 1, 2]
-    mse_of["x=0"] = cm[:, 0, 2, 0]
-    mse_of["x!=0"] = cm[:, 0, 2, 1]
+    mse_of["DOAMP diff!=0"] = cm[:, 0, 1, 2] # diff = 0
+    mse_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] # FN
+    mse_of["DOAMP x=!0 & diff=0"] = cm[:, 0, 1, 1] # TN
 
-    mse_of["all"] = cm[:, 0, 2, 2]
+    mse_of["DOAMP"] = cm[:, 0, 2, 2]
 
     step = np.arange(0, T+1, 5)
 
@@ -108,7 +106,7 @@ def plt_MSE_confusion_matrix(confusion_matrix):
 
         if 'x=0' in k:
             linestyle = '--'
-        elif 'x!=' in k:
+        elif 'x!=0' in k:
             linestyle = '-.'
 
         if 'diff=0' in k:
