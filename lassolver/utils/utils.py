@@ -120,7 +120,7 @@ def plt_MSE_confusion_matrix(confusion_matrix):
 
 def plt_evaluation_index(evaluation_index):
     plt.ylim(0, 1)
-    ystep = np.arange(0, 1.0, 0.1)
+    ystep = np.arange(0, 1.1, 0.1)
     plt.yticks(ystep)
 
     for k, v in evaluation_index.items():
