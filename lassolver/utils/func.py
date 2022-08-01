@@ -183,8 +183,6 @@ def GCOAMP(w, tau_p, log=False):
         u[n] = soft_threshold(b[n], tau**0.5)
     
     #STEP5
-    #if approx: rand = beta * truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
-    #else : rand = Rrandom(u, beta, K)#(tau - tau_p[0])**0.5 * truncnorm.rvs(-1, 1, loc=0, scale=1, size=N-K)
     Vc = [n for n in range(N) if n not in V]
     for n in Vc:
         b[n] = z[n]
@@ -194,32 +192,61 @@ def GCOAMP(w, tau_p, log=False):
     return s.real, communication_cost, b - np.sum(w, axis=0)
 
 
-def rand(tau):
-    return tau**0.5 * truncnorm.rvs(-1, 1, loc=0, scale=1, size=1)
-
-
-def Rrandom(u, t, K):
-    N = u.shape[0]
+def GCOAMP_oracle(zeros, w, tau_p, log=False):
+    shita = 0.7
+    tau = np.sum(tau_p)
+    communication_cost = 0
+    P, N, _ = w.shape
+    R = np.zeros((P, N, 1))
+    z = [0] * N
     
-    u0 = np.histogram(u, bins=N)
-    Pu = u0[0]/N
-    Pu = np.append(Pu, 0)
-    u1 = u0[1]
-
-    phi = lambda x: norm.pdf((x-u1)/t)/t
-
-    maxu = np.argmax(Pu)
-    phi_x = phi(u1[maxu])
-    max = np.max(np.sum(Pu * phi_x))
-    rand = np.empty(N-K)
-
-    for i in range(N-K):
-        while True:
-            x, y = np.random.rand(2)
-            a = -t + 2*t*x
-            phi_a = phi(a)
-            A = np.sum(Pu * phi_a)
-            if max*y <= A:
-                rand[i] = a
-                break
-    return rand
+    #STEP1
+    for p in range(1, P):
+        R[p] = np.square(w[p]) > tau_p[p] * shita
+        candidate = np.where(R[p])[0]
+        for n in candidate:
+            communication_cost += 1
+            send_to1(n, w[p, n])
+    
+    #STEP2
+    S = [np.where(R[:, n])[0] for n in range(N)]
+    m = np.sum(R, axis=0)
+    for n in range(N):
+        z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
+    F = np.logical_not(zeros) * (m < (P-1))
+    candidate = np.where(F)[0]
+    for n in candidate:
+        communication_cost += 1
+        broadcast_others(n)
+    
+    #STEP3
+    F_R = F * np.logical_not(R)
+    for p in range(1, P):
+        #print("p: {}".format(p))
+        candidate = np.where(F_R[p])[0]
+        for n in candidate:
+            communication_cost += 1
+            send_to1(n ,w[p, n])
+    if log: 
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)-np.sum(F)))
+        print("Total Communication Cost: {}".format(communication_cost))
+        print("="*50)
+    
+    #STEP4
+    u = np.zeros((N, 1))
+    b = np.zeros((N, 1))
+    V = []
+    for i, zero in enumerate(zeros):
+        if not zero:
+            V.append(i)
+    for n in V:
+        b[n] = np.sum(w[:, n])
+        u[n] = soft_threshold(b[n], tau**0.5)
+    
+    #STEP5
+    Vc = [n for n in range(N) if n not in V]
+    for n in Vc:
+        b[n] = z[n]
+        
+    s = u - np.mean(u != 0)*b
+    return s.real, communication_cost, b - np.sum(w, axis=0)
