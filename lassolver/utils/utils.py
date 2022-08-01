@@ -184,7 +184,7 @@ def plt_s_diff_non_zero(target, T):
         for s_comp in s:
             if s_comp is not None:
                 s_without_None = np.append(s_without_None, s_comp)
-        hist, bins = np.histogram(s_without_None, bins=50)
+        hist, bins = np.histogram(s_without_None, bins=100)
         hist = np.append(hist, 0)
 
         plt.subplot(n+1, 2, 2*i+1)

@@ -268,7 +268,7 @@ class D_Base:
         self.mse_diff_zero = np.append(self.mse_diff_zero, sum_4_diff_zero[0] / num_diff_zero)
         self.mse_diff_non_zero = np.append(self.mse_diff_non_zero, sum_4_diff_non_zero[0] / (self.N - num_diff_zero))
 
-        size = self.N//10
+        size = 100
         hist, bins = np.histogram(diff_b_w, bins=size) # hist: R^50, bins: R^51
         index_4_hist = np.digitize(diff_b_w, bins) - 1 # index_4_hist: R^N (0~50), diff_b_w: R^N
         mse_hist_bins = np.zeros((3, 3, size+1))
