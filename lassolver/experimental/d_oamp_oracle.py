@@ -40,7 +40,7 @@ class doamp(dbase):
         return 1 / self.N * (self.trB2 * v_p + self.trW_p2 * self.sigma_p)
 
 
-class D_OAMP(D_Base):
+class D_OAMP_oracle(D_Base):
     def __init__(self, A, x, noise, P):
         super().__init__(A, x, noise, P)
         self.A = A.copy()
