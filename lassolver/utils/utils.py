@@ -86,7 +86,7 @@ def plt_MSE_confusion_matrix(confusion_matrix):
     mse_of["DOAMP x=0 & diff!=0"] = cm[:, 0, 0, 0] # TP
     mse_of["DOAMP x!=0 & diff!=0"] = cm[:, 0, 0, 1] # FP
 
-    mse_of["DOAMP diff!=0"] = cm[:, 0, 1, 2] # diff = 0
+    mse_of["DOAMP diff=0"] = cm[:, 0, 1, 2] # diff = 0
     mse_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] # FN
     mse_of["DOAMP x!=0 & diff=0"] = cm[:, 0, 1, 1] # TN
 
@@ -113,6 +113,6 @@ def plt_MSE_confusion_matrix(confusion_matrix):
             color = 'tab:blue'
         
         plt.plot(v, label=k, linestyle=linestyle, color=color)
-    
+
     plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
     plt.grid()
