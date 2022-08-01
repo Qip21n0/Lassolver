@@ -137,6 +137,7 @@ class D_OAMP(D_Base):
 
         self._make_confusion_matrix(diff_b_w)
         self._evaluate_performance()
+        self._make_confusion_matrix_4_oamp(C, w, diff_b_w)
 
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)

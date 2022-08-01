@@ -1,3 +1,4 @@
+from lassolver.utils.func import *
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -57,6 +58,8 @@ class D_Base:
         
         self.mse_zero = np.array([None])
         self.mse_non_zero = np.array([None])
+        self.confusion_matrix_4_oamp = []
+
 
     def _add_mse(self):
         mse = np.linalg.norm(self.s - self.x)**2 / self.N
@@ -74,8 +77,10 @@ class D_Base:
         self.mse_zero = np.append(self.mse_zero, sum_4_zero[0] / (self.N - self.K))
         self.mse_non_zero = np.append(self.mse_non_zero, sum_4_non_zero[0] / self.K)
 
+
     def _square_error_4_component(self, i):
         return (self.s[i] - self.x[i])**2
+
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))
@@ -96,6 +101,7 @@ class D_Base:
         se = np.array([np.log10(v) if v is not None else None for v in self.v])
         plt.scatter(ite, se, c='red')
         plt.grid()
+
 
     def _make_confusion_matrix(self, b_w):
         diff_zeros = b_w == 0
@@ -148,6 +154,7 @@ class D_Base:
 
         self.confusion_matrix.append(mse_quantity_table)
 
+
     def _evaluate_performance(self):
         confusion_matrix = self.confusion_matrix[-1][1].copy() # Quantity
 
@@ -173,3 +180,59 @@ class D_Base:
         self.evaluation_index["recall"] = np.append(self.evaluation_index["recall"], recall)
         self.evaluation_index["F1"] = np.append(self.evaluation_index["F1"], F1)
         self.evaluation_index["MCC"] = np.append(self.evaluation_index["MCC"], MCC)
+
+    
+    def _make_confusion_matrix_4_oamp(self, C, w, b_w):
+        s_oamp = C * df(np.sum(w, axis=0), np.sum(self.tau_p)**0.5)
+        def square_error_4_component(i):
+            return (s_oamp[i] - self.x[i])**2
+        
+        diff_zeros = b_w == 0
+        diff_non_zeros = b_w != 0
+
+        index = {}
+        index["TP"] = self.zeros & diff_non_zeros # x = 0 & diff != 0
+        index["FP"] = self.non_zeros & diff_non_zeros # x != 0 & diff != 0
+        index["FN"] = self.zeros & diff_zeros # x = 0 & diff = 0
+        index["TN"] = self.non_zeros & diff_zeros # x != 0 & diff = 0
+
+        mse_quantity_table = np.zeros((2, 3, 3)) # 0: MSE or Quantity, 1: diff is zero or not, 2: x is zero or not
+        for i, key in enumerate(index):
+            for j, v in enumerate(index[key]):
+                if v:
+                    mse_quantity_table[0, i//2, i%2] += square_error_4_component(j)
+
+            mse_quantity_table[1, i//2, i%2] = np.sum(index[key]) # Quantity
+            mse_quantity_table[0, i//2, i%2] /= mse_quantity_table[1, i//2, i%2] # MSE
+
+        # diff is zero or not
+        for j, v in enumerate(diff_non_zeros):
+            if v:
+                mse_quantity_table[0, 0, 2] += square_error_4_component(j) # diff != 0
+            elif not v:
+                mse_quantity_table[0, 1, 2] += square_error_4_component(j) # diff = 0
+            else:
+                raise ValueError("Not Correct Value")
+        mse_quantity_table[1, 0, 2] = np.sum(diff_non_zeros)
+        mse_quantity_table[1, 1, 2] = np.sum(diff_zeros)
+        mse_quantity_table[0, 0, 2] /= mse_quantity_table[1, 0, 2]
+        mse_quantity_table[0, 1, 2] /= mse_quantity_table[1, 1, 2]
+
+        # x is zero or not
+        for j, v in enumerate(self.zeros):
+            if v:
+                mse_quantity_table[0, 2, 0] += square_error_4_component(j) # x = 0
+            elif not v:
+                mse_quantity_table[0, 2, 1] += square_error_4_component(j) # x != 0
+            else:
+                raise ValueError("Not Correct Value")
+        mse_quantity_table[1, 2, 0] = self.N - self.K
+        mse_quantity_table[1, 2, 1] = self.K
+        mse_quantity_table[0, 2, 0] /= mse_quantity_table[1, 2, 0]
+        mse_quantity_table[0, 2, 1] /= mse_quantity_table[1, 2, 1]
+
+        # MSE and Quantity
+        mse_quantity_table[0, 2, 2] = np.linalg.norm(s_oamp - self.x)**2 / self.N
+        mse_quantity_table[1, 2, 2] = self.N
+
+        self.confusion_matrix_4_oamp.append(mse_quantity_table)
