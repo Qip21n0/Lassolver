@@ -41,7 +41,7 @@ def GCAMP(w, beta, log=False):
         upper = (P - 1 - m[n]) * T
         z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
         U[n] = np.abs(z[n]) + upper
-    F = (U > beta) * (m < (P-1))
+    F = (U > beta) & (m < (P-1))
     candidate = np.where(F)[0]
     for n in candidate:
         communication_cost += 1
@@ -93,7 +93,7 @@ def GCAMP_exp(w, tau_p, log=False):
     for n in range(N):
         upper = np.sum([tau_p[p] for p in range(1, P) if p not in S[p]])
         U[n] = (w[0, n] + np.sum(w[p, n] for p in S[n]))**2 + upper * shita
-    F = (U > tau) * (m < (P-1))
+    F = (U > tau) & (m < (P-1))
     candidate = np.where(F)[0]
     for n in candidate:
         communication_cost += 1
@@ -155,7 +155,7 @@ def GCOAMP(w, tau_p, log=False):
         upper = np.sum([tau_p[p] for p in range(1, P) if p not in S[p]])
         z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
         U[n] = z[n]**2 + upper * shita
-    F = (U > tau) * (m < (P-1))
+    F = (U > tau) & (m < (P-1))
     candidate = np.where(F)[0]
     for n in candidate:
         communication_cost += 1
@@ -213,7 +213,7 @@ def GCOAMP_oracle(zeros, w, tau_p, log=False):
     m = np.sum(R, axis=0)
     for n in range(N):
         z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
-    F = np.logical_not(zeros) * (m < (P-1))
+    F = np.logical_not(zeros) & (m < (P-1))
     candidate = np.where(F)[0]
     for n in candidate:
         communication_cost += 1
