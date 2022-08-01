@@ -88,9 +88,7 @@ def plt_MSE_confusion_matrix(confusion_matrix):
 
     mse_of["DOAMP diff!=0"] = cm[:, 0, 1, 2] # diff = 0
     mse_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] # FN
-    mse_of["DOAMP x=!0 & diff=0"] = cm[:, 0, 1, 1] # TN
-
-    mse_of["DOAMP"] = cm[:, 0, 2, 2]
+    mse_of["DOAMP x!=0 & diff=0"] = cm[:, 0, 1, 1] # TN
 
     step = np.arange(0, T+1, 5)
 
