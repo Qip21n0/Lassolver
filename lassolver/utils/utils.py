@@ -118,6 +118,49 @@ def plt_MSE_confusion_matrix(confusion_matrix):
     plt.grid()
 
 
+def plt_ratio_confusion_matrix(confusion_matrix):
+    T = len(confusion_matrix)
+    ratio_of = {}
+    cm = np.array(confusion_matrix)
+    N = cm[0, 1, 2, 2]
+
+    ratio_of["DOAMP diff!=0"] = cm[:, 1, 0, 2] / N # diff != 0
+    ratio_of["DOAMP x=0 & diff!=0"] = cm[:, 1, 0, 0] / N # TP
+    ratio_of["DOAMP x!=0 & diff!=0"] = cm[:, 1, 0, 1] / N # FP
+
+    ratio_of["DOAMP diff=0"] = cm[:, 1, 1, 2] / N # diff = 0
+    ratio_of["DOAMP x=0 & diff=0"] = cm[:, 1, 1, 0] / N # FN
+    ratio_of["DOAMP x!=0 & diff=0"] = cm[:, 1, 1, 1] / N # TN
+
+    xstep = np.arange(0, T+1, 5)
+    ystep = np.arange(0, 1.1, 0.1)
+
+    plt.xlabel("iteration")
+    plt.ylabel("Quantity")
+    plt.xticks(xstep)
+    plt.yticks(ystep)
+    plt.ylim(0, 1.1)
+
+    for k, v in ratio_of.items():
+        linestyle = '-'
+        color = 'tab:green'
+
+        if 'x=0' in k:
+            linestyle = '--'
+        elif 'x!=0' in k:
+            linestyle = '-.'
+
+        if 'diff=0' in k:
+            color = 'tab:red'
+        elif 'diff!=0' in k:
+            color = 'tab:blue'
+        
+        plt.plot(v, label=k, linestyle=linestyle, color=color)
+
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.grid()
+
+
 def plt_evaluation_index(evaluation_index):
     plt.ylim(0, 1)
     ystep = np.arange(0, 1.1, 0.1)
