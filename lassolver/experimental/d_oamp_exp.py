@@ -128,10 +128,12 @@ class D_OAMP_exp(D_Base):
 
     def _update_tau(self):
         #return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
-        return np.sum(self.tau_p)
+        tau = np.sum(self.tau_p)
+        self.tau.append(tau)
+        return tau
 
     def _update_s(self, C, w, log):
-        s, communication_cost, diff_b_w = GCOAMP(w, self.tau_p, log)
+        s, communication_cost, diff_b_w, z = GCOAMP_oracle(self.zeros, w, self.tau_p, log)
         self._add_s_history_4_diff_non_zero(diff_b_w)
         self._inspect_b_w(diff_b_w)
         self.s = C * s
@@ -140,6 +142,7 @@ class D_OAMP_exp(D_Base):
         self._make_confusion_matrix(diff_b_w)
         self._evaluate_performance()
         self._make_confusion_matrix_4_oamp(C, w, diff_b_w)
+        self._add_w_b_z_hisory(w, diff_b_w, z)
 
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)

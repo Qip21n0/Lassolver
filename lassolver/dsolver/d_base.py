@@ -46,6 +46,7 @@ class D_Base:
         self.r2 = np.zeros(self.P)
         self.tau_p = np.zeros(self.P)
         self.v_p = np.zeros(self.P)
+        self.tau = [None]
         self.v = [None]
         self.zeros = x == 0
         self.non_zeros = x != 0
@@ -63,6 +64,7 @@ class D_Base:
         self.mse_diff_non_zero = np.array([None])
         self.s_history_4_diff_non_zero = []
         self.mse_hist_bins = []
+        self.w_b_z_history = []
 
 
     def _add_mse(self):
@@ -306,3 +308,36 @@ class D_Base:
                     print("\033[33mERROR\033[0m: mse = ", mse_hist_bins[j, 0, i], "hist = ", mse_hist_bins[j, 1, i])
 
         self.mse_hist_bins.append(mse_hist_bins)
+
+
+    def _add_w_b_z_hisory(self, w_p, diff_b_w, z):
+        w = np.sum(w_p, axis=0)
+        b = w + diff_b_w
+        z = np.array(z)
+
+        diff_zeros = diff_b_w == 0
+        diff_non_zeros = diff_b_w != 0
+
+        index = {}
+        index["TP"] = self.zeros & diff_non_zeros # x = 0 & diff != 0
+        index["FP"] = self.non_zeros & diff_non_zeros # x != 0 & diff != 0
+        index["FN"] = self.zeros & diff_zeros # x = 0 & diff = 0
+        index["TN"] = self.non_zeros & diff_zeros # x != 0 & diff = 0
+
+        history = {"TP": np.empty((3, self.N)),
+                   "FP": np.empty((3, self.N)), 
+                   "FN": np.empty((3, self.N)), 
+                   "TN": np.empty((3, self.N))}
+        
+        for key in index:
+            for j, v in enumerate(index[key]):
+                if v:
+                    history[key][0][j] = w[j]
+                    history[key][1][j] = b[j]
+                    history[key][2][j] = z[j]
+                else:
+                    history[key][0][j] = None
+                    history[key][1][j] = None
+                    history[key][2][j] = None
+
+        self.w_b_z_history.append(history)
