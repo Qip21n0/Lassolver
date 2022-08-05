@@ -189,7 +189,7 @@ def GCOAMP(w, tau_p, log=False):
         #b[n] += np.sum([rand(shita * tau_p[p]) for p in range(1, P) if p not in S[n]])
         
     s = u - np.mean(u != 0)*b
-    return s.real, communication_cost, b - np.sum(w, axis=0), z
+    return s.real, communication_cost, b, z
 
 
 def GCOAMP_oracle(zeros, w, tau_p, log=False):
@@ -249,4 +249,4 @@ def GCOAMP_oracle(zeros, w, tau_p, log=False):
         b[n] = z[n]
         
     s = u - np.mean(u != 0)*b
-    return s.real, communication_cost, b - np.sum(w, axis=0), z
+    return s.real, communication_cost, b, z

@@ -240,3 +240,7 @@ def plt_s_diff_non_zero(target, T):
         plt.title(f's histogram (t = {str(t+1)})')
         plt.plot(bins, hist)
         plt.grid()
+
+
+def plt_w_b_z_history(target, T):
+    pass

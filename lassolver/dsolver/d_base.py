@@ -310,9 +310,9 @@ class D_Base:
         self.mse_hist_bins.append(mse_hist_bins)
 
 
-    def _add_w_b_z_hisory(self, w_p, diff_b_w, z):
+    def _add_w_b_z_hisory(self, w_p, b, z):
         w = np.sum(w_p, axis=0)
-        b = w + diff_b_w
+        diff_b_w = b - w
         z = np.array(z)
 
         diff_zeros = diff_b_w == 0
