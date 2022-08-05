@@ -137,7 +137,7 @@ def GCOAMP(w, tau_p, log=False):
     communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
-    z = [0] * N
+    z = np.empty(N)
     
     #STEP1
     for p in range(1, P):
@@ -198,7 +198,7 @@ def GCOAMP_oracle(zeros, w, tau_p, log=False):
     communication_cost = 0
     P, N, _ = w.shape
     R = np.zeros((P, N, 1))
-    z = [0] * N
+    z = np.empty(N)
     
     #STEP1
     for p in range(1, P):

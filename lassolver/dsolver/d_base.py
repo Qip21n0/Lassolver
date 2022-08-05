@@ -313,7 +313,6 @@ class D_Base:
     def _add_w_b_z_hisory(self, w_p, b, z):
         w = np.sum(w_p, axis=0)
         diff_b_w = b - w
-        z = np.array(z)
 
         diff_zeros = diff_b_w == 0
         diff_non_zeros = diff_b_w != 0
