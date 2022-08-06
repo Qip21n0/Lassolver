@@ -187,7 +187,7 @@ def GCOAMP(w, tau_p, log=False):
     for n in Vc:
         b[n] = z[n]
         #b[n] += np.sum([rand(shita * tau_p[p]) for p in range(1, P) if p not in S[n]])
-    print(f'|b=w| = {np.sum(b == np.sum(w, axis=0))}, |V| = {len(V)}, |b=z| = {np.sum(b == z)}, |Vc| = {len(Vc)}')
+    print(f'|b=w| = {np.sum(np.isclose(b, np.sum(w, axis=0)))}, |V| = {len(V)}, |b=z| = {np.sum(np.isclose(b, z))}, |Vc| = {len(Vc)}')
         
     s = u - np.mean(u != 0)*b
     return s.real, communication_cost, b, z
