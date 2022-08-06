@@ -48,8 +48,8 @@ class D_Base:
         self.v_p = np.zeros(self.P)
         self.tau = [None]
         self.v = [None]
-        self.zeros = x == 0
-        self.non_zeros = x != 0
+        self.zeros = np.ravel(x == 0)
+        self.non_zeros = np.ravel(x != 0)
         self.confusion_matrix = []
         self.evaluation_index = {"accuracy": np.array([]), 
                                  "precision": np.array([]), 
