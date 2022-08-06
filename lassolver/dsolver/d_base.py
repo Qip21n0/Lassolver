@@ -59,7 +59,6 @@ class D_Base:
         
         self.mse_zero = np.array([None])
         self.mse_non_zero = np.array([None])
-        self.confusion_matrix_4_oamp = []
         self.mse_diff_zero = np.array([None])
         self.mse_diff_non_zero = np.array([None])
         self.s_history_4_diff_non_zero = []
@@ -109,9 +108,9 @@ class D_Base:
         plt.grid()
 
 
-    def _make_confusion_matrix(self, b_w):
-        diff_zeros = b_w == 0
-        diff_non_zeros = b_w != 0
+    def _make_confusion_matrix(self, V):
+        diff_zeros = V.copy()
+        diff_non_zeros = np.logical_not(diff_zeros)
 
         index = {}
         index["TP"] = self.zeros & diff_non_zeros # x = 0 & diff != 0
@@ -188,64 +187,8 @@ class D_Base:
         self.evaluation_index["MCC"] = np.append(self.evaluation_index["MCC"], MCC)
 
     
-    def _make_confusion_matrix_4_oamp(self, C, w, b_w):
-        s_oamp = C * df(np.sum(w, axis=0), np.sum(self.tau_p)**0.5)
-        def square_error_4_component(i):
-            return (s_oamp[i] - self.x[i])**2
-        
-        diff_zeros = b_w == 0
-        diff_non_zeros = b_w != 0
-
-        index = {}
-        index["TP"] = self.zeros & diff_non_zeros # x = 0 & diff != 0
-        index["FP"] = self.non_zeros & diff_non_zeros # x != 0 & diff != 0
-        index["FN"] = self.zeros & diff_zeros # x = 0 & diff = 0
-        index["TN"] = self.non_zeros & diff_zeros # x != 0 & diff = 0
-
-        mse_quantity_table = np.zeros((2, 3, 3)) # 0: MSE or Quantity, 1: diff is zero or not, 2: x is zero or not
-        for i, key in enumerate(index):
-            for j, v in enumerate(index[key]):
-                if v:
-                    mse_quantity_table[0, i//2, i%2] += square_error_4_component(j)
-
-            mse_quantity_table[1, i//2, i%2] = np.sum(index[key]) # Quantity
-            mse_quantity_table[0, i//2, i%2] /= mse_quantity_table[1, i//2, i%2] # MSE
-
-        # diff is zero or not
-        for j, v in enumerate(diff_non_zeros):
-            if v:
-                mse_quantity_table[0, 0, 2] += square_error_4_component(j) # diff != 0
-            elif not v:
-                mse_quantity_table[0, 1, 2] += square_error_4_component(j) # diff = 0
-            else:
-                raise ValueError("Not Correct Value")
-        mse_quantity_table[1, 0, 2] = np.sum(diff_non_zeros)
-        mse_quantity_table[1, 1, 2] = np.sum(diff_zeros)
-        mse_quantity_table[0, 0, 2] /= mse_quantity_table[1, 0, 2]
-        mse_quantity_table[0, 1, 2] /= mse_quantity_table[1, 1, 2]
-
-        # x is zero or not
-        for j, v in enumerate(self.zeros):
-            if v:
-                mse_quantity_table[0, 2, 0] += square_error_4_component(j) # x = 0
-            elif not v:
-                mse_quantity_table[0, 2, 1] += square_error_4_component(j) # x != 0
-            else:
-                raise ValueError("Not Correct Value")
-        mse_quantity_table[1, 2, 0] = self.N - self.K
-        mse_quantity_table[1, 2, 1] = self.K
-        mse_quantity_table[0, 2, 0] /= mse_quantity_table[1, 2, 0]
-        mse_quantity_table[0, 2, 1] /= mse_quantity_table[1, 2, 1]
-
-        # MSE and Quantity
-        mse_quantity_table[0, 2, 2] = np.linalg.norm(s_oamp - self.x)**2 / self.N
-        mse_quantity_table[1, 2, 2] = self.N
-
-        self.confusion_matrix_4_oamp.append(mse_quantity_table)
-
-    
-    def _add_s_history_4_diff_non_zero(self, diff_b_w):
-        diff_non_zero_index = diff_b_w != 0
+    def _add_s_history_4_diff_non_zero(self, V):
+        diff_non_zero_index = np.logical_not(V.copy())
         s = np.array([])
         for k, v in enumerate(diff_non_zero_index):
             if v:
@@ -255,8 +198,8 @@ class D_Base:
         self.s_history_4_diff_non_zero.append(s)
 
     
-    def _inspect_b_w(self, diff_b_w):
-        diff_zero_index = diff_b_w == 0
+    def _inspect_b_w(self, V, diff_b_w):
+        diff_zero_index = V.copy()
         sum_4_diff_zero = 0
         sum_4_diff_non_zero = 0
         for k, v in enumerate(diff_zero_index):
@@ -310,12 +253,11 @@ class D_Base:
         self.mse_hist_bins.append(mse_hist_bins)
 
 
-    def _add_w_b_z_hisory(self, w_p, b, z):
+    def _add_w_b_z_hisory(self, w_p, b, z, V):
         w = np.sum(w_p, axis=0)
-        diff_b_w = b - w
 
-        diff_zeros = diff_b_w == 0
-        diff_non_zeros = diff_b_w != 0
+        diff_zeros = V.copy()
+        diff_non_zeros = np.logical_not(diff_zeros)
 
         index = {}
         index["TP"] = self.zeros & diff_non_zeros # x = 0 & diff != 0

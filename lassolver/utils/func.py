@@ -188,13 +188,11 @@ def GCOAMP(w, tau_p, log=False):
         b[n] = z[n]
         #b[n] += np.sum([rand(shita * tau_p[p]) for p in range(1, P) if p not in S[n]])
     
-    print(f'|b=w| = {np.sum(np.isclose(b, np.sum(w, axis=0)))}, |V| = {len(V)}, |b=z| = {np.sum(np.isclose(b, z.reshape((N, 1))))}, |Vc| = {len(Vc)}', end=', ')
-    print(f'|w=z| = {np.sum(np.isclose(np.sum(w, axis=0), z.reshape((N, 1))))}, |(b=w) & (b=z)| = {np.sum(np.logical_and(np.isclose(b, np.sum(w, axis=0)), np.isclose(b, z.reshape((N, 1)))))}')
-    wz = np.ravel(np.isclose(np.sum(w, axis=0), z.reshape((N, 1))))
-    print(f'w = {np.sum(w, axis=0)[wz]}, z = {z[wz]}, m = {m[wz]}')
+    #print(f'|b=w| = {np.sum(np.isclose(b, np.sum(w, axis=0)))}, |V| = {len(V)}, |b=z| = {np.sum(np.isclose(b, z.reshape((N, 1))))}, |Vc| = {len(Vc)}', end=', ')
+    #print(f'|w=z| = {np.sum(np.isclose(np.sum(w, axis=0), z.reshape((N, 1))))}, |(b=w) & (b=z)| = {np.sum(np.logical_and(np.isclose(b, np.sum(w, axis=0)), np.isclose(b, z.reshape((N, 1)))))}')
         
     s = u - np.mean(u != 0)*b
-    return s.real, communication_cost, b, z
+    return s.real, communication_cost, np.ravel(U > tau), b, z
 
 
 def GCOAMP_oracle(zeros, w, tau_p, log=False):

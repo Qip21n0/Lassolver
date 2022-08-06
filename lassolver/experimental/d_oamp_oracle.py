@@ -133,17 +133,16 @@ class D_OAMP_oracle(D_Base):
         return tau
 
     def _update_s(self, C, w, log):
-        s, communication_cost, b, z = GCOAMP_oracle(self.zeros, w, self.tau_p, log)
+        s, communication_cost, V, b, z = GCOAMP_oracle(self.zeros, w, self.tau_p, log)
         diff_b_w = b - np.sum(w, axis=0)
-        self._add_s_history_4_diff_non_zero(diff_b_w)
-        self._inspect_b_w(diff_b_w)
+        self._add_s_history_4_diff_non_zero(V)
+        self._inspect_b_w(V, diff_b_w)
         self.s = C * s
         self.communication_cost = np.append(self.communication_cost, communication_cost)
 
-        self._make_confusion_matrix(diff_b_w)
+        self._make_confusion_matrix(V)
         self._evaluate_performance()
-        self._make_confusion_matrix_4_oamp(C, w, diff_b_w)
-        self._add_w_b_z_hisory(w, b, z)
+        self._add_w_b_z_hisory(w, b, z, V)
 
     def _output_s(self, w, log):
         s, communication_cost = GCAMP(w, self.tau_p, log)
