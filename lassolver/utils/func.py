@@ -190,7 +190,7 @@ def GCOAMP(w, tau_p, log=False):
     
     print(f'|b=w| = {np.sum(np.isclose(b, np.sum(w, axis=0)))}, |V| = {len(V)}, |b=z| = {np.sum(np.isclose(b, z))}, |Vc| = {len(Vc)}')
     print(f'|w=z| = {np.sum(np.isclose(np.sum(w, axis=0), z))}, |(b=w) & (b=z)| = {np.sum(np.logical_and(np.isclose(b, np.sum(w, axis=0)), np.isclose(b, z)))}')
-    wz_notin_b = np.logical_and(np.isclose(np.sum(w, axis=0), z), np.logical_not(np.logical_and(np.isclose(b, np.sum(w, axis=0)), np.isclose(b, z))))
+    wz_notin_b = np.ravel(np.logical_and(np.isclose(np.sum(w, axis=0), z), np.logical_not(np.logical_and(np.isclose(b, np.sum(w, axis=0)), np.isclose(b, z)))))
     print(f'w = {np.sum(w, axis=0)[wz_notin_b]}, b = {b[wz_notin_b]}, z = {z[wz_notin_b]}')
         
     s = u - np.mean(u != 0)*b
