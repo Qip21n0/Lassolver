@@ -383,9 +383,9 @@ def plt_MSE_TP(target):
         mse[2, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
     plt.figure(figsize=(20, 6))
-    for j in range(3):
+    for j, k in enumerate(['w <= -tau', '-tau < w <= tau', 'tau < w']):
         plt.subplot(1, 3, j+1)
-
+        plt.title(k)
         plt.xlabel("iteration")
         plt.ylabel("MSE")
         plt.xticks(step)
