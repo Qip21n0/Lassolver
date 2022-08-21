@@ -396,3 +396,58 @@ def plt_MSE_TP(target):
         plt.plot(mse[j, 1], label="s_b")
         plt.legend()
         plt.grid()
+
+def plt_MSE_FP(target):
+    wbz = target.w_b_z_history
+    tau = np.array(target.tau[1:])**0.5
+    T = len(wbz)
+    mse = np.empty((3, 2, T))
+    step = np.arange(0, T+1, 5)
+
+    for t in range(T):
+        w = {}
+        b = {}
+
+        w["TP"] = wbz[t]["TP"][0]
+        w["FP"] = wbz[t]["FP"][0]
+        w["FN"] = wbz[t]["FN"][0]
+        w["TN"] = wbz[t]["TN"][0]
+        w["all"] = np.nansum([w["TP"], w["FP"], w["FN"], w["TN"]], axis=0)
+        s_w = df(w["all"], tau[t])
+
+        b["TP"] = wbz[t]["TP"][1]
+        b["FP"] = wbz[t]["FP"][1]
+        b["FN"] = wbz[t]["FN"][1]
+        b["TN"] = wbz[t]["TN"][1]
+        b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
+        s_b = df(b["all"], tau[t])
+
+        i = w["FP"] <= -tau[t]
+        num_s = len(s_w[i])
+        mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
+        mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+
+        i = np.logical_and(w["FP"] > -tau[t], w["FP"] <= tau[t])
+        num_s = len(s_w[i])
+        mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
+        mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+
+        i = w["FP"] > tau[t]
+        num_s = len(s_w[i])
+        mse[2, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
+        mse[2, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+
+    plt.figure(figsize=(20, 6))
+    for j, k in enumerate(['w <= -tau', '-tau < w <= tau', 'tau < w']):
+        plt.subplot(1, 3, j+1)
+        plt.title(k)
+        plt.xlabel("iteration")
+        plt.ylabel("MSE")
+        plt.xticks(step)
+        plt.ylim(1e-4, 1e+1)
+        plt.yscale('log')
+
+        plt.plot(mse[j, 0], label="s_w")
+        plt.plot(mse[j, 1], label="s_b")
+        plt.legend()
+        plt.grid()
