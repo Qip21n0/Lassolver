@@ -250,7 +250,7 @@ def plt_w_z_history(target, type, T):
         n += 1
         flag = True
 
-    plt.figure(figsize=(14, 6*n))
+    plt.figure(figsize=(20, 6*n))
     for i in range(n+1):
         t = 11 * i - 1 if i != 0 else 0
         if i == n and flag:
@@ -277,5 +277,5 @@ def plt_w_z_history(target, type, T):
         plt.hist([w, z], bins=bins, label=[type+' w', type+' z'])
         plt.vlines(tau[t], 0, max, colors='black', linestyles='dashed')
         plt.vlines(-tau[t], 0, max, colors='black', linestyles='dashed')
-        plt.legend()
+        plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
         plt.grid()
