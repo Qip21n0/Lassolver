@@ -312,8 +312,12 @@ def plt_hist_s_TP(target, T):
         b = np.nansum([b_TP, b_FP, b_FN, b_TN], axis=0)
         s_b = df(b, tau[t])
 
+        max = np.max(w)
+        min = np.min(w)
+
         j = w_TP <= -tau[t]
         plt.subplot(n+1, 3, 3*i+1)
+        plt.xlim(min, max)
         plt.title(f'w <= -tau (t = {str(t+1)})')
         plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
         plt.legend()
@@ -321,13 +325,15 @@ def plt_hist_s_TP(target, T):
 
         j = np.logical_and(w_TP > -tau[t], w_TP <= tau[t])
         plt.subplot(n+1, 3, 3*i+2)
-        plt.title(f'w <= -tau (t = {str(t+1)})')
+        plt.xlim(min, max)
+        plt.title(f'-tau < w <= tau (t = {str(t+1)})')
         plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
         plt.legend()
         plt.grid()
 
         j = w_TP > tau[t]
         plt.subplot(n+1, 3, 3*(i+1))
+        plt.xlim(min, max)
         plt.title(f'w > tau (t = {str(t+1)})')
         plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
         plt.legend()
