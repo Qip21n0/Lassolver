@@ -312,8 +312,8 @@ def plt_hist_s_TP(target, T):
         b = np.nansum([b_TP, b_FP, b_FN, b_TN], axis=0)
         s_b = df(b, tau[t])
 
-        max = np.max(w)
-        min = np.min(w)
+        max = np.max(w_TP)
+        min = np.min(w_TP)
 
         j = w_TP <= -tau[t]
         plt.subplot(n+1, 3, 3*i+1)
