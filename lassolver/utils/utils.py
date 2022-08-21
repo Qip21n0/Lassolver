@@ -398,6 +398,7 @@ def plt_MSE_TP(target):
         plt.grid()
 
 def plt_MSE_FP(target):
+    x = target.x
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
@@ -424,18 +425,18 @@ def plt_MSE_FP(target):
 
         i = w["FP"] <= -tau[t]
         num_s = len(s_w[i])
-        mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        mse[0, 0, t] = np.linalg.norm(s_w[i] - x[i])**2 / num_s
+        mse[0, 1, t] = np.linalg.norm(s_b[i] - x[i])**2 / num_s
 
         i = np.logical_and(w["FP"] > -tau[t], w["FP"] <= tau[t])
         num_s = len(s_w[i])
-        mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        mse[1, 0, t] = np.linalg.norm(s_w[i] - x[i])**2 / num_s
+        mse[1, 1, t] = np.linalg.norm(s_b[i] - x[i])**2 / num_s
 
         i = w["FP"] > tau[t]
         num_s = len(s_w[i])
-        mse[2, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[2, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        mse[2, 0, t] = np.linalg.norm(s_w[i] - x[i])**2 / num_s
+        mse[2, 1, t] = np.linalg.norm(s_b[i] - x[i])**2 / num_s
 
     plt.figure(figsize=(20, 6))
     for j, k in enumerate(['w <= -tau', '-tau < w <= tau', 'tau < w']):
