@@ -1,6 +1,7 @@
 from cProfile import label
 import time
 from functools import wraps
+from turtle import color
 from matplotlib import colors
 import numpy as np
 import matplotlib.pyplot as plt
@@ -242,5 +243,43 @@ def plt_s_diff_non_zero(target, T):
         plt.grid()
 
 
-def plt_w_b_z_history(target, T):
-    pass
+def plt_w_z_history(target, type, T):
+    wbz = target.w_b_z_history
+    tau = np.array(target.tau[1:])**0.5
+    length = len(wbz[0]["TP"][0])
+
+    n = T//11
+    flag = False
+    if n * 11 < T:
+        n += 1
+        flag = True
+
+    plt.figure(figsize=(14, 6*n))
+    for i in range(n+1):
+        t = 11 * i - 1 if i != 0 else 0
+        if i == n and flag:
+            t = -1
+        w = wbz[t][type][0]
+        z  = wbz[t][type][2]
+        
+        plt.subplot(n+1, 2, 2*i+1)
+        plt.title(f'w & z (t = {str(t+1)})')
+        plt.scatter(np.arange(length), w, label=type+' w', color='tab:blue')
+        plt.scatter(np.arange(length), z, label=type+' z', color='tab:orange')
+        plt.plot(np.array([tau[t]]*length), color='black', linestyle='dashed')
+        plt.plot(np.array([-tau[t]]*length), color='black', linestyle='dashed')
+        plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+        plt.grid()
+
+        j = np.logical_not(np.isnan(w))
+        hist_w, bins = np.histogram(w[j], bins=50)
+        hist_z, _ = np.histogram(z[j], bins=bins)
+        max = np.max([*hist_w, *hist_z])
+        
+        plt.subplot(n+1, 2, 2*(i+1))
+        plt.title(f'histgram (t = {str(t+1)})')
+        plt.hist([w, z], bins=bins, label=[type+' w', type+' z'])
+        plt.vlines(tau[t], 0, max, colors='black', linestyles='dashed')
+        plt.vlines(-tau[t], 0, max, colors='black', linestyles='dashed')
+        plt.legend()
+        plt.grid()
