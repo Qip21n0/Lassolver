@@ -346,7 +346,7 @@ def plt_MSE_TP(target):
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
-    mse = np.empty(3, 2, T)
+    mse = np.empty((3, 2, T))
     step = np.arange(0, T+1, 5)
 
     for t in range(T):
