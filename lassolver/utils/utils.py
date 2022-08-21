@@ -1,7 +1,3 @@
-from cProfile import label
-import time
-from functools import wraps
-from turtle import color
 from matplotlib import colors
 import numpy as np
 import matplotlib.pyplot as plt
