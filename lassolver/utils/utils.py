@@ -281,10 +281,9 @@ def plt_w_z_history(target, type, T):
         plt.grid()
 
 
-def plt_hist_s_TP(target, T):
+def plt_w_b_hist(target, type, T):
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
-    length = len(wbz[0]["TP"][0])
 
     n = T//11
     flag = False
@@ -298,43 +297,46 @@ def plt_hist_s_TP(target, T):
         if i == n and flag:
             t = -1
 
-        w_TP = wbz[t]["TP"][0]
-        w_FP = wbz[t]["FP"][0]
-        w_FN = wbz[t]["FN"][0]
-        w_TN = wbz[t]["TN"][0]
-        w = np.nansum([w_TP, w_FP, w_FN, w_TN], axis=0)
-        s_w = df(w, tau[t])
+        w = {}
+        b = {}
 
-        b_TP = wbz[t]["TP"][1]
-        b_FP = wbz[t]["FP"][1]
-        b_FN = wbz[t]["FN"][1]
-        b_TN = wbz[t]["TN"][1]
-        b = np.nansum([b_TP, b_FP, b_FN, b_TN], axis=0)
-        s_b = df(b, tau[t])
+        w["TP"] = wbz[t]["TP"][0]
+        w["FP"] = wbz[t]["FP"][0]
+        w["FN"] = wbz[t]["FN"][0]
+        w["TN"] = wbz[t]["TN"][0]
+        w["all"] = np.nansum([w["TP"], w["FP"], w["FN"], w["TN"]], axis=0)
+        s_w = df(w["all"], tau[t])
 
-        max = np.nanmax(w_TP)
-        min = np.nanmin(w_TP)
+        b["TP"] = wbz[t]["TP"][1]
+        b["FP"] = wbz[t]["FP"][1]
+        b["FN"] = wbz[t]["FN"][1]
+        b["TN"] = wbz[t]["TN"][1]
+        b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
+        s_b = df(b["all"], tau[t])
 
-        j = w_TP <= -tau[t]
+        max = np.nanmax(w[type])
+        min = np.nanmin(w[type])
+
+        j = w[type] <= -tau[t]
         plt.subplot(n+1, 3, 3*i+1)
         plt.xlim(min, max)
         plt.title(f'w <= -tau (t = {str(t+1)})')
-        plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
         plt.legend()
         plt.grid()
 
-        j = np.logical_and(w_TP > -tau[t], w_TP <= tau[t])
+        j = np.logical_and(w[type] > -tau[t], w[type] <= tau[t])
         plt.subplot(n+1, 3, 3*i+2)
         plt.xlim(min, max)
         plt.title(f'-tau < w <= tau (t = {str(t+1)})')
-        plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
         plt.legend()
         plt.grid()
 
-        j = w_TP > tau[t]
+        j = w[type] > tau[t]
         plt.subplot(n+1, 3, 3*(i+1))
         plt.xlim(min, max)
         plt.title(f'w > tau (t = {str(t+1)})')
-        plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
         plt.legend()
         plt.grid()
