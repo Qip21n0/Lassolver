@@ -1,4 +1,4 @@
-from matplotlib import colors
+from lassolver.utils.func import df
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -278,4 +278,57 @@ def plt_w_z_history(target, type, T):
         plt.vlines(tau[t], 0, max, colors='black', linestyles='dashed')
         plt.vlines(-tau[t], 0, max, colors='black', linestyles='dashed')
         plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+        plt.grid()
+
+
+def plt_hist_s_TP(target, T):
+    wbz = target.w_b_z_history
+    tau = np.array(target.tau[1:])**0.5
+    length = len(wbz[0]["TP"][0])
+
+    n = T//11
+    flag = False
+    if n * 11 < T:
+        n += 1
+        flag = True
+
+    plt.figure(figsize=(20, 6*n))
+    for i in range(n+1):
+        t = 11 * i - 1 if i != 0 else 0
+        if i == n and flag:
+            t = -1
+
+        w_TP = wbz[t]["TP"][0]
+        w_FP = wbz[t]["FP"][0]
+        w_FN = wbz[t]["FN"][0]
+        w_TN = wbz[t]["TN"][0]
+        w = np.nansum([w_TP, w_FP, w_FN, w_TN], axis=0)
+        s_w = df(w, tau[t])
+
+        b_TP = wbz[t]["TP"][1]
+        b_FP = wbz[t]["FP"][1]
+        b_FN = wbz[t]["FN"][1]
+        b_TN = wbz[t]["TN"][1]
+        b = np.nansum([b_TP, b_FP, b_FN, b_TN], axis=0)
+        s_b = df(b, tau[t])
+
+        j = w_TP <= -tau[t]
+        plt.subplot(n+1, 3, 3*i+1)
+        plt.title(f'w <= -tau (t = {str(t+1)})')
+        plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        plt.legend()
+        plt.grid()
+
+        j = np.logical_and(w_TP > -tau[t], w_TP <= tau[t])
+        plt.subplot(n+1, 3, 3*i+2)
+        plt.title(f'w <= -tau (t = {str(t+1)})')
+        plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        plt.legend()
+        plt.grid()
+
+        j = w_TP > tau[t]
+        plt.subplot(n+1, 3, 3*(i+1))
+        plt.title(f'w > tau (t = {str(t+1)})')
+        plt.hist([w_TP[j] - b_TP[j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        plt.legend()
         plt.grid()
