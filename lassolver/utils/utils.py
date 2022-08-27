@@ -322,9 +322,9 @@ def plt_w_b_scatter(target, type, T):
 
         plt.subplot(n+1, 1, i+1)
         plt.title(type+f" (t = {str(t+1)})")
-        plt.scatter(s_w[cond1], s_b[cond1], label="w <= -tau")
-        plt.scatter(s_w[cond2], s_b[cond2], label="-tau < w <= tau")
-        plt.scatter(s_w[cond3], s_b[cond3], label="tau < w")
+        plt.scatter(s_w[cond2], s_b[cond2], label="-tau < w <= tau", color='tab:orange')
+        plt.scatter(s_w[cond1], s_b[cond1], label="w <= -tau", color='tab:blue')
+        plt.scatter(s_w[cond3], s_b[cond3], label="tau < w", color='tab:green')
         plt.plot(x, x, color='black')
         plt.legend()
         plt.grid()
@@ -367,7 +367,7 @@ def plt_MSE_TP(target):
 
     plt.figure(figsize=(14, 6))
     for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
-        plt.subplot(1, 3, j+1)
+        plt.subplot(1, 2, j+1)
         plt.title(k)
         plt.xlabel("iteration")
         plt.ylabel("MSE")
@@ -418,7 +418,7 @@ def plt_MSE_FP(target):
 
     plt.figure(figsize=(14, 6))
     for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
-        plt.subplot(1, 3, j+1)
+        plt.subplot(1, 2, j+1)
         plt.title(k)
         plt.xlabel("iteration")
         plt.ylabel("MSE")
