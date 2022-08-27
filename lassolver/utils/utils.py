@@ -317,7 +317,8 @@ def plt_w_b_scatter(target, type, T):
         cond1 = w[type] <= -tau[t]
         cond2 = np.logical_and(-tau[t] < w[type], w[type] <= tau[t])
         cond3 = tau[t] < w[type]
-        x = np.linspace(np.nanmin(w[type]), np.nanmax(w[type]), 1000)
+        cond = np.logical_and(cond1, cond2, cond3)
+        x = np.linspace(np.nanmin(s_w[cond]), np.nanmax(s_w[cond]), 1000)
 
         plt.subplot(n+1, 1, i+1)
         plt.title(type+f" (t = {str(t+1)})")
