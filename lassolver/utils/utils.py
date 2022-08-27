@@ -1,3 +1,4 @@
+from cProfile import label
 from lassolver.utils.func import df
 import numpy as np
 import matplotlib.pyplot as plt
@@ -291,7 +292,7 @@ def plt_w_b_scatter(target, type, T):
         n += 1
         flag = True
 
-    plt.figure(figsize=(20, 6*n))
+    plt.figure(figsize=(7, 6*n))
     for i in range(n+1):
         t = 11 * i - 1 if i != 0 else 0
         if i == n and flag:
@@ -314,28 +315,15 @@ def plt_w_b_scatter(target, type, T):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = df(b["all"], tau[t])
 
-        j = w[type] <= -tau[t]
-        plt.subplot(n+1, 3, 3*i+1)
-        plt.title(f'w <= -tau (t = {str(t+1)})')
-        plt.scatter(s_w[j], s_b[j])
-        #plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
-        #plt.legend()
-        plt.grid()
+        cond1 = w[type] <= -tau[t]
+        cond2 = np.logical_and(-tau[t] < w[type], w[type] <= tau[t])
+        cond3 = tau[t] < w[type]
+        plt.subplot(n+1, 1, i+1)
 
-        j = np.logical_and(w[type] > -tau[t], w[type] <= tau[t])
-        plt.subplot(n+1, 3, 3*i+2)
-        plt.title(f'-tau < w <= tau (t = {str(t+1)})')
-        plt.scatter(s_w[j], s_b[j])
-        #plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
-        #plt.legend()
-        plt.grid()
-
-        j = w[type] > tau[t]
-        plt.subplot(n+1, 3, 3*(i+1))
-        plt.title(f'w > tau (t = {str(t+1)})')
-        plt.scatter(s_w[j], s_b[j])
-        #plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
-        #plt.legend()
+        plt.scatter(s_w[cond1], s_b[cond1], label="w <= -tau")
+        plt.scatter(s_w[cond2], s_b[cond2], label="-tau < w <= tau")
+        plt.scatter(s_w[cond3], s_b[cond3], label="tau < w")
+        plt.legend()
         plt.grid()
 
 
