@@ -281,7 +281,7 @@ def plt_w_z_history(target, type, T):
         plt.grid()
 
 
-def plt_w_b_hist(target, type, T):
+def plt_w_b_scatter(target, type, T):
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
 
@@ -314,31 +314,28 @@ def plt_w_b_hist(target, type, T):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = df(b["all"], tau[t])
 
-        max = np.nanmax(w[type])
-        min = np.nanmin(w[type])
-
         j = w[type] <= -tau[t]
         plt.subplot(n+1, 3, 3*i+1)
-        plt.xlim(min, max)
         plt.title(f'w <= -tau (t = {str(t+1)})')
-        plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
-        plt.legend()
+        plt.scatter(s_w[j], s_b[j])
+        #plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        #plt.legend()
         plt.grid()
 
         j = np.logical_and(w[type] > -tau[t], w[type] <= tau[t])
         plt.subplot(n+1, 3, 3*i+2)
-        plt.xlim(min, max)
         plt.title(f'-tau < w <= tau (t = {str(t+1)})')
-        plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
-        plt.legend()
+        plt.scatter(s_w[j], s_b[j])
+        #plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        #plt.legend()
         plt.grid()
 
         j = w[type] > tau[t]
         plt.subplot(n+1, 3, 3*(i+1))
-        plt.xlim(min, max)
         plt.title(f'w > tau (t = {str(t+1)})')
-        plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
-        plt.legend()
+        plt.scatter(s_w[j], s_b[j])
+        #plt.hist([w[type][j] - b[type][j], s_w[j] - s_b[j]], bins=50, label=['w - b', 's_w - s_b'])
+        #plt.legend()
         plt.grid()
 
 
@@ -346,7 +343,7 @@ def plt_MSE_TP(target):
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
-    mse = np.empty((3, 2, T))
+    mse = np.empty((2, 2, T))
     step = np.arange(0, T+1, 5)
 
     for t in range(T):
@@ -367,23 +364,18 @@ def plt_MSE_TP(target):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = df(b["all"], tau[t])
 
-        i = w["TP"] <= -tau[t]
+        i = np.logical_or(w["TP"] < -tau[t], tau[t] < w["TP"])
         num_s = len(s_w[i])
         mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
         mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
-        i = np.logical_and(w["TP"] > -tau[t], w["TP"] <= tau[t])
+        i = np.logical_and(-tau[t] <= w["TP"], w["TP"] <= tau[t])
         num_s = len(s_w[i])
         mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
         mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
-        i = w["TP"] > tau[t]
-        num_s = len(s_w[i])
-        mse[2, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[2, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
-
-    plt.figure(figsize=(20, 6))
-    for j, k in enumerate(['w <= -tau', '-tau < w <= tau', 'tau < w']):
+    plt.figure(figsize=(14, 6))
+    for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
         plt.subplot(1, 3, j+1)
         plt.title(k)
         plt.xlabel("iteration")
@@ -402,7 +394,7 @@ def plt_MSE_FP(target):
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
-    mse = np.empty((3, 2, T))
+    mse = np.empty((2, 2, T))
     step = np.arange(0, T+1, 5)
 
     for t in range(T):
@@ -423,23 +415,18 @@ def plt_MSE_FP(target):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = df(b["all"], tau[t])
 
-        i = w["FP"] <= -tau[t]
+        i = np.logical_or(w["FP"] < -tau[t], tau[t] < w["FP"])
         num_s = len(s_w[i])
-        mse[0, 0, t] = np.linalg.norm(s_w[i] - x[i])**2 / num_s
-        mse[0, 1, t] = np.linalg.norm(s_b[i] - x[i])**2 / num_s
+        mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
+        mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
-        i = np.logical_and(w["FP"] > -tau[t], w["FP"] <= tau[t])
+        i = np.logical_and(-tau[t] <= w["FP"], w["FP"] <= tau[t])
         num_s = len(s_w[i])
-        mse[1, 0, t] = np.linalg.norm(s_w[i] - x[i])**2 / num_s
-        mse[1, 1, t] = np.linalg.norm(s_b[i] - x[i])**2 / num_s
+        mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
+        mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
-        i = w["FP"] > tau[t]
-        num_s = len(s_w[i])
-        mse[2, 0, t] = np.linalg.norm(s_w[i] - x[i])**2 / num_s
-        mse[2, 1, t] = np.linalg.norm(s_b[i] - x[i])**2 / num_s
-
-    plt.figure(figsize=(20, 6))
-    for j, k in enumerate(['w <= -tau', '-tau < w <= tau', 'tau < w']):
+    plt.figure(figsize=(14, 6))
+    for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
         plt.subplot(1, 3, j+1)
         plt.title(k)
         plt.xlabel("iteration")
