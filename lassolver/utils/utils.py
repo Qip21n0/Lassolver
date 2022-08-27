@@ -1,4 +1,5 @@
 from cProfile import label
+from turtle import color
 from lassolver.utils.func import df
 import numpy as np
 import matplotlib.pyplot as plt
@@ -318,11 +319,14 @@ def plt_w_b_scatter(target, type, T):
         cond1 = w[type] <= -tau[t]
         cond2 = np.logical_and(-tau[t] < w[type], w[type] <= tau[t])
         cond3 = tau[t] < w[type]
-        plt.subplot(n+1, 1, i+1)
+        x = np.linspace(np.nanmin(w[type]), np.nanmax(w[type]), 1000)
 
+        plt.subplot(n+1, 1, i+1)
+        plt.title(type+f" (t = {str(t+1)})")
         plt.scatter(s_w[cond1], s_b[cond1], label="w <= -tau")
         plt.scatter(s_w[cond2], s_b[cond2], label="-tau < w <= tau")
         plt.scatter(s_w[cond3], s_b[cond3], label="tau < w")
+        plt.plot(x, x, color='black')
         plt.legend()
         plt.grid()
 
