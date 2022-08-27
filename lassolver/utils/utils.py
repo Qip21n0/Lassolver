@@ -1,5 +1,3 @@
-from cProfile import label
-from turtle import color
 from lassolver.utils.func import df
 import numpy as np
 import matplotlib.pyplot as plt
