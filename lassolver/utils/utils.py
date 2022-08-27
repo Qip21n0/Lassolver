@@ -316,7 +316,7 @@ def plt_w_b_scatter(target, type, T):
 
         cond1 = w[type] <= -tau[t]
         cond2 = np.logical_and(-tau[t] < w[type], w[type] <= tau[t])
-        cond3 = tau[t] > w[type]
+        cond3 = tau[t] < w[type]
         cond = np.logical_or(cond1, cond2, cond3)
         x = np.linspace(np.nanmin(s_w[cond]), np.nanmax(s_w[cond]), 1000)
 
@@ -324,7 +324,7 @@ def plt_w_b_scatter(target, type, T):
         plt.title(type+f" (t = {str(t+1)})")
         plt.scatter(s_w[cond1], s_b[cond1], label="w <= -tau")
         plt.scatter(s_w[cond2], s_b[cond2], label="-tau < w <= tau")
-        plt.scatter(s_w[cond3], s_b[cond3], label="tau > w")
+        plt.scatter(s_w[cond3], s_b[cond3], label="tau < w")
         plt.plot(x, x, color='black')
         plt.legend()
         plt.grid()
