@@ -32,7 +32,7 @@ class damp_sp(dbase):
         return v_p
 
     def _update_tau_p(self):
-        return np.linalg.norm(self.r_p + self.Onsager_p)**2
+        return np.linalg.norm(self.r_p + self.Onsager_p)**2 / self.M
 
     def _update_s_p(self):
         self.s = soft_threshold(self.omega_p, self.theta_p**0.5)
