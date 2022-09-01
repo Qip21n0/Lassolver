@@ -108,9 +108,9 @@ class D_AMP_SP(D_Base):
         return (np.sum(self.tau_p) / self.M)**0.5
 
     def _add_mse(self):
-        mse = np.zeros(self.P)
+        mse = np.zeros((1, self.P))
         for p in range(self.P):
-            mse[p] = np.linalg.norm(self.amps[p].s - self.x)**2 / self.N
+            mse[1, p] = np.linalg.norm(self.amps[p].s - self.x)**2 / self.N
         self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
