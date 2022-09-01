@@ -148,11 +148,11 @@ class D_AMP_SP(D_Base):
         for p in range(self.P):
             result = np.array([np.log10(mse) if mse is not None else None for mse in self.mse[:, p]])
             plt.plot(result)
-        #se = np.array([np.log10(v) if v is not None else None for v in self.v])
-        #plt.scatter(ite, se, c='red')
+            se = np.array([np.log10(v) if v is not None else None for v in self.v[:, p]])
+            plt.scatter(ite, se)
         plt.grid()
     
     def show_graph(self):
         print(f"Diameter: {nx.diameter(self.graph)}")
-        nx.draw(self.graph, node_size=500)
+        nx.draw(self.graph, node_size=200)
         plt.show()
