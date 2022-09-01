@@ -116,7 +116,8 @@ class D_AMP_SP(D_Base):
         self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
-        print("final mse: {}".format(self.mse[-1]))
+        for p in range(self.P):
+            print("final mse(node {p}): {}".format(self.mse[-1, p]))
 
         plt.figure(figsize=(16, 4))
         plt.subplot(121)
