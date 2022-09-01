@@ -110,7 +110,7 @@ class D_AMP_SP(D_Base):
     def _add_mse(self):
         mse = np.zeros((1, self.P))
         for p in range(self.P):
-            mse[1, p] = np.linalg.norm(self.amps[p].s - self.x)**2 / self.N
+            mse[0, p] = np.linalg.norm(self.amps[p].s - self.x)**2 / self.N
         self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
@@ -131,6 +131,6 @@ class D_AMP_SP(D_Base):
         for p in range(self.P):
             result = np.array([np.log10(mse) if mse is not None else None for mse in self.mse[:, p]])
             plt.plot(result)
-        se = np.array([np.log10(v) if v is not None else None for v in self.v])
-        plt.scatter(ite, se, c='red')
+        #se = np.array([np.log10(v) if v is not None else None for v in self.v])
+        #plt.scatter(ite, se, c='red')
         plt.grid()
