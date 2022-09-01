@@ -56,8 +56,8 @@ class D_AMP_SP(D_Base):
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
         self.mse = np.array([[None]*self.P])
-        self.tau = [[None]*self.P]
-        self.v = [[None]*self.P]
+        self.tau = np.array([[None]*self.P])
+        self.v = np.array([[None]*self.P])
 
     def __set_sigma(self):
         sigma = 0
@@ -89,9 +89,13 @@ class D_AMP_SP(D_Base):
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
                             v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
                             tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
-            #v = self._update_v(v_pp)
-            #tau = self._update_tau(tau_pp)
-            #if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
+            v = self._update_v(v_pp)
+            tau = self._update_tau(tau_pp)
+            if log: 
+                print(f"{t+1}/{T}")
+                print(f"tau = {tau}")
+                print(f"v = {v}")
+                print("="*42)
 
             for p in range(self.P):
                 self.amps[p].omega_p = np.sum(w_pp[:, p], axis=0)
@@ -104,16 +108,20 @@ class D_AMP_SP(D_Base):
     def _update_v(self, v_pp):
         #r2 = np.sum(self.r2)
         #v = (r2 - self.M * self.sigma) / self.trA2
+        v_p = np.zeros((1, self.P))
         for p in range(self.P):
-            self.v_p[p] = v_pp[p, p]
-        v = np.sum(self.v_p)
-        v = v if v > 0 else 1e-4
-        self.v.append(v)
-        return v
+            gamma_p = np.sum(v_pp[:, p])
+            v_p[0, p] = gamma_p if gamma_p > 0 else 1e-4
+        self.v = np.append(self.v, v_p, axis=0)
+        return v_p
 
     def _update_tau(self, tau_pp):
         #return v / self.a + self.sigma
-        return (np.sum(self.tau_p) / self.M)**0.5
+        tau_p = np.zeros((1, self.P))
+        for p in range(self.P):
+            tau_p[0, p] = np.sum(tau_pp[:, p])
+        self.tau = np.append(self.tau, tau_p, axis=0)
+        return tau_p
 
     def _add_mse(self):
         mse = np.zeros((1, self.P))
