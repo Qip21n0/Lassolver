@@ -76,8 +76,8 @@ class D_AMP_SP(D_Base):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.amps[p].local_compute()
             for _ in range(lT):
                 for p in range(self.P):
-                    for j in self.Edge[p]:
-                        if j == 1:
+                    for j, v in enumerate(self.Edge[p]):
+                        if v == 1:
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
                             v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
                             tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
