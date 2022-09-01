@@ -84,8 +84,8 @@ class D_AMP_SP(D_Base):
             #v = self._update_v(v_pp)
             #tau = self._update_tau(tau_pp)
             #if log: print("{}/{}: tau = {}, v = {}".format(t+1, T, tau, v))
-            print(f"v_pp: {v_pp}")
-            print(f"tau_pp: {tau_pp}")
+            print(f"v_pp: \n{v_pp}")
+            print(f"tau_pp: \n{tau_pp}")
 
             for p in range(self.P):
                 self.amps[p].omega_p = np.sum(w_pp[:, p], axis=0)
