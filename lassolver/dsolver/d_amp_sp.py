@@ -69,8 +69,8 @@ class D_AMP_SP(D_Base):
 
         for t in range(T):
             w_pp = np.zeros((self.P, self.P, self.N, 1))
-            v_pp = np.zeos((self.P, self.P))
-            tau_pp = np.zeos((self.P, self.P))
+            v_pp = np.zeros((self.P, self.P))
+            tau_pp = np.zeros((self.P, self.P))
 
             for p in range(self.P):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.amps[p].local_compute()
