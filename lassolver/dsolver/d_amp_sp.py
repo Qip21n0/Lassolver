@@ -6,6 +6,7 @@ from lassolver.dsolver.d_base import *
 class damp_sp(dbase):
     def __init__(self, A_p, x, noise, M):
         super().__init__(A_p, x, noise, M)
+        self.a = self.M / self.N
         self.Onsager_p = np.zeros((self.M_p, 1))
         self.omega_p = np.zeros((self.N, 1))
         self.gamma_p = 0
@@ -18,7 +19,7 @@ class damp_sp(dbase):
         self.r_p = self._update_r_p()
         w_p = self._update_w_p()
         v_p = self._update_v_p()
-        tau_p = self._update_tau_p()
+        tau_p = self._update_tau_p(v_p)
         return w_p, v_p, tau_p
 
     def _update_r_p(self):
@@ -31,8 +32,9 @@ class damp_sp(dbase):
         v_p = (np.linalg.norm(self.r_p)**2 - self.M_p * self.sigma_p) / self.trA2
         return v_p
 
-    def _update_tau_p(self):
-        return np.linalg.norm(self.r_p + self.Onsager_p)**2 / self.M
+    def _update_tau_p(self, v_p):
+        return v_p / self.a + self.sigma_p
+        #return np.linalg.norm(self.r_p + self.Onsager_p)**2 / self.M
 
     def _update_s_p(self):
         self.s = soft_threshold(self.omega_p, self.theta_p**0.5)
