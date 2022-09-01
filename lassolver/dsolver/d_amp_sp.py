@@ -1,4 +1,5 @@
 import numpy as np
+import networkx as nx
 from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
@@ -42,11 +43,16 @@ class damp_sp(dbase):
 
 
 class D_AMP_SP(D_Base):
-    def __init__(self, A, x, noise, Edge):
-        P = len(Edge)
-        self.Edge = Edge.copy()
+    def __init__(self, A, x, noise, Adj):
+        P = len(Adj)
         super().__init__(A, x, noise, P)
         self.amps = [damp_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
+        self.Adj = Adj.copy()
+        rows, cols = np.where(Adj == 1)
+        edges = zip(rows.tolist(), cols.tolist())
+        gr = nx.Graph()
+        gr.add_edges_from(edges)
+        self.graph = gr
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
         self.mse = np.array([[None]*self.P])
@@ -78,7 +84,7 @@ class D_AMP_SP(D_Base):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.amps[p].local_compute()
             for _ in range(lT):
                 for p in range(self.P):
-                    for j, v in enumerate(self.Edge[p]):
+                    for j, v in enumerate(self.Adj[p]):
                         if v == 1:
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
                             v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
@@ -137,3 +143,8 @@ class D_AMP_SP(D_Base):
         #se = np.array([np.log10(v) if v is not None else None for v in self.v])
         #plt.scatter(ite, se, c='red')
         plt.grid()
+    
+    def show_graph(self):
+        print(f"Diameter: {nx.diameter(self.graph)}")
+        nx.draw(self.graph, node_size=500)
+        plt.show()
