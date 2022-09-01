@@ -113,7 +113,7 @@ class D_AMP_SP(D_Base):
         mse = np.zeros(self.P)
         for p in range(self.P):
             mse[p] = np.linalg.norm(self.amps[p].s - self.x)**2 / self.N
-        self.mse = np.append(self.mse, mse)
+        self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
         print("final mse: {}".format(self.mse[-1]))
