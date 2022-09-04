@@ -59,6 +59,10 @@ class D_OAMP_SP(D_Base):
         gr = nx.Graph()
         gr.add_edges_from(edges)
         self.graph = gr
+        self.A = A.copy()
+        self.AT = self.A.T
+        self.AAT = self.A @ self.AT
+        self.I = np.eye(self.M)
         self.sigma = self.__set_sigma()
         self.trA2 = self.__set_trA2()
         self.mse = np.array([[None]*self.P])
@@ -68,13 +72,13 @@ class D_OAMP_SP(D_Base):
     def __set_sigma(self):
         sigma = 0
         for p in range(self.P):
-            sigma += self.amps[p].sigma_p
+            sigma += self.oamps[p].sigma_p
         return sigma / self.P
 
     def __set_trA2(self):
         trA2 = 0
         for p in range(self.P):
-            trA2 += self.amps[p].trA2_p
+            trA2 += self.oamps[p].trA2_p
         return trA2
 
     def estimate(self, T=20, lT=10, C=1.85, ord='LMMSE', log=False):
@@ -112,11 +116,11 @@ class D_OAMP_SP(D_Base):
                 print("="*42)
 
             for p in range(self.P):
-                self.amps[p].omega_p = np.sum(w_pp[:, p], axis=0)
+                self.oamps[p].omega_p = np.sum(w_pp[:, p], axis=0)
                 gamma_p = np.sum(v_pp[:, p])
-                self.amps[p].gamma_p = gamma_p if gamma_p > 0 else 1e-4
-                self.amps[p].theta_p = np.sum(tau_pp[:, p])
-                self.amps[p]._update_s_p()
+                self.oamps[p].gamma_p = gamma_p if gamma_p > 0 else 1e-4
+                self.oamps[p].theta_p = np.sum(tau_pp[:, p])
+                self.oamps[p]._update_s_p()
             self._add_mse()
             if t == T-1: break
             if ord == 'LMMSE':
@@ -161,7 +165,7 @@ class D_OAMP_SP(D_Base):
     def _add_mse(self):
         mse = np.zeros((1, self.P))
         for p in range(self.P):
-            mse[0, p] = np.linalg.norm(self.amps[p].s - self.x)**2 / self.N
+            mse[0, p] = np.linalg.norm(self.oamps[p].s - self.x)**2 / self.N
         self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
@@ -172,7 +176,7 @@ class D_OAMP_SP(D_Base):
         plt.subplot(121)
         plt.plot(self.x.real)
         for p in range(self.P):
-            plt.plot(self.amps[p].s.real)
+            plt.plot(self.oamps[p].s.real)
         plt.grid()
 
         plt.subplot(122)
