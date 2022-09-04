@@ -253,3 +253,11 @@ def GCOAMP_oracle(zeros, w, tau_p, log=False):
         
     s = u - np.mean(u != 0)*b
     return s.real, communication_cost, b, z
+
+
+def hyperparameter(a):
+    f = lambda x: x * norm.pdf(x) - (1 + x**2) * norm.cdf(-x)
+    candidates = np.linspace(0, 100, 100000)[1:]
+    common = 2 * f(candidates)
+    i = np.argmax((a + common) / (1 + candidates**2 + common))
+    return candidates[i]
