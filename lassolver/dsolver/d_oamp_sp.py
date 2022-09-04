@@ -91,6 +91,8 @@ class D_OAMP_SP(D_Base):
         self.trB2 = np.trace(B @ B.T)
 
         for p in range(self.P):
+            self.oamps[p].receive_W_p(self.W_p[p].T)
+            self.oamps[p].receive_trX2(self.trW2[p], self.trB2)
             self.oamps[p].receive_trA2(self.trA2)
 
         for t in range(T):
