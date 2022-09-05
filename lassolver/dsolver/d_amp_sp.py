@@ -72,6 +72,7 @@ class D_AMP_SP(D_Base):
         return trA2
 
     def estimate(self, T=20, lT=10, log=False):
+        order = np.arange(self.P)
         for p in range(self.P):
             self.amps[p].receive_trA2(self.trA2)
 
@@ -83,7 +84,8 @@ class D_AMP_SP(D_Base):
             for p in range(self.P):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.amps[p].local_compute()
             for _ in range(lT):
-                for p in range(self.P):
+                randshuffle = np.random.shuffle(order)
+                for p in randshuffle:
                     for j, v in enumerate(self.Adj[p]):
                         if v == 1:
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]

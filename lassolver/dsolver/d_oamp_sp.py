@@ -85,6 +85,8 @@ class D_OAMP_SP(D_Base):
         return trA2
 
     def estimate(self, T=20, lT=10, C=1.85, ord='LMMSE', log=False):
+        order = np.arange(self.P)
+
         v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M_p * self.sigma) / self.trA2
         self.W = self.__set_W(v, ord)
         self.W_p = self.W.T.reshape(self.P, self.M_p, self.N)
@@ -107,7 +109,8 @@ class D_OAMP_SP(D_Base):
             for p in range(self.P):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.oamps[p].local_compute()
             for _ in range(lT):
-                for p in range(self.P):
+                randshuffle = np.random.shuffle(order)
+                for p in randshuffle:
                     for j, v in enumerate(self.Adj[p]):
                         if v == 1:
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
