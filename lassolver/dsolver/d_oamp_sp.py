@@ -13,6 +13,9 @@ class doamp_sp(dbase):
         self.gamma_p = 0
         self.theta_p = 0
 
+    def receive_C(self, C):
+        self.C = C
+
     def receive_W_p(self, W_p):
         self.W_p = W_p.copy()
 
@@ -45,7 +48,7 @@ class doamp_sp(dbase):
         #return np.linalg.norm(self.r_p + self.Onsager_p)**2 / self.M
 
     def _update_s_p(self):
-        self.s = df(self.omega_p, self.theta_p**0.5)
+        self.s = self.C * df(self.omega_p, self.theta_p**0.5)
 
 
 class D_OAMP_SP(D_Base):
@@ -93,6 +96,7 @@ class D_OAMP_SP(D_Base):
         for p in range(self.P):
             self.oamps[p].receive_W_p(self.W_p[p].T)
             self.oamps[p].receive_trX2(self.trW2[p], self.trB2)
+            self.oamps[p].receive_C(C)
             self.oamps[p].receive_trA2(self.trA2)
 
         for t in range(T):
