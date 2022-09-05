@@ -109,8 +109,8 @@ class D_OAMP_SP(D_Base):
             for p in range(self.P):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.oamps[p].local_compute()
             for _ in range(lT):
-                randshuffle = np.random.shuffle(order)
-                for p in randshuffle:
+                np.random.shuffle(order)
+                for p in order:
                     for j, v in enumerate(self.Adj[p]):
                         if v == 1:
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
