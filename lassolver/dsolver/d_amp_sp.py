@@ -34,7 +34,7 @@ class damp_sp(dbase):
         return v_p
 
     def _update_tau_p(self, v_p):
-        return v_p / self.a + self.sigma_p
+        return v_p / self.a + self.sigma_p / self.P
         #return np.linalg.norm(self.r_p + self.Onsager_p)**2 / self.M
 
     def _update_s_p(self):
