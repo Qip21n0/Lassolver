@@ -355,17 +355,15 @@ def plt_MSE_TP(target):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = df(b["all"], tau[t])
 
-        i = np.logical_or(w["TP"] < -tau[t], tau[t] < w["TP"])
-        num_s = len(s_w[i])
-        print(num_s, f'({t=})')
-        mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        i1 = np.logical_or(w["TP"] < -tau[t], tau[t] < w["TP"])
+        num_s1 = len(s_w[i1])
+        mse[0, 0, t] = np.linalg.norm(s_w[i1])**2 / num_s1
+        mse[0, 1, t] = np.linalg.norm(s_b[i1])**2 / num_s1
 
-        i = np.logical_and(-tau[t] <= w["TP"], w["TP"] <= tau[t])
-        num_s = len(s_w[i])
-        print(num_s, f'({t=})')
-        mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        i2 = np.logical_and(-tau[t] <= w["TP"], w["TP"] <= tau[t])
+        num_s2 = len(s_w[i2])
+        mse[1, 0, t] = np.linalg.norm(s_w[i2])**2 / num_s2
+        mse[1, 1, t] = np.linalg.norm(s_b[i2])**2 / num_s2
 
     plt.figure(figsize=(14, 6))
     for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
@@ -408,15 +406,15 @@ def plt_MSE_FP(target):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = df(b["all"], tau[t])
 
-        i = np.logical_or(w["FP"] < -tau[t], tau[t] < w["FP"])
-        num_s = len(s_w[i])
-        mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        i1 = np.logical_or(w["FP"] < -tau[t], tau[t] < w["FP"])
+        num_s1 = len(s_w[i1])
+        mse[0, 0, t] = np.linalg.norm(s_w[i1])**2 / num_s1
+        mse[0, 1, t] = np.linalg.norm(s_b[i1])**2 / num_s1
 
-        i = np.logical_and(-tau[t] <= w["FP"], w["FP"] <= tau[t])
-        num_s = len(s_w[i])
-        mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
-        mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
+        i2 = np.logical_and(-tau[t] <= w["FP"], w["FP"] <= tau[t])
+        num_s2 = len(s_w[i2])
+        mse[1, 0, t] = np.linalg.norm(s_w[i2])**2 / num_s2
+        mse[1, 1, t] = np.linalg.norm(s_b[i2])**2 / num_s2
 
     plt.figure(figsize=(14, 6))
     for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
