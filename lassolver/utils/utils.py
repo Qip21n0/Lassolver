@@ -357,13 +357,13 @@ def plt_MSE_TP(target):
 
         i = np.logical_or(w["TP"] < -tau[t], tau[t] < w["TP"])
         num_s = len(s_w[i])
-        print(num_s, f'{t=}')
+        print(num_s, f'({t=})')
         mse[0, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
         mse[0, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
         i = np.logical_and(-tau[t] <= w["TP"], w["TP"] <= tau[t])
         num_s = len(s_w[i])
-        print(num_s, f'{t=}')
+        print(num_s, f'({t=})')
         mse[1, 0, t] = np.linalg.norm(s_w[i])**2 / num_s
         mse[1, 1, t] = np.linalg.norm(s_b[i])**2 / num_s
 
