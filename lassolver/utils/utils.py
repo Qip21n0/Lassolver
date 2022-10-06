@@ -330,7 +330,7 @@ def plt_w_b_scatter(target, type, T):
         plt.grid()
 
 
-def plt_MSE_TP(target):
+def plt_MSE_TP(C, target):
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
@@ -346,14 +346,14 @@ def plt_MSE_TP(target):
         w["FN"] = wbz[t]["FN"][0]
         w["TN"] = wbz[t]["TN"][0]
         w["all"] = np.nansum([w["TP"], w["FP"], w["FN"], w["TN"]], axis=0)
-        s_w = df(w["all"], tau[t])
+        s_w = C * df(w["all"], tau[t])
 
         b["TP"] = wbz[t]["TP"][1]
         b["FP"] = wbz[t]["FP"][1]
         b["FN"] = wbz[t]["FN"][1]
         b["TN"] = wbz[t]["TN"][1]
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
-        s_b = df(b["all"], tau[t])
+        s_b = C * df(b["all"], tau[t])
 
         i1 = np.logical_or(w["TP"] < -tau[t], tau[t] < w["TP"])
         num_s1 = len(s_w[i1])
@@ -380,7 +380,7 @@ def plt_MSE_TP(target):
         plt.legend()
         plt.grid()
 
-def plt_MSE_FP(target):
+def plt_MSE_FP(C, target):
     x = target.x
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
@@ -397,14 +397,14 @@ def plt_MSE_FP(target):
         w["FN"] = wbz[t]["FN"][0]
         w["TN"] = wbz[t]["TN"][0]
         w["all"] = np.nansum([w["TP"], w["FP"], w["FN"], w["TN"]], axis=0)
-        s_w = df(w["all"], tau[t])
+        s_w = C * df(w["all"], tau[t])
 
         b["TP"] = wbz[t]["TP"][1]
         b["FP"] = wbz[t]["FP"][1]
         b["FN"] = wbz[t]["FN"][1]
         b["TN"] = wbz[t]["TN"][1]
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
-        s_b = df(b["all"], tau[t])
+        s_b = C * df(b["all"], tau[t])
 
         i1 = np.logical_or(w["FP"] < -tau[t], tau[t] < w["FP"])
         num_s1 = len(s_w[i1])
