@@ -74,7 +74,7 @@ def plt_heatmap(confusion_matrix, T):
         sns.heatmap(s, cmap="RdBu_r", xticklabels=["x = 0", "x ≠ 0", "sum(diff)"], yticklabels=["diff ≠ 0", "diff = 0", "sum(x)"], annot=True, fmt='d', annot_kws={"fontsize": 12})
 
 
-def plt_MSE_confusion_matrix(confusion_matrix):
+def plt_MSE_confusion_matrix(confusion_matrix, all=True):
     T = len(confusion_matrix)
     mse_of = {}
     cm = np.array(confusion_matrix)
@@ -96,6 +96,8 @@ def plt_MSE_confusion_matrix(confusion_matrix):
     plt.yscale('log')
 
     for k, v in mse_of.items():
+        if not all and len(k) < 15:
+            continue
         linestyle = '-'
         color = 'tab:green'
 
@@ -115,7 +117,7 @@ def plt_MSE_confusion_matrix(confusion_matrix):
     plt.grid()
 
 
-def plt_ratio_confusion_matrix(confusion_matrix):
+def plt_ratio_confusion_matrix(confusion_matrix, all=True):
     T = len(confusion_matrix)
     ratio_of = {}
     cm = np.array(confusion_matrix)
@@ -139,6 +141,8 @@ def plt_ratio_confusion_matrix(confusion_matrix):
     plt.ylim(0, 1.1)
 
     for k, v in ratio_of.items():
+        if not all and len(k) < 15:
+            continue
         linestyle = '-'
         color = 'tab:green'
 
