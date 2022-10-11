@@ -79,13 +79,13 @@ def plt_MSE_confusion_matrix(confusion_matrix, all=True):
     mse_of = {}
     cm = np.array(confusion_matrix)
 
-    mse_of["DOAMP diff!=0"] = cm[:, 0, 0, 2] # diff != 0
-    mse_of["DOAMP x=0 & diff!=0"] = cm[:, 0, 0, 0] # TP
-    mse_of["DOAMP x!=0 & diff!=0"] = cm[:, 0, 0, 1] # FP
+    mse_of["DOAMP diff≠0"] = cm[:, 0, 0, 2] # diff != 0
+    mse_of["DOAMP x=0 & diff≠0"] = cm[:, 0, 0, 0] # TP
+    mse_of["DOAMP x≠0 & diff≠0"] = cm[:, 0, 0, 1] # FP
 
     mse_of["DOAMP diff=0"] = cm[:, 0, 1, 2] # diff = 0
     mse_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] # FN
-    mse_of["DOAMP x!=0 & diff=0"] = cm[:, 0, 1, 1] # TN
+    mse_of["DOAMP x≠0 & diff=0"] = cm[:, 0, 1, 1] # TN
 
     step = np.arange(0, T+1, 5)
 
@@ -103,12 +103,12 @@ def plt_MSE_confusion_matrix(confusion_matrix, all=True):
 
         if 'x=0' in k:
             linestyle = '--'
-        elif 'x!=0' in k:
+        elif 'x≠0' in k:
             linestyle = '-.'
 
         if 'diff=0' in k:
             color = 'tab:red'
-        elif 'diff!=0' in k:
+        elif 'diff≠0' in k:
             color = 'tab:blue'
         
         plt.plot(v, label=k, linestyle=linestyle, color=color)
@@ -123,13 +123,13 @@ def plt_ratio_confusion_matrix(confusion_matrix, all=True):
     cm = np.array(confusion_matrix)
     N = cm[0, 1, 2, 2]
 
-    ratio_of["DOAMP diff!=0"] = cm[:, 1, 0, 2] / N # diff != 0
-    ratio_of["DOAMP x=0 & diff!=0"] = cm[:, 1, 0, 0] / N # TP
-    ratio_of["DOAMP x!=0 & diff!=0"] = cm[:, 1, 0, 1] / N # FP
+    ratio_of["DOAMP diff≠0"] = cm[:, 1, 0, 2] / N # diff != 0
+    ratio_of["DOAMP x=0 & diff≠0"] = cm[:, 1, 0, 0] / N # TP
+    ratio_of["DOAMP x≠0 & diff≠0"] = cm[:, 1, 0, 1] / N # FP
 
     ratio_of["DOAMP diff=0"] = cm[:, 1, 1, 2] / N # diff = 0
     ratio_of["DOAMP x=0 & diff=0"] = cm[:, 1, 1, 0] / N # FN
-    ratio_of["DOAMP x!=0 & diff=0"] = cm[:, 1, 1, 1] / N # TN
+    ratio_of["DOAMP x≠0 & diff=0"] = cm[:, 1, 1, 1] / N # TN
 
     xstep = np.arange(0, T+1, 5)
     ystep = np.arange(0, 1.1, 0.1)
@@ -148,12 +148,12 @@ def plt_ratio_confusion_matrix(confusion_matrix, all=True):
 
         if 'x=0' in k:
             linestyle = '--'
-        elif 'x!=0' in k:
+        elif 'x≠0' in k:
             linestyle = '-.'
 
         if 'diff=0' in k:
             color = 'tab:red'
-        elif 'diff!=0' in k:
+        elif 'diff≠0' in k:
             color = 'tab:blue'
         
         plt.plot(v, label=k, linestyle=linestyle, color=color)
