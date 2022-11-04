@@ -115,8 +115,8 @@ class D_OAMP_SSP(D_Base):
                 for p in order:
                     for j, v in enumerate(self.Adj[p]):
                         if v == 1:
-                            w_pp[p][j], cc = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
-                            communication_cost += cc
+                            w_pp[p][j], comm_cost = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
+                            communication_cost += comm_cost
                             v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j, p]
                             tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j, p]
             self.communication_cost = np.append(self.communication_cost, communication_cost)
