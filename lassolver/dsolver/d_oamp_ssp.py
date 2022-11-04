@@ -84,7 +84,7 @@ class D_OAMP_SSP(D_Base):
             trA2 += self.oamps[p].trA2_p
         return trA2
 
-    def estimate(self, T=20, lT=10, C=1.85, ord='LMMSE', rand=True, log=False):
+    def estimate(self, T=20, lT=10, C=1.85, theta=0.7, ord='LMMSE', rand=True, log=False):
         order = np.arange(self.P)
 
         v = (np.sum([np.linalg.norm(self.oamps[p].y)**2 for p in range(self.P)]) - self.M_p * self.sigma) / self.trA2
@@ -114,9 +114,9 @@ class D_OAMP_SSP(D_Base):
                 for p in order:
                     for j, v in enumerate(self.Adj[p]):
                         if v == 1:
-                            w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
-                            v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
-                            tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
+                            w_pp[p][j] = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
+                            v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j, p]
+                            tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j, p]
             v = self._update_v(v_pp)
             tau = self._update_tau(tau_pp)
             if log: 
@@ -173,7 +173,20 @@ class D_OAMP_SSP(D_Base):
         return tau_p
 
     def selective_summation_propagation(self, p, j, w_ip, tau_ip, theta):
-        tau = np.sum(tau_ip) - tau_ip[j][p]
+        """
+        p, j: int
+            Number of node
+
+        w_ip: np.ndarray(P, N, 1)
+            vector for node i to p (i in N_p\j)
+        
+        tau_ip: np.ndaaray(P)
+            threshold for node i to p (i in N_p\j)
+        
+        theta: float
+            hyperparameter in (0, 1)
+        """
+        tau = np.sum(tau_ip) - tau_ip[j]
         _ = np.where(self.Adj[p])[0]
         N_p = np.delete(_, np.where(_ == p)[0])
         communication_cost = 0
@@ -202,19 +215,21 @@ class D_OAMP_SSP(D_Base):
             communication_cost += 1
         # STEP3
         F_R = F * np.logical_not(R)
-        for p in N_p:
-            candidate = np.where(F_R[p])[0]
+        for i in N_p:
+            if i == j:
+                continue
+            candidate = np.where(F_R[i])[0]
             for n in candidate:
                 communication_cost += 1
         # STEP4
-        w_jp = np.zeros((N, 1))
+        w_pj = np.zeros((N, 1))
         V = np.where(U > tau)[0].tolist()
         for n in V:
-            w_jp[n] = np.sum(w_ip[:, n], axis=0) - w_ip[j, n]
+            w_pj[n] = np.sum(w_ip[:, n], axis=0) - w_ip[j, n]
         Vc = [n for n in range(N) if n not in V]
         for n in Vc:
-            w_jp[n] = z[n]
-        return w_jp.real, communication_cost
+            w_pj[n] = z[n]
+        return w_pj.real, communication_cost
 
     def _add_mse(self):
         mse = np.zeros((1, self.P))
