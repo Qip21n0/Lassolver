@@ -105,6 +105,7 @@ class D_OAMP_SSP(D_Base):
             w_pp = np.zeros((self.P, self.P, self.N, 1))
             v_pp = np.zeros((self.P, self.P))
             tau_pp = np.zeros((self.P, self.P))
+            communication_cost = 0
 
             for p in range(self.P):
                 w_pp[p, p], v_pp[p, p], tau_pp[p, p] = self.oamps[p].local_compute()
@@ -114,9 +115,11 @@ class D_OAMP_SSP(D_Base):
                 for p in order:
                     for j, v in enumerate(self.Adj[p]):
                         if v == 1:
-                            w_pp[p][j] = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
+                            w_pp[p][j], cc = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
+                            communication_cost += cc
                             v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j, p]
                             tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j, p]
+            self.communication_cost = np.append(self.communication_cost, communication_cost)
             v = self._update_v(v_pp)
             tau = self._update_tau(tau_pp)
             if log: 
