@@ -78,19 +78,20 @@ def plt_impact_confusion_matrix(confusion_matrix, all=True):
     T = len(confusion_matrix)
     impact_of = {}
     cm = np.array(confusion_matrix)
+    SE = cm[:, 0, 2, 2] * cm[0, 1, 2, 2]
 
-    impact_of["DOAMP diff≠0"] = cm[:, 0, 0, 2] * cm[:, 1, 0, 2] # diff != 0
-    impact_of["DOAMP x=0 & diff≠0"] = cm[:, 0, 0, 0] * cm[:, 1, 0, 0] # TP
-    impact_of["DOAMP x≠0 & diff≠0"] = cm[:, 0, 0, 1] * cm[:, 1, 0, 1] # FP
+    impact_of["DOAMP diff≠0"] = cm[:, 0, 0, 2] * cm[:, 1, 0, 2] / SE # diff != 0
+    impact_of["DOAMP x=0 & diff≠0"] = cm[:, 0, 0, 0] * cm[:, 1, 0, 0] / SE # TP
+    impact_of["DOAMP x≠0 & diff≠0"] = cm[:, 0, 0, 1] * cm[:, 1, 0, 1] / SE # FP
 
-    impact_of["DOAMP diff=0"] = cm[:, 0, 1, 2] * cm[:, 1, 1, 2] # diff = 0
-    impact_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] * cm[:, 1, 1, 0] # FN
-    impact_of["DOAMP x≠0 & diff=0"] = cm[:, 0, 1, 1] * cm[:, 1, 1, 1] # TN
+    impact_of["DOAMP diff=0"] = cm[:, 0, 1, 2] * cm[:, 1, 1, 2] / SE # diff = 0
+    impact_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] * cm[:, 1, 1, 0] / SE # FN
+    impact_of["DOAMP x≠0 & diff=0"] = cm[:, 0, 1, 1] * cm[:, 1, 1, 1] / SE # TN
 
     step = np.arange(0, T+1, 5)
 
     plt.xlabel("iteration")
-    plt.ylabel("MSE")
+    plt.ylabel("impact index")
     plt.xticks(step)
     plt.ylim(1e-4, 1e+1)
     plt.yscale('log')
