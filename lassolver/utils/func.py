@@ -64,7 +64,6 @@ def GCAMP(w, beta, log=False):
     s = np.zeros((N, 1))
     b = np.zeros((N, 1))
     V = np.where(U > beta)[0].tolist()
-    print(U.reshape(N))
     for n in V:
         b[n] = np.sum(w[:, n])
         s[n] = soft_threshold(b[n], beta)
