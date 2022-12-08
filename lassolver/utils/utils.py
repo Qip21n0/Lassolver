@@ -382,8 +382,8 @@ def plt_w_b_scatter(target, type, T):
 def plt_MSE_at(area, C, target):
     if area not in ["TP", "FP", "FN", "TN"]:
         raise NameError("Select one of [TP, FP, FN, TN]")
-    x = target.x
-    wbz = target.w_b_z_history
+    x = target.x.copy()
+    wbz = target.w_b_z_history.copy()
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
     mse = np.empty((2, 2, T))
@@ -409,13 +409,13 @@ def plt_MSE_at(area, C, target):
 
         i1 = np.logical_or(w[area] < -tau[t], tau[t] < w[area])
         num_s1 = len(s_w[i1])
-        mse[0, 0, t] = np.linalg.norm(s_w[i1])**2 / num_s1
-        mse[0, 1, t] = np.linalg.norm(s_b[i1])**2 / num_s1
+        mse[0, 0, t] = np.linalg.norm(s_w[i1] - x[i1])**2 / num_s1
+        mse[0, 1, t] = np.linalg.norm(s_b[i1] - x[i1])**2 / num_s1
 
         i2 = np.logical_and(-tau[t] <= w[area], w[area] <= tau[t])
         num_s2 = len(s_w[i2])
-        mse[1, 0, t] = np.linalg.norm(s_w[i2])**2 / num_s2
-        mse[1, 1, t] = np.linalg.norm(s_b[i2])**2 / num_s2
+        mse[1, 0, t] = np.linalg.norm(s_w[i2] - x[i2])**2 / num_s2
+        mse[1, 1, t] = np.linalg.norm(s_b[i2] - x[i2])**2 / num_s2
 
     plt.figure(figsize=(14, 6))
     for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
