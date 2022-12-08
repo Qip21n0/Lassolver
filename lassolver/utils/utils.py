@@ -334,57 +334,9 @@ def plt_w_b_scatter(target, type, T):
         plt.grid()
 
 
-def plt_MSE_TP(C, target):
-    wbz = target.w_b_z_history
-    tau = np.array(target.tau[1:])**0.5
-    T = len(wbz)
-    mse = np.empty((2, 2, T))
-    step = np.arange(0, T+1, 5)
-
-    for t in range(T):
-        w = {}
-        b = {}
-
-        w["TP"] = wbz[t]["TP"][0]
-        w["FP"] = wbz[t]["FP"][0]
-        w["FN"] = wbz[t]["FN"][0]
-        w["TN"] = wbz[t]["TN"][0]
-        w["all"] = np.nansum([w["TP"], w["FP"], w["FN"], w["TN"]], axis=0)
-        s_w = C * df(w["all"], tau[t])
-
-        b["TP"] = wbz[t]["TP"][1]
-        b["FP"] = wbz[t]["FP"][1]
-        b["FN"] = wbz[t]["FN"][1]
-        b["TN"] = wbz[t]["TN"][1]
-        b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
-        s_b = C * df(b["all"], tau[t])
-
-        i1 = np.logical_or(w["TP"] < -tau[t], tau[t] < w["TP"])
-        num_s1 = len(s_w[i1])
-        mse[0, 0, t] = np.linalg.norm(s_w[i1])**2 / num_s1
-        mse[0, 1, t] = np.linalg.norm(s_b[i1])**2 / num_s1
-
-        i2 = np.logical_and(-tau[t] <= w["TP"], w["TP"] <= tau[t])
-        num_s2 = len(s_w[i2])
-        mse[1, 0, t] = np.linalg.norm(s_w[i2])**2 / num_s2
-        mse[1, 1, t] = np.linalg.norm(s_b[i2])**2 / num_s2
-
-    plt.figure(figsize=(14, 6))
-    for j, k in enumerate(['tau < |w|', 'tau >= |w|']):
-        plt.subplot(1, 2, j+1)
-        plt.title(k)
-        plt.xlabel("iteration")
-        plt.ylabel("MSE")
-        plt.xticks(step)
-        plt.ylim(1e-4, 1e+1)
-        plt.yscale('log')
-
-        plt.plot(mse[j, 0], label="s_w")
-        plt.plot(mse[j, 1], label="s_b")
-        plt.legend()
-        plt.grid()
-
-def plt_MSE_FP(C, target):
+def plt_MSE_at(area, C, target):
+    if area not in ["TP", "FP", "FN", "TN"]:
+        raise NameError("Select one of [TP, FP, FN, TN]")
     x = target.x
     wbz = target.w_b_z_history
     tau = np.array(target.tau[1:])**0.5
@@ -410,12 +362,12 @@ def plt_MSE_FP(C, target):
         b["all"] = np.nansum([b["TP"], b["FP"], b["FN"], b["TN"]], axis=0)
         s_b = C * df(b["all"], tau[t])
 
-        i1 = np.logical_or(w["FP"] < -tau[t], tau[t] < w["FP"])
+        i1 = np.logical_or(w[area] < -tau[t], tau[t] < w[area])
         num_s1 = len(s_w[i1])
         mse[0, 0, t] = np.linalg.norm(s_w[i1])**2 / num_s1
         mse[0, 1, t] = np.linalg.norm(s_b[i1])**2 / num_s1
 
-        i2 = np.logical_and(-tau[t] <= w["FP"], w["FP"] <= tau[t])
+        i2 = np.logical_and(-tau[t] <= w[area], w[area] <= tau[t])
         num_s2 = len(s_w[i2])
         mse[1, 0, t] = np.linalg.norm(s_w[i2])**2 / num_s2
         mse[1, 1, t] = np.linalg.norm(s_b[i2])**2 / num_s2
