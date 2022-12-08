@@ -21,7 +21,7 @@ def GCAMP(w, beta, log=False):
     shita = 0.7
     communication_cost = 0
     P, N, _ = w.shape
-    T = beta * shita / (P-1) if P != 0 else 0
+    T = beta * shita / (P-1) if P != 1 else 0
     R = np.zeros((P, N, 1))
     z = np.zeros((N, 1))
     
