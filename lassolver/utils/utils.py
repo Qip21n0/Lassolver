@@ -88,13 +88,14 @@ def plt_impact_confusion_matrix(confusion_matrix, all=True):
     impact_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] * cm[:, 1, 1, 0] / SE # FN
     impact_of["DOAMP x≠0 & diff=0"] = cm[:, 0, 1, 1] * cm[:, 1, 1, 1] / SE # TN
 
-    step = np.arange(0, T+1, 5)
+    xstep = np.arange(0, T+1, 5)
+    ystep = np.arange(0, 1.1, 0.1)
 
     plt.xlabel("iteration")
     plt.ylabel("impact index")
-    plt.xticks(step)
-    plt.ylim(1e-4, 1e+1)
-    plt.yscale('log')
+    plt.xticks(xstep)
+    plt.yticks(ystep)
+    plt.ylim(0, 1.1)
 
     for k, v in impact_of.items():
         if not all and len(k) < 15:
