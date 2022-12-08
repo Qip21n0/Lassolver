@@ -74,6 +74,49 @@ def plt_heatmap(confusion_matrix, T):
         sns.heatmap(s, cmap="RdBu_r", xticklabels=["x = 0", "x ≠ 0", "sum(diff)"], yticklabels=["diff ≠ 0", "diff = 0", "sum(x)"], annot=True, fmt='d', annot_kws={"fontsize": 12})
 
 
+def plt_impact_confusion_matrix(confusion_matrix, all=True):
+    T = len(confusion_matrix)
+    impact_of = {}
+    cm = np.array(confusion_matrix)
+
+    impact_of["DOAMP diff≠0"] = cm[:, 0, 0, 2] * cm[:, 1, 0, 2] # diff != 0
+    impact_of["DOAMP x=0 & diff≠0"] = cm[:, 0, 0, 0] * cm[:, 1, 0, 0] # TP
+    impact_of["DOAMP x≠0 & diff≠0"] = cm[:, 0, 0, 1] * cm[:, 1, 0, 1] # FP
+
+    impact_of["DOAMP diff=0"] = cm[:, 0, 1, 2] * cm[:, 1, 1, 2] # diff = 0
+    impact_of["DOAMP x=0 & diff=0"] = cm[:, 0, 1, 0] * cm[:, 1, 1, 0] # FN
+    impact_of["DOAMP x≠0 & diff=0"] = cm[:, 0, 1, 1] * cm[:, 1, 1, 1] # TN
+
+    step = np.arange(0, T+1, 5)
+
+    plt.xlabel("iteration")
+    plt.ylabel("MSE")
+    plt.xticks(step)
+    plt.ylim(1e-4, 1e+1)
+    plt.yscale('log')
+
+    for k, v in impact_of.items():
+        if not all and len(k) < 15:
+            continue
+        linestyle = '-'
+        color = 'tab:green'
+
+        if 'x=0' in k:
+            linestyle = '--'
+        elif 'x≠0' in k:
+            linestyle = '-.'
+
+        if 'diff=0' in k:
+            color = 'tab:red'
+        elif 'diff≠0' in k:
+            color = 'tab:blue'
+        
+        plt.plot(v, label=k, linestyle=linestyle, color=color)
+
+    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.grid()
+
+
 def plt_MSE_confusion_matrix(confusion_matrix, all=True):
     T = len(confusion_matrix)
     mse_of = {}
