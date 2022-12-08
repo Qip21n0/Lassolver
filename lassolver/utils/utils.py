@@ -115,7 +115,7 @@ def plt_impact_confusion_matrix(confusion_matrix, all=True):
         
         plt.plot(v, label=k, linestyle=linestyle, color=color)
 
-    plt.legend(bbox_to_anchor=(1.05, 1.0), loc='upper left')
+    plt.legend()
     plt.grid()
 
 
