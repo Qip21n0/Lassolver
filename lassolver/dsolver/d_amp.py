@@ -58,7 +58,7 @@ class D_AMP(D_Base):
         w = np.zeros((self.P, self.N, 1))
         tmp = np.linspace(3, 1, 11)
         i = T // 11
-        _lambda = [tmp[t//i] for t in range(T)]
+        _lambda = [tmp[t//i] if self.P != 1 else 1 for t in range(T)]
 
         for p in range(self.P):
             self.amps[p].receive_trA2(self.trA2)
