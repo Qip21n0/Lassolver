@@ -382,7 +382,7 @@ def plt_w_b_scatter(target, type, T):
 def plt_MSE_at(area, C, target):
     if area not in ["TP", "FP", "FN", "TN"]:
         raise NameError("Select one of [TP, FP, FN, TN]")
-    x = target.x.copy()
+    x = target.x.copy().reshape(target.N)
     wbz = target.w_b_z_history.copy()
     tau = np.array(target.tau[1:])**0.5
     T = len(wbz)
