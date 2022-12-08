@@ -18,7 +18,7 @@ class AMP(ISTA):
             r = self._update_r()
             w = self._update_w(r + Onsager)
             v = self._update_v(r)
-            tau = self._update_tau(v)
+            tau = self._update_tau(r + Onsager)
             self.s = self._update_s(w, tau)
             Onsager = np.sum(self.s != 0) / self.M * (r + Onsager)
             self._add_mse()
@@ -33,8 +33,9 @@ class AMP(ISTA):
         self.v.append(v)
         return v
 
-    def _update_tau(self, v):
-        tau = v / self.a + self.sigma
+    def _update_tau(self, r):
+        tau = np.linalg.norm(r)**2 / self.M
+        #tau = v / self.a + self.sigma
         self.tau.append(tau)
         return tau
 
