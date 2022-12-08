@@ -21,7 +21,7 @@ def GCAMP(w, beta, log=False):
     shita = 0.7
     communication_cost = 0
     P, N, _ = w.shape
-    T = beta * shita / (P-1)
+    T = beta * shita / (P-1) if P != 0 else 0
     R = np.zeros((P, N, 1))
     z = np.zeros((N, 1))
     
@@ -64,7 +64,7 @@ def GCAMP(w, beta, log=False):
     s = np.zeros((N, 1))
     b = np.zeros((N, 1))
     V = np.where(U > beta)[0].tolist()
-    print(U)
+    print(U.reshape(N))
     for n in V:
         b[n] = np.sum(w[:, n])
         s[n] = soft_threshold(b[n], beta)
