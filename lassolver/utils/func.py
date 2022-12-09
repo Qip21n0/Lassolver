@@ -24,7 +24,7 @@ def get_parameter(alpha):
         cp = common_part(para)
         return (alpha + 2 * cp) / (1 + para**2 + 2 * cp)
     i = np.argmax(f(candidates))
-    return candidates[i]
+    return candidates[i] / alpha**0.5
 
 
 def GCAMP(w, beta, log=False):
