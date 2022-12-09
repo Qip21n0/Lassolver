@@ -1,5 +1,5 @@
 import numpy as np
-from scipy.stats import truncnorm, norm
+from scipy.stats import norm
 
 
 def soft_threshold(r, gamma):
@@ -15,6 +15,16 @@ def df(r, gamma):
     """
     eta = soft_threshold(r, gamma)
     return eta - np.mean(eta != 0) * r
+
+
+def get_parameter(alpha):
+    candidates = np.linspace(0, 10, 1_000_000)
+    common_part = lambda para: para * norm.pdf(para) - (1 + para**2) * norm.cdf(-para)
+    def f(para):
+        cp = common_part(para)
+        return (alpha + 2 * cp) / (1 + para**2 + 2 * cp)
+    i = np.argmax(f(candidates))
+    return candidates[i]
 
 
 def GCAMP(w, beta, log=False):
