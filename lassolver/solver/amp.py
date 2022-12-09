@@ -40,8 +40,8 @@ class AMP(ISTA):
         return tau
 
     def _update_s(self, w, tau):
-        tuning_parameter = get_parameter(self.a)
-        return soft_threshold(w, tuning_parameter * tau**0.5)
+        #tuning_parameter = get_parameter(self.a)
+        return soft_threshold(w, tau**0.5)
 
     def result(self):
         super().result()
