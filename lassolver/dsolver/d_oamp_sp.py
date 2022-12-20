@@ -112,11 +112,12 @@ class D_OAMP_SP(D_Base):
                 if rand:
                     np.random.shuffle(order)
                 for p in order:
-                    for j, v in enumerate(self.Adj[p]):
-                        if v == 1:
-                            w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
-                            v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
-                            tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
+                    w_pp[p], v_pp[p], tau_pp[p] = self.summation_propagation(p, w_pp[:, p], v_pp[:, p], tau_pp[:, p])
+                    #for j, v in enumerate(self.Adj[p]):
+                    #    if v == 1:
+                    #        w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
+                    #        v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
+                    #        tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
             v = self._update_v(v_pp)
             tau = self._update_tau(tau_pp)
             if log: 
@@ -171,6 +172,21 @@ class D_OAMP_SP(D_Base):
             tau_p[0, p] = np.sum(tau_pp[:, p])
         self.tau = np.append(self.tau, tau_p, axis=0)
         return tau_p
+
+    def summation_propagation(self, p, phi_p, nu_p, zeta_p):
+        phi = np.sum(phi_p, axis=0)
+        nu = np.sum(nu_p)
+        zeta = np.sum(zeta_p)
+
+        new_phi_p = (phi * self.Adj[p]).T.reshape((self.P, self.N, 1)) - phi_p
+        new_phi_p[p] = phi_p[p]
+        new_nu_p = nu * self.Adj[p] - nu_p
+        new_nu_p[p] = nu_p[p]
+        new_zeta_p = zeta * self.Adj[p] - zeta_p
+        new_zeta_p[p] = zeta_p[p]
+
+        return new_phi_p, new_nu_p, new_zeta_p
+
 
     def _add_mse(self):
         mse = np.zeros((1, self.P))
