@@ -215,7 +215,7 @@ class D_OAMP_SSP(D_Base):
             for n in candidate:
                 communication_cost += 1
         # STEP2
-        S = [np.where(R[:, n])[0] for n in range(N)]
+        S = [np.where(R[:, n])[0] for n in range(self.N)]
         m = np.sum(R, axis=0)
         U = np.empty((self.N, 1))
         for n in range(self.N):
