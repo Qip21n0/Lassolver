@@ -115,7 +115,7 @@ class D_OAMP_SSP(D_Base):
                     np.random.shuffle(order)
                 for p in order:
                     w_pp[p], v_pp[p], tau_pp[p], comm_cost = self.selective_summation_propagation(p, w_pp[:, p], v_pp[:, p], tau_pp[:, p], theta)
-                    communication_cost += comm_cost
+                    communication_cost[p] += comm_cost
                     #for j, v in enumerate(self.Adj[p]):
                     #    if v == 1:
                     #        w_pp[p][j], comm_cost = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
