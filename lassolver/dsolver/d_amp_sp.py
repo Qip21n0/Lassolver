@@ -87,12 +87,12 @@ class D_AMP_SP(D_Base):
                 if rand:
                     np.random.shuffle(order)
                 for p in order:
-                    #w_pp[p], v_pp[p], tau_pp[p] = self.summation_propagation(p, w_pp[:, p], v_pp[:, p], tau_pp[:, p])
-                    for j, islinekd in enumerate(self.Adj[p]):
-                        if islinekd == 1:
-                            w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
-                            v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
-                            tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
+                    w_pp[p], v_pp[p], tau_pp[p] = self.summation_propagation(p, w_pp[:, p], v_pp[:, p], tau_pp[:, p])
+                    #for j, islinekd in enumerate(self.Adj[p]):
+                    #    if islinekd == 1:
+                    #        w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
+                    #        v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
+                    #        tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
             v = self._update_v(v_pp)
             tau = self._update_tau(tau_pp)
             if log: 
