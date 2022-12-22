@@ -94,9 +94,7 @@ class D_AMP_SP(D_Base):
                             w_pp[p][j] = np.sum(w_pp[:, p], axis=0) - w_pp[j][p]
                             v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j][p]
                             tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j][p]
-                    print(np.linalg.norm(s1 - w_pp[p]))
-                    print(s2, v_pp[p])
-                    print(s3, tau_pp[p])
+                    print(np.linalg.norm(s1 - w_pp[p]), np.linalg.norm(s2 - v_pp[p]), np.linalg.norm(s3 - tau_pp[p]))
             v = self._update_v(v_pp)
             tau = self._update_tau(tau_pp)
             if log: 
