@@ -128,8 +128,8 @@ class D_OAMP_SSP(D_Base):
             tau = self._update_tau(tau_pp)
             if log: 
                 print(f"{t+1}/{T}")
-                print(f"tau = {tau}")
-                print(f"v = {v}")
+                print(f"tau = {np.sum(tau_pp[:, 0])}")
+                print(f"v = {np.sum(v_pp[:, 0])}")
                 print("="*42)
 
             for p in range(self.P):
@@ -236,7 +236,9 @@ class D_OAMP_SSP(D_Base):
         new_phi_p = np.zeros((self.P, self.N, 1))
         V = np.where(U > zeta)[0].tolist()
         for n in V:
-            new_phi_p[:, n] = (phi[n] * self.Adj[p]).reshape((self.P, 1)) - phi_p[:, n]
+            for j in N_p:
+                new_phi_p[j, n] = phi[n] - phi_p[j, n]
+            #new_phi_p[:, n] = (phi[n] * self.Adj[p]).reshape((self.P, 1)) - phi_p[:, n]
         Vc = [n for n in range(self.N) if n not in V]
         for n in Vc:
             for j in N_p:
