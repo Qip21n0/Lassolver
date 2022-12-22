@@ -210,8 +210,6 @@ class D_OAMP_SSP(D_Base):
         z = np.empty(self.N)
         # STEP1
         for i in N_p:
-            if i == j:
-                continue
             R[i] = np.square(phi_p[i]) > zeta_p[i] * theta
             candidate = np.where(R[i])[0]
             for n in candidate:
