@@ -122,8 +122,8 @@ class D_OAMP_SP(D_Base):
             tau = self._update_tau(tau_pp)
             if log: 
                 print(f"{t+1}/{T}")
-                print(f"tau = {tau}")
-                print(f"v = {v}")
+                print(f"tau = {np.sum(tau_pp[:, 0])}")
+                print(f"v = {np.sum(v_pp[:, 0])}")
                 print("="*42)
 
             for p in range(self.P):
@@ -177,12 +177,20 @@ class D_OAMP_SP(D_Base):
         phi = np.sum(phi_p, axis=0)
         nu = np.sum(nu_p)
         zeta = np.sum(zeta_p)
+        N_p = np.where(self.Adj[p])[0]
 
-        new_phi_p = (phi * self.Adj[p]).T.reshape((self.P, self.N, 1)) - phi_p
+        new_phi_p = np.zeros((self.P, self.N, 1))
+        new_nu_p = np.zeros(self.P)
+        new_zeta_p = np.zeros(self.P)
+        for i in N_p:
+            new_phi_p[i] = phi - phi_p[i]
+            new_nu_p[i] = nu - nu_p[i]
+            new_zeta_p[i] = zeta - zeta_p[i]
+        #new_phi_p = (phi * self.Adj[p]).T.reshape((self.P, self.N, 1)) - phi_p
         new_phi_p[p] = phi_p[p]
-        new_nu_p = nu * self.Adj[p] - nu_p
+        #new_nu_p = nu * self.Adj[p] - nu_p
         new_nu_p[p] = nu_p[p]
-        new_zeta_p = zeta * self.Adj[p] - zeta_p
+        #new_zeta_p = zeta * self.Adj[p] - zeta_p
         new_zeta_p[p] = zeta_p[p]
 
         return new_phi_p, new_nu_p, new_zeta_p
