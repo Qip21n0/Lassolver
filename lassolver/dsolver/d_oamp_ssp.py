@@ -236,9 +236,9 @@ class D_OAMP_SSP(D_Base):
         new_phi_p = np.zeros((self.P, self.N, 1))
         V = np.where(U > zeta)[0].tolist()
         for n in V:
-            for j in N_p:
-                new_phi_p[j, n] = phi[n] - phi_p[j, n]
-            #new_phi_p[:, n] = (phi[n] * self.Adj[p]).reshape((self.P, 1)) - phi_p[:, n]
+            #for j in N_p:
+            #    new_phi_p[j, n] = phi[n] - phi_p[j, n]
+            new_phi_p[:, n] = (phi[n] * self.Adj[p]).reshape((self.P, 1)) - phi_p[:, n]
         Vc = [n for n in range(self.N) if n not in V]
         for n in Vc:
             for j in N_p:
@@ -253,8 +253,9 @@ class D_OAMP_SSP(D_Base):
         self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
-        for p in range(self.P):
-            print(f"final mse(node {p}): {self.mse[-1, p]}")
+        last_mse = self.mse[-1, :].copy()
+        print(f'final mse mean: {np.mean(last_mse)}, max: {np.max(last_mse)}, min: {np.min(last_mse)}')
+        plt.hist(last_mse)
 
         plt.figure(figsize=(16, 4))
         plt.subplot(121)
