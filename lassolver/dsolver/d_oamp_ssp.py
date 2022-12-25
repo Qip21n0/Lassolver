@@ -223,7 +223,7 @@ class D_OAMP_SSP(D_Base):
             upper = np.sum([zeta_p[i] for i in N_p if i not in S[i]])
             z[n] = phi_p[p, n] + np.sum([phi_p[i, n] for i in S[n]])
             U[n] = z[n]**2 + upper * theta
-        F = U > zeta#(U > zeta) & (m < (len(N_p)))
+        F = (U > zeta) & (m < (len(N_p)))
         candidate = np.where(F)[0]
         for n in candidate:
             communication_cost += 1
