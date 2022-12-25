@@ -13,6 +13,7 @@ class doamp_ssp(dbase):
         self.gamma_p = 0
         self.theta_p = 0
         self.communication_cost_p = np.array([])
+        self.estimated_positions = []
 
     def receive_C(self, C):
         self.C = C
@@ -222,7 +223,7 @@ class D_OAMP_SSP(D_Base):
             upper = np.sum([zeta_p[i] for i in N_p if i not in S[i]])
             z[n] = phi_p[p, n] + np.sum([phi_p[i, n] for i in S[n]])
             U[n] = z[n]**2 + upper * theta
-        F = (U > zeta) & (m < (len(N_p)))
+        F = U > zeta#(U > zeta) & (m < (len(N_p)))
         candidate = np.where(F)[0]
         for n in candidate:
             communication_cost += 1
@@ -244,6 +245,7 @@ class D_OAMP_SSP(D_Base):
             for j in N_p:
                 new_phi_p[j, n] = phi_p[p, n] + np.sum([phi_p[i, n] for i in S[n] if i != j])
         new_phi_p[p] = phi_p[p]
+        #self.oamps[p].estimated_positions.append(V)
         return new_phi_p.real, new_nu_p, new_zeta_p, communication_cost
 
     def _add_mse(self):
