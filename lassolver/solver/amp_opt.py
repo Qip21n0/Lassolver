@@ -56,7 +56,9 @@ class AMP_OPT(ISTA):
         xi = rho**(-1) + tau
         top = normal.pdf(w, loc=0, scale=xi**0.5)
         bottom = rho * normal.pdf(w, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(w, loc=0, scale=tau**0.5)
-        return np.array(top / bottom * w)
+        s = np.array(top / bottom * w)
+        print(s)
+        return s
 
     def result(self):
         super().result()
