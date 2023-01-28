@@ -15,12 +15,12 @@ class AMP_OPT(ISTA):
         self.tau = [None]
 
     def estimate(self, T=20):
-        def func_mmse(vector, threshold):
+        def func_mmse(vector, threshold, rho):
             xi = rho**(-1) + threshold
             top = norm.pdf(vector, loc=0, scale=xi**0.5)
             bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
-        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
+        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None, None))
         
         Onsager = np.zeros((self.M, 1))
         for _ in range(T):
@@ -32,7 +32,7 @@ class AMP_OPT(ISTA):
 
             rho = np.mean(soft_threshold(w, tau**0.5) != 0)
             
-            Onsager = np.sum(np.array(dfunc_mmse(jnp.asarray(w), tau**0.5))) / self.M * (r + Onsager)
+            Onsager = np.sum(dfunc_mmse(w, tau**0.5, rho)) / self.M * (r + Onsager)
             self._add_mse()
 
     def _update_w(self, r):
