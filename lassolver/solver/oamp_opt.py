@@ -65,9 +65,9 @@ class OAMP_OPT(AMP):
             return top / bottom * vector
 
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
-        v_mmse = tau**0.5 * np.mean(dfunc_mmse(w.reshape((self.N,)), tau))
+        v_mmse = tau**0.5 * np.mean(dfunc_mmse(w, tau))
         C_mmse = tau**0.5 / (tau**0.5 - v_mmse)
-        return C_mmse * (func_mmse(w.reshape((self.N,)), tau) - np.mean(dfunc_mmse(w.reshape((self.N,)), tau)) * w)
+        return C_mmse * (func_mmse(w, tau) - np.mean(dfunc_mmse(w, tau)) * w)
 
     def _output_s(self, w, tau):
         return soft_threshold(w, tau**0.5)
