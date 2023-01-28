@@ -31,8 +31,9 @@ class AMP_OPT(ISTA):
             self.s = self._update_s(w, tau)
 
             rho = np.mean(soft_threshold(w, tau**0.5) != 0)
-            
-            Onsager = np.sum(dfunc_mmse(w, tau**0.5, rho)) / self.M * (r + Onsager)
+            d = dfunc_mmse(w, tau**0.5, rho)
+            Onsager = np.sum(d) / self.M * (r + Onsager)
+            #Onsager = np.sum(dfunc_mmse(w, tau**0.5, rho)) / self.M * (r + Onsager)
             self._add_mse()
 
     def _update_w(self, r):
