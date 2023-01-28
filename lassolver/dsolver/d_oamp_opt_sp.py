@@ -53,7 +53,7 @@ class doamp_opt_sp(dbase):
         rho = np.mean(soft_threshold(self.omega_p, self.theta_p**0.5) != 0)
         def func_mmse(vector, threshold):
             xi = rho**(-1) + threshold
-            top = normal.pdf(vector, loc=0, scale=xi**0.5) /xi
+            top = normal.pdf(vector, loc=0, scale=xi**0.5) / xi
             bottom = rho * normal.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
 
