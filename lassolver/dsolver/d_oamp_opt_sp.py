@@ -57,7 +57,7 @@ class doamp_sp(dbase):
             bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
 
-        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None, None))
+        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
         v_mmse = self.theta_p**0.5 * np.mean(dfunc_mmse(self.omega_p, self.theta_p**0.5))
         C_mmse = self.theta_p**0.5 / (self.theta_p**0.5 - v_mmse)
         self.s = C_mmse * (func_mmse(self.omega_p, self.theta_p**0.5) - np.mean(dfunc_mmse(self.omega_p, self.theta_p**0.5)) * self.omega_p)

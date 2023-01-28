@@ -64,7 +64,7 @@ class OAMP(AMP):
             bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
 
-        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None, None))
+        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
         v_mmse = tau**0.5 * np.mean(dfunc_mmse(w, tau**0.5))
         C_mmse = tau**0.5 / (tau**0.5 - v_mmse)
         return C_mmse * (func_mmse(w, tau**0.5) - np.mean(dfunc_mmse(w, tau**0.5)) * w)
