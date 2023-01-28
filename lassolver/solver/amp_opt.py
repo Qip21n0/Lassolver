@@ -32,7 +32,7 @@ class AMP_OPT(ISTA):
 
             rho = np.mean(soft_threshold(w, tau**0.5) != 0)
             Onsager = np.sum(dfunc_mmse(w.reshape((self.N,)), tau, rho)) / self.M * (r + Onsager)
-            print(np.linalg.norm(self.s), np.linalg.norm(Onsager))
+            
             self._add_mse()
 
     def _update_w(self, r):
