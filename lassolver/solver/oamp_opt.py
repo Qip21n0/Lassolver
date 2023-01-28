@@ -5,7 +5,7 @@ from lassolver.utils.func import *
 from lassolver.solver.amp import AMP
 
 
-class OAMP(AMP):
+class OAMP_OPT(AMP):
     def __init__(self, A, x, snr):
         super().__init__(A, x, snr)
         self.AAT = A @ A.T

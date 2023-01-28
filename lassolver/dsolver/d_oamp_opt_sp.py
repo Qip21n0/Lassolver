@@ -6,7 +6,7 @@ from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
 
-class doamp_sp(dbase):
+class doamp_opt_sp(dbase):
     def __init__(self, A_p, x, noise, M):
         super().__init__(A_p, x, noise, M)
         self.a = self.M / self.N
@@ -64,11 +64,11 @@ class doamp_sp(dbase):
 
 
 
-class D_OAMP_SP(D_Base):
+class D_OAMP_OPT_SP(D_Base):
     def __init__(self, A, x, noise, Adj):
         P = len(Adj)
         super().__init__(A, x, noise, P)
-        self.oamps = [doamp_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
+        self.oamps = [doamp_opt_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.Adj = Adj.copy()
         rows, cols = np.where(Adj == 1)
         edges = zip(rows.tolist(), cols.tolist())

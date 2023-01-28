@@ -6,7 +6,7 @@ from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
 
-class damp_sp(dbase):
+class damp_opt_sp(dbase):
     def __init__(self, A_p, x, noise, M):
         super().__init__(A_p, x, noise, M)
         self.a = self.M / self.N
@@ -52,11 +52,11 @@ class damp_sp(dbase):
         self.Onsager_p = np.sum(dfunc_mmse(self.omega_p, self.theta_p**0.5)) / self.M * (self.r_p + self.Onsager_p)
 
 
-class D_AMP_SP(D_Base):
+class D_AMP_OPT_SP(D_Base):
     def __init__(self, A, x, noise, Adj):
         P = len(Adj)
         super().__init__(A, x, noise, P)
-        self.amps = [damp_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
+        self.amps = [damp_opt_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.Adj = Adj.copy()
         rows, cols = np.where(Adj == 1)
         edges = zip(rows.tolist(), cols.tolist())

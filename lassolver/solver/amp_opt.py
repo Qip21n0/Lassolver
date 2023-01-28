@@ -6,7 +6,7 @@ from lassolver.solver.ista import ISTA
 import matplotlib.pyplot as plt
 
 
-class AMP(ISTA):
+class AMP_OPT(ISTA):
     def __init__(self, A, x, snr):
         super().__init__(A, x, snr)
         self.a = self.M / self.N
@@ -19,6 +19,7 @@ class AMP(ISTA):
                 top = norm.pdf(vector, loc=0, scale=xi**0.5)
                 bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
                 return top / bottom * vector
+        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
         
         Onsager = np.zeros((self.M, 1))
         for _ in range(T):
@@ -29,7 +30,7 @@ class AMP(ISTA):
             self.s = self._update_s(w, tau)
 
             rho = np.mean(soft_threshold(w, tau**0.5) != 0)
-            dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
+            
             Onsager = np.sum(dfunc_mmse(w, tau**0.5)) / self.M * (r + Onsager)
             self._add_mse()
 
