@@ -1,7 +1,7 @@
 import jax
 import numpy as np
 import jax.numpy as jnp
-from jax.scipy.stats import norm
+from jax.scipy.stats import norm as normal
 from lassolver.utils.func import *
 from lassolver.solver.ista import ISTA
 import matplotlib.pyplot as plt
@@ -17,8 +17,8 @@ class AMP_OPT(ISTA):
     def estimate(self, T=20):
         def func_mmse(vector, threshold, rho):
             xi = rho**(-1) + threshold
-            top = norm.pdf(vector, loc=0, scale=xi**0.5)
-            bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
+            top = normal.pdf(vector, loc=0, scale=xi**0.5)
+            bottom = rho * normal.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None, None))
         
@@ -56,8 +56,8 @@ class AMP_OPT(ISTA):
         #tuning_parameter = get_parameter(self.a)
         rho = np.mean(soft_threshold(w, tau**0.5) != 0)
         xi = rho**(-1) + tau
-        top = norm.pdf(w, loc=0, scale=xi**0.5)
-        bottom = rho * norm.pdf(w, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(w, loc=0, scale=tau**0.5)
+        top = normal.pdf(w, loc=0, scale=xi**0.5)
+        bottom = rho * normal.pdf(w, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(w, loc=0, scale=tau**0.5)
         return np.array(top / bottom * w)
 
     def result(self):
