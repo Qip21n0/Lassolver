@@ -17,7 +17,7 @@ class AMP_OPT(ISTA):
     def estimate(self, T=20):
         def func_mmse(vector, threshold, rho):
             xi = rho**(-1) + threshold
-            top = normal.pdf(vector, loc=0, scale=xi**0.5)
+            top = normal.pdf(vector, loc=0, scale=xi**0.5) / xi
             bottom = rho * normal.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None, None))
