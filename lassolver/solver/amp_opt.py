@@ -56,7 +56,7 @@ class AMP_OPT(ISTA):
         #tuning_parameter = get_parameter(self.a)
         rho = np.mean(soft_threshold(w, tau**0.5) != 0)
         xi = rho**(-1) + tau
-        top = normal.pdf(w, loc=0, scale=xi**0.5)
+        top = normal.pdf(w, loc=0, scale=xi**0.5) / xi
         bottom = rho * normal.pdf(w, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(w, loc=0, scale=tau**0.5)
         return np.array(top / bottom * w)
 
