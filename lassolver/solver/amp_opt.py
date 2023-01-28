@@ -1,5 +1,6 @@
 import jax
 import numpy as np
+import jax.numpy as jnp
 from jax.scipy.stats import norm
 from lassolver.utils.func import *
 from lassolver.solver.ista import ISTA
@@ -31,7 +32,7 @@ class AMP_OPT(ISTA):
 
             rho = np.mean(soft_threshold(w, tau**0.5) != 0)
             
-            Onsager = np.sum(np.array(dfunc_mmse(w, tau**0.5))) / self.M * (r + Onsager)
+            Onsager = np.sum(np.array(dfunc_mmse(jnp.asarray(w), tau**0.5))) / self.M * (r + Onsager)
             self._add_mse()
 
     def _update_w(self, r):
