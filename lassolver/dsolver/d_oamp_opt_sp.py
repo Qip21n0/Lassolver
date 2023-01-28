@@ -1,6 +1,6 @@
 import jax
 import numpy as np
-from jax.scipy.stats import norm
+from jax.scipy.stats import norm as normal
 import networkx as nx
 from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
@@ -53,14 +53,14 @@ class doamp_opt_sp(dbase):
         rho = np.mean(soft_threshold(self.omega_p, self.theta_p**0.5) != 0)
         def func_mmse(vector, threshold):
             xi = rho**(-1) + threshold
-            top = norm.pdf(vector, loc=0, scale=xi**0.5)
-            bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
+            top = normal.pdf(vector, loc=0, scale=xi**0.5) /xi
+            bottom = rho * normal.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
 
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
-        v_mmse = self.theta_p**0.5 * np.mean(dfunc_mmse(self.omega_p, self.theta_p**0.5))
+        v_mmse = self.theta_p**0.5 * np.mean(dfunc_mmse(self.omega_p.reshape(self.N), self.theta_p))
         C_mmse = self.theta_p**0.5 / (self.theta_p**0.5 - v_mmse)
-        self.s = C_mmse * (func_mmse(self.omega_p, self.theta_p**0.5) - np.mean(dfunc_mmse(self.omega_p, self.theta_p**0.5)) * self.omega_p)
+        self.s = C_mmse * (func_mmse(self.omega_p, self.theta_p) - np.mean(dfunc_mmse(self.omega_p.reshape(self.N), self.theta_p)) * self.omega_p)
 
 
 
