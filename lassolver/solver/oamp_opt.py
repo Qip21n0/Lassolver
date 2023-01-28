@@ -60,14 +60,14 @@ class OAMP_OPT(AMP):
         rho = np.mean(soft_threshold(w, tau**0.5) != 0)
         def func_mmse(vector, threshold):
             xi = rho**(-1) + threshold
-            top = norm.pdf(vector, loc=0, scale=xi**0.5)
+            top = norm.pdf(vector, loc=0, scale=xi**0.5) / xi
             bottom = rho * norm.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * norm.pdf(vector, loc=0, scale=threshold**0.5)
             return top / bottom * vector
 
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
-        v_mmse = tau**0.5 * np.mean(dfunc_mmse(w, tau**0.5))
+        v_mmse = tau**0.5 * np.mean(dfunc_mmse(w, tau))
         C_mmse = tau**0.5 / (tau**0.5 - v_mmse)
-        return C_mmse * (func_mmse(w, tau**0.5) - np.mean(dfunc_mmse(w, tau**0.5)) * w)
+        return C_mmse * (func_mmse(w.reshape((self.N,)), tau) - np.mean(dfunc_mmse(w, tau**0.5)) * w)
 
     def _output_s(self, w, tau):
         return soft_threshold(w, tau**0.5)
