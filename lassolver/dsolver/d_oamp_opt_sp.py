@@ -176,7 +176,7 @@ class D_OAMP_OPT_SP(D_Base):
             gamma_p = np.sum(v_pp[:, p])
             v_p[0, p] = gamma_p if gamma_p > 0 else 1e-4
         self.v = np.append(self.v, v_p, axis=0)
-        return v_p
+        return np.mean(v_p)
 
     def _update_tau(self, tau_pp):
         #return v / self.a + self.sigma
