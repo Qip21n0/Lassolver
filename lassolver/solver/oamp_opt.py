@@ -27,11 +27,12 @@ class OAMP_OPT(AMP):
             w = self._update_w(r)
             v = self._update_v(r)
             tau = self._update_tau(v)
-            self.s = self._update_s(w, tau, log)
+            self.s, message = self._update_s(w, tau)
             if log: 
                 print(f"{t+1}/{T}")
                 print(f"tau = {tau}")
                 print(f"v = {v}")
+                print(message)
                 print("="*42)
             self._add_mse()
             if t == T-1: break
@@ -73,9 +74,8 @@ class OAMP_OPT(AMP):
         reshaped_w = w.reshape(self.N)
         v_mmse = tau**0.5 * np.mean(dfunc_mmse(reshaped_w, tau))
         C_mmse = tau**0.5 / (tau**0.5 - v_mmse)
-        if log:
-            print(f"DF_MMSE(w) = {C_mmse} * (f_MMSE(w) - {np.mean(dfunc_mmse(reshaped_w, tau))} * w)")
-        return C_mmse * (func_mmse(w, tau) - np.mean(dfunc_mmse(reshaped_w, tau)) * w)
+        message = f"DF_MMSE(w) = {C_mmse} * (f_MMSE(w) - {np.mean(dfunc_mmse(reshaped_w, tau))} * w)"
+        return C_mmse * (func_mmse(w, tau) - np.mean(dfunc_mmse(reshaped_w, tau)) * w), message
 
     def _output_s(self, w, tau):
         return soft_threshold(w, tau**0.5)
