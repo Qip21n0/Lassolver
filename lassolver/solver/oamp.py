@@ -10,7 +10,7 @@ class OAMP(AMP):
         self.I = np.eye(self.M)
         self.c = (self.N - self.M) / self.M
 
-    def estimate(self, T=20, C=1.85, ord='LMMSE'):
+    def estimate(self, T=20, C=1.85, ord='LMMSE', log=False):
         v = self._update_v(self.y)
         self.v.pop()
         self.W = self.__set_W(v, ord)
@@ -25,7 +25,12 @@ class OAMP(AMP):
             w = self._update_w(r)
             v = self._update_v(r)
             tau = self._update_tau(v)
-            self.s = self._update_s(C, w, tau)
+            self.s = self._update_s(C, w, tau, log)
+            if log: 
+                print(f"{t+1}/{T}")
+                print(f"tau = {tau}")
+                print(f"v = {v}")
+                print("="*42)
             self._add_mse()
             if t == T-1: break
             if ord == 'LMMSE':
@@ -54,7 +59,9 @@ class OAMP(AMP):
     def _update_tau(self, v):
         return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
 
-    def _update_s(self, C, w, tau):
+    def _update_s(self, C, w, tau, log):
+        if log:
+            print(f"DF_ST(w) = {C} * (f_ST(w) - {np.mean(soft_threshold(w, tau) != 0)} * w)")
         return C * df(w, tau**0.5)
 
     def _output_s(self, w, tau):
