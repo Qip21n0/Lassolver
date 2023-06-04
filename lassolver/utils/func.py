@@ -1,5 +1,7 @@
+import jax
 import numpy as np
 from scipy.stats import norm
+from jax.scipy.stats import norm as normal
 
 
 def soft_threshold(r, gamma):
@@ -203,6 +205,76 @@ def GCOAMP(w, tau_p, log=False):
         
     s = u - np.mean(u != 0)*b
     return s.real, communication_cost, np.ravel(U > tau), b, z
+
+
+def GCOAMP_opt(w, tau_p, log=False):
+    shita = 0.7
+    tau = np.sum(tau_p)
+    communication_cost = 0
+    P, N, _ = w.shape
+    R = np.zeros((P, N, 1))
+    z = np.empty(N)
+    
+    #STEP1
+    for p in range(1, P):
+        R[p] = np.square(w[p]) > tau_p[p] * shita
+        candidate = np.where(R[p])[0]
+        for n in candidate:
+            communication_cost += 1
+            send_to1(n, w[p, n])
+    
+    #STEP2
+    S = [np.where(R[:, n])[0] for n in range(N)]
+    m = np.sum(R, axis=0)
+    U = np.empty((N, 1))
+    for n in range(N):
+        upper = np.sum([tau_p[p] for p in range(1, P) if p not in S[p]])
+        z[n] = w[0, n] + np.sum([w[p, n] for p in S[n]])
+        U[n] = z[n]**2 + upper * shita
+    F = (U > tau) & (m < (P-1))
+    candidate = np.where(F)[0]
+    for n in candidate:
+        communication_cost += 1
+        broadcast_others(n)
+    
+    #STEP3
+    F_R = F * np.logical_not(R)
+    for p in range(1, P):
+        #print("p: {}".format(p))
+        candidate = np.where(F_R[p])[0]
+        for n in candidate:
+            communication_cost += 1
+            send_to1(n ,w[p, n])
+    if log: 
+        print("Rp: {} \t F: {} \t F\\Rp: {}".format(np.sum(R), np.sum(F), np.sum(F_R)-np.sum(F)))
+        print("Total Communication Cost: {}".format(communication_cost))
+        print("="*50)
+    
+    #STEP4
+    b = np.zeros((N, 1))
+    V = np.where(U > tau)[0].tolist()
+    for n in V:
+        b[n] = np.sum(w[:, n])
+    
+    #STEP5
+    Vc = [n for n in range(N) if n not in V]
+    for n in Vc:
+        b[n] = z[n]
+
+    rho = np.mean(soft_threshold(b, tau**0.5) != 0)
+    def func_mmse(vector, threshold):
+        xi = rho**(-1) + threshold
+        top = normal.pdf(vector, loc=0, scale=xi**0.5) / xi
+        bottom = rho * normal.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(vector, loc=0, scale=threshold**0.5)
+        return top / bottom * vector
+
+    dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
+    reshaped_b = b.reshape(N)
+    v_mmse = tau**0.5 * np.mean(dfunc_mmse(reshaped_b, tau))
+    C_mmse = tau**0.5 / (tau**0.5 - v_mmse)
+    s = C_mmse * (func_mmse(b, tau) - np.mean(dfunc_mmse(reshaped_b, tau)) * b)
+    return s.real, communication_cost, np.ravel(U > tau), b, z
+
 
 
 def GCOAMP_oracle(zeros, w, tau_p, log=False):

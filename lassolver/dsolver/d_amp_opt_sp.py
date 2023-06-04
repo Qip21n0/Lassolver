@@ -1,10 +1,12 @@
+import jax
 import numpy as np
+from jax.scipy.stats import norm as normal
 import networkx as nx
 from lassolver.utils.func import *
 from lassolver.dsolver.d_base import *
 
 
-class damp_sp(dbase):
+class damp_opt_sp(dbase):
     def __init__(self, A_p, x, noise, M):
         super().__init__(A_p, x, noise, M)
         self.a = self.M / self.N
@@ -38,15 +40,23 @@ class damp_sp(dbase):
         return np.linalg.norm(self.r_p + self.Onsager_p)**2 / self.M
 
     def _update_s_p(self):
-        self.s = soft_threshold(self.omega_p, self.theta_p**0.5)
-        self.Onsager_p = np.sum(self.s != 0) / self.M * (self.r_p + self.Onsager_p)
+        rho = np.mean(soft_threshold(self.omega_p, self.theta_p**0.5) != 0)
+        def func_mmse(vector, threshold):
+            xi = rho**(-1) + threshold
+            top = normal.pdf(vector, loc=0, scale=xi**0.5) /xi
+            bottom = rho * normal.pdf(vector, loc=0, scale=xi**0.5) + (1-rho) * normal.pdf(vector, loc=0, scale=threshold**0.5)
+            return top / bottom * vector
+        self.s = func_mmse(self.omega_p, self.theta_p)
+        
+        dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
+        self.Onsager_p = np.sum(dfunc_mmse(self.omega_p.reshape(self.N), self.theta_p)) / self.M * (self.r_p + self.Onsager_p)
 
 
-class D_AMP_SP(D_Base):
+class D_AMP_OPT_SP(D_Base):
     def __init__(self, A, x, noise, Adj):
         P = len(Adj)
         super().__init__(A, x, noise, P)
-        self.amps = [damp_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
+        self.amps = [damp_opt_sp(self.A_p[p], x, self.noise[p], self.M) for p in range(self.P)]
         self.Adj = Adj.copy()
         rows, cols = np.where(Adj == 1)
         edges = zip(rows.tolist(), cols.tolist())

@@ -13,6 +13,7 @@ class doamp_ssp(dbase):
         self.gamma_p = 0
         self.theta_p = 0
         self.communication_cost_p = np.array([])
+        self.estimated_positions = []
 
     def receive_C(self, C):
         self.C = C
@@ -114,20 +115,22 @@ class D_OAMP_SSP(D_Base):
                 if rand:
                     np.random.shuffle(order)
                 for p in order:
-                    for j, v in enumerate(self.Adj[p]):
-                        if v == 1:
-                            w_pp[p][j], comm_cost = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
-                            communication_cost[p] += comm_cost
-                            v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j, p]
-                            tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j, p]
+                    w_pp[p], v_pp[p], tau_pp[p], comm_cost = self.selective_summation_propagation(p, w_pp[:, p], v_pp[:, p], tau_pp[:, p], theta)
+                    communication_cost[p] += comm_cost
+                    #for j, v in enumerate(self.Adj[p]):
+                    #    if v == 1:
+                    #        w_pp[p][j], comm_cost = self.selective_summation_propagation(p, j, w_pp[:, p], tau_pp[:, p], theta)
+                    #        communication_cost[p] += comm_cost
+                    #        v_pp[p][j] = np.sum(v_pp[:, p]) - v_pp[j, p]
+                    #        tau_pp[p][j] = np.sum(tau_pp[:, p]) - tau_pp[j, p]
             for p in range(self.P):
                 self.oamps[p].communication_cost_p = np.append(self.oamps[p].communication_cost_p, communication_cost[p])
             v = self._update_v(v_pp)
             tau = self._update_tau(tau_pp)
             if log: 
                 print(f"{t+1}/{T}")
-                print(f"tau = {tau}")
-                print(f"v = {v}")
+                print(f"tau = {np.sum(tau_pp[:, 0])}")
+                print(f"v = {np.sum(v_pp[:, 0])}")
                 print("="*42)
 
             for p in range(self.P):
@@ -167,7 +170,7 @@ class D_OAMP_SSP(D_Base):
             gamma_p = np.sum(v_pp[:, p])
             v_p[0, p] = gamma_p if gamma_p > 0 else 1e-4
         self.v = np.append(self.v, v_p, axis=0)
-        return v_p
+        return np.mean(v_p)
 
     def _update_tau(self, tau_pp):
         #return v / self.a + self.sigma
@@ -177,64 +180,73 @@ class D_OAMP_SSP(D_Base):
         self.tau = np.append(self.tau, tau_p, axis=0)
         return tau_p
 
-    def selective_summation_propagation(self, p, j, w_ip, tau_ip, theta):
+    def selective_summation_propagation(self, p, phi_p, nu_p, zeta_p, theta):
         """
         p, j: int
             Number of node
 
-        w_ip: np.ndarray(P, N, 1)
-            vector for node i to p (i in N_p\j)
+        phi_p: np.ndarray(P, N, 1)
+            vector for node i to p (i in N_p)
         
-        tau_ip: np.ndaaray(P)
-            threshold for node i to p (i in N_p\j)
+        nu_p: np.ndaaray(P)
+            estimated MSE for node i to p (i in N_p)
+        
+        zeta_p: np.adarray(P)
+            threshold for node i to p (i in N_p)
         
         theta: float
-            hyperparameter in (0, 1)
+            tuning parameter in (0, 1)
         """
-        tau = np.sum(tau_ip) - tau_ip[j]
-        _ = np.where(self.Adj[p])[0]
-        N_p = np.delete(_, np.where(_ == p)[0])
+        phi = np.sum(phi_p, axis=0)
+        nu = np.sum(nu_p)
+        zeta = np.sum(zeta_p)
+        new_nu_p = nu * self.Adj[p] - nu_p
+        new_nu_p[p] = nu_p[p]
+        new_zeta_p = zeta * self.Adj[p] - zeta_p
+        new_zeta_p[p] = zeta_p[p]
+        N_p = np.where(self.Adj[p])[0]
+        #N_p = np.delete(_, np.where(_ == p)[0])
         communication_cost = 0
-        P, N, _ = w_ip.shape
-        R = np.zeros((P, N, 1))
-        z = np.empty(N)
+        R = np.zeros((self.P, self.N, 1))
+        z = np.empty(self.N)
         # STEP1
         for i in N_p:
-            if i == j:
-                continue
-            R[i] = np.square(w_ip[i]) > tau_ip[i] * theta
+            R[i] = np.square(phi_p[i]) > zeta_p[i] * theta
             candidate = np.where(R[i])[0]
             for n in candidate:
                 communication_cost += 1
         # STEP2
-        S = [np.where(R[:, n])[0] for n in range(N)]
+        S = [np.where(R[:, n])[0] for n in range(self.N)]
         m = np.sum(R, axis=0)
-        U = np.empty((N, 1))
-        for n in range(N):
-            upper = np.sum([tau_ip[i] for i in N_p if i not in S[i] and i != j])
-            z[n] = w_ip[p, n] + np.sum([w_ip[i, n] for i in S[n]])
+        U = np.empty((self.N, 1))
+        for n in range(self.N):
+            upper = np.sum([zeta_p[i] for i in N_p if i not in S[i]])
+            z[n] = phi_p[p, n] + np.sum([phi_p[i, n] for i in S[n]])
             U[n] = z[n]**2 + upper * theta
-        F = (U > tau) & (m < (len(N_p)-1))
+        F = (U > zeta) & (m < (len(N_p)))
         candidate = np.where(F)[0]
         for n in candidate:
             communication_cost += 1
         # STEP3
         F_R = F * np.logical_not(R)
         for i in N_p:
-            if i == j:
-                continue
             candidate = np.where(F_R[i])[0]
             for n in candidate:
                 communication_cost += 1
         # STEP4
-        w_pj = np.zeros((N, 1))
-        V = np.where(U > tau)[0].tolist()
+        new_phi_p = np.zeros((self.P, self.N, 1))
+        V = np.where(U > zeta)[0].tolist()
         for n in V:
-            w_pj[n] = np.sum(w_ip[:, n], axis=0) - w_ip[j, n]
-        Vc = [n for n in range(N) if n not in V]
+            #for j in N_p:
+            #    new_phi_p[j, n] = phi[n] - phi_p[j, n]
+            new_phi_p[:, n] = (phi[n] * self.Adj[p]).reshape((self.P, 1)) - phi_p[:, n]
+        Vc = [n for n in range(self.N) if n not in V]
         for n in Vc:
-            w_pj[n] = z[n]
-        return w_pj.real, communication_cost
+            for j in N_p:
+                new_phi_p[j, n] = phi_p[p, n] + np.sum([phi_p[i, n] for i in S[n] if i != j])
+        new_phi_p[p] = phi_p[p]
+        #self.oamps[p].estimated_positions.append(V)
+        return new_phi_p.real, new_nu_p, new_zeta_p, communication_cost
 
     def _add_mse(self):
         mse = np.zeros((1, self.P))
@@ -243,8 +255,9 @@ class D_OAMP_SSP(D_Base):
         self.mse = np.append(self.mse, mse, axis=0)
 
     def result(self):
-        for p in range(self.P):
-            print(f"final mse(node {p}): {self.mse[-1, p]}")
+        last_mse = self.mse[-1, :].copy()
+        print(f'final mse mean: {np.mean(last_mse)}, max: {np.max(last_mse)}, min: {np.min(last_mse)}')
+        plt.hist(last_mse)
 
         plt.figure(figsize=(16, 4))
         plt.subplot(121)
