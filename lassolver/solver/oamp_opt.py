@@ -60,7 +60,9 @@ class OAMP_OPT(AMP):
         return self.s + self.W @ r
 
     def _update_tau(self, v):
-        return 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
+        tau = 1/self.N * (self.trB2 * v + self.trW2 * self.sigma)
+        self.tau.append(tau)
+        return tau
 
     def _update_s(self, w, tau):
         rho = np.mean(soft_threshold(w, tau**0.5) != 0)
