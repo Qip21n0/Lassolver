@@ -58,8 +58,8 @@ class doamp_opt_sp(dbase):
             return top / bottom * vector
 
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
-        v_mmse = self.theta_p**0.5 * np.mean(dfunc_mmse(self.omega_p.reshape(self.N), self.theta_p))
-        C_mmse = self.theta_p**0.5 / (self.theta_p**0.5 - v_mmse)
+        v_mmse = self.theta_p * np.mean(dfunc_mmse(self.omega_p.reshape(self.N), self.theta_p))
+        C_mmse = self.theta_p / (self.theta_p - v_mmse)
         self.s = C_mmse * (func_mmse(self.omega_p, self.theta_p) - np.mean(dfunc_mmse(self.omega_p.reshape(self.N), self.theta_p)) * self.omega_p)
 
 
