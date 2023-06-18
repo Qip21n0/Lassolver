@@ -74,8 +74,8 @@ class OAMP_OPT(AMP):
 
         dfunc_mmse = jax.vmap(jax.grad(func_mmse, argnums=(0)), (0, None))
         reshaped_w = w.reshape(self.N)
-        v_mmse = tau**0.5 * np.mean(dfunc_mmse(reshaped_w, tau))
-        C_mmse = tau**0.5 / (tau**0.5 - v_mmse)
+        v_mmse = tau * np.mean(dfunc_mmse(reshaped_w, tau))
+        C_mmse = tau / (tau - v_mmse)
         message = f"DF_MMSE(w) = {C_mmse} * (f_MMSE(w) - {np.mean(dfunc_mmse(reshaped_w, tau))} * w)   rho = {rho}"
         return C_mmse * (func_mmse(w, tau) - np.mean(dfunc_mmse(reshaped_w, tau)) * w), message
 
