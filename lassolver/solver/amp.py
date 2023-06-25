@@ -17,7 +17,7 @@ class AMP(ISTA):
         for _ in range(T):
             r = self._update_r()
             w = self._update_w(r + Onsager)
-            v = self._update_v(r)
+            v = self._update_v(r + Onsager)
             tau = self._update_tau(r + Onsager)
             self.s = self._update_s(w, tau)
             Onsager = np.sum(self.s != 0) / self.M * (r + Onsager)
